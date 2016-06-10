@@ -241,6 +241,7 @@ plot(roc_bayes(3:end,1,1),roc_bayes(3:end,1,2),'.-b','linewidth',2,'markersize',
 plot(roc_cb(3:end,1,1),roc_cb(3:end,1,2),'.-g','linewidth',2,'markersize',25); hold on
 % plot(roc_deconv(:,1,1),roc_deconv(:,1,2),'.-m','linewidth',2,'markersize',25); hold on
 plot(roc_wiener(3:end,1,1),roc_wiener(3:end,1,2),'.-r','linewidth',2,'markersize',25); hold on
+plot(roc_rand(:,1,1),roc_rand(:,1,2),'--k','linewidth',1,'markersize',5);
 
 hold off
 
@@ -290,6 +291,63 @@ hold on
 plot(threshold,1./(roc_wiener(:,1,2)./roc_wiener(:,1,1) ),'.-r','linewidth',2,'markersize',25)
 hold on
 plot(threshold,1./(roc_bayes(:,1,2)./roc_bayes(:,1,1) ),'.-b','linewidth',2,'markersize',25)
+
+%% temporal accuracy histogram
+
+bayes_errs = [];
+cb_errs = [];
+wiener_errs = [];
+
+for i = 1:10
+    
+    bayes_errs = [bayes_errs double(squeeze(timing_score_bayes(6,1,i).correct_err))];
+    cb_errs = [cb_errs double(squeeze(timing_score_cb(6,1,i).correct_err))];
+    wiener_errs = [wiener_errs double(squeeze(timing_score_wiener(7,1,i).correct_err))];
+    
+end
+
+figure
+subplot(131)
+histogram(cb_errs,'FaceColor','g','Normalization','pdf')
+hold on
+plot(ones(2,1)*median(cb_errs),[0 .25],'--k'); hold off
+title(['Template Matching, mean error: ' num2str(median(cb_errs)/20) 'msec'])
+ylim([0 .25])
+xlim([0 20])
+set(gca,'xticklabel',{'0','.25','.50','.75','1.0'})
+subplot(132)
+histogram(wiener_errs,'FaceColor','r','Normalization','pdf')
+hold on
+plot(ones(2,1)*median(wiener_errs),[0 .25],'--k'); hold off
+title(['Wiener Filter, mean error: ' num2str(median(wiener_errs)/20) 'msec'])
+ylim([0 .25])
+xlim([0 20])
+set(gca,'xticklabel',{'0','.25','.50','.75','1.0'})
+subplot(133)
+histogram(bayes_errs,'FaceColor','b','Normalization','pdf')
+hold on
+plot(ones(2,1)*median(bayes_errs),[0 .25],'--k'); hold off
+title(['Bayesian, mean error: ' num2str(median(bayes_errs)/20) 'msec'])
+ylim([0 .25])
+xlim([0 20])
+set(gca,'xticklabel',{'0','.25','.50','.75','1.0'})
+
+%% simulate random detection
+
+rates = [0 .1 .5 1 2 4 8 16 32];
+
+event_times = cell(length(rates),1);
+
+for i = 1:length(rates)
+    event_times{i} = cell(1,10);
+    for j = 1:10
+        num_events = poissrnd(rates(i));
+        event_times{i}{j} = ceil(rand(1,num_events)*20000);
+    end
+end
+
+save('data/random-detection-results-harder.mat','event_times');
+
 %% plot noise examples noise model figure
 
 % load('data/work/example_noise_traces_work.mat')
@@ -812,14 +870,276 @@ figure; plot(traces_avg)
              '12_3_slice5_cell1.mat',...
              '12_3_slice6_cell1.mat',...
              '12_3_slice6_cell2.mat'};
+         
+         
+         
+%% testing wiener filter
+
+trace = traces{1,1}(1,:);
+nfft = length(trace) + length(template);
+dt = 1/20000;
+threshold = 2.0;
+min_window = 20;
+
+ar_noise_params.sigma_sq = 2.948727926352792;
+ar_noise_params.phi = [1.000000000000000, -0.982949319747574, 0.407063852831604];
+gamma = 1e6;
+
+figure;
+subplot(1,2,1)
+[filtered_trace, event_times_init] = wiener_filter(trace,template,ar_noise_params,...
+            nfft, 1/20000, threshold, min_window);
+        
+subplot(1,2,2)
+plot(filtered_trace/max(filtered_trace)*5)
+hold on
+plot(trace + 40 - trace(1))
+hold on
+scatter(event_times_init, 8*ones(1,length(event_times_init)))
+
+%% spike detection on grid
+ 
+trace_grids_3_31_s2c2_r2_3 = {traces_by_location_3_31_s2c2_r3_5mw, traces_by_location_3_31_s2c2_r3_10mw, traces_by_location_3_31_s2c2_r3_15mw,...
+    traces_by_location_3_31_s2c2_r3_25mw, traces_by_location_3_31_s2c2_r3_50mw, traces_by_location_3_31_s2c2_r3_100mw};
+
+trace_grids_3_29_s1c2_r2 = {traces_by_location_3_29_s1c2_r2_25mw, traces_by_location_3_29_s1c2_r2_50mw, traces_by_location_3_29_s1c2_r2_100mw};
+
+trace_grids_3_29_s1c4_r2 = {traces_by_location_3_29_s1c4_r2_25mw, traces_by_location_3_29_s1c4_r2_50mw, traces_by_location_3_29_s1c4_r2_100mw};
+
+trace_grids_3_31_s1c1_r4_5 = {traces_by_location_3_31_s1c1_r4_5_25mw, traces_by_location_3_31_s1c1_r4_5_50mw, traces_by_location_3_31_s1c1_r4_5_100mw};
+
+trace_grids_3_31_s1c2_r4_5 = {traces_by_location_3_31_s1c2_r5_5mw, traces_by_location_3_31_s1c2_r5_10mw, traces_by_location_3_31_s1c2_r5_15mw,...
+    traces_by_location_3_31_s1c2_r4_25mw, traces_by_location_3_31_s1c2_r4_50mw, traces_by_location_3_31_s1c2_r4_100mw};
+
+trace_grids_4_5_s2c1_r5 = {traces_by_location_4_5_s2c1_r5_25mw, traces_by_location_4_5_s2c1_r5_50mw, traces_by_location_4_5_s2c1_r5_100mw};
+
+trace_grids_4_6_s3c2_r1 = {traces_by_location_4_6_s3c2_r1_25mw, traces_by_location_4_6_s3c2_r1_50mw, traces_by_location_4_6_s3c2_r1_100mw};
+
+traces_trids_4_6_s3c5_r1 = {traces_by_location_4_6_s3c5_r1_25mw, traces_by_location_4_6_s3c5_r1_50mw, traces_by_location_4_6_s3c5_r1_100mw};
+
+traces_trids_4_6_s3c7_r2 = {traces_by_location_4_6_s3c7_r2_25mw, traces_by_location_4_6_s3c7_r2_50mw, traces_by_location_4_6_s3c7_r2_100mw};
+
+traces_trids_4_6_s3c8_r3 = {traces_by_location_4_6_s3c8_r3_25mw, traces_by_location_4_6_s3c8_r3_50mw, traces_by_location_4_6_s3c8_r3_100mw};
+
+%%
+
+trace_grids = traces_trids_4_6_s3c8_r3;
+
+detection_grids = cell(size(trace_grids));
+
+for i = 1:length(trace_grids)
     
+    trace_grid_tmp = trace_grids{i};
+    [traces_tmp, rebuild_map] = stack_traces(trace_grid_tmp);
+
+    detection_results = detect_peaks(-1.0*bsxfun(@minus,traces_tmp,median(traces_tmp,2)),4.0,20,1,1,0)*70;
+    detection_grids{i} = unstack_traces(detection_results,rebuild_map);
     
+end
+
+detection_results_4_6_s3c8_r3 = detection_results;
+detection_grids_4_6_s3c8_r3 = detection_grids;
+
+%%
+
+
+figure; compare_trace_stack_grid({trace_grids{:},detection_grids_4_6_s3c8_r3{:}},...
+    5,1,0,{'25 mW', '50 mW', '100 mW'},2)
+
+
+%% count spikes and get means
+
+spike_counts = zeros([size(detection_grids{1}) length(detection_grids)]);
+max_val = 0;
+
+axs = [];
+
+figure
+colormap hot
+for i = 1:length(detection_grids)
     
+    this_grid = detection_grids{i};
+    for j = 1:size(this_grid,1)
+        for k = 1:size(this_grid,2)
+            
+            spike_counts(j,k,i) = length(find(this_grid{j,k}(:)))/size(this_grid{j,k},1);
+            if spike_counts(j,k,i) > max_val
+                max_val = spike_counts(j,k,i);
+            end
+            
+        end
+    end
+    subplot(1,length(detection_grids),i)
+%     subplot(2,ceil(length(detection_grids)/2),i)
+    imagesc(spike_counts(:,:,i));
+    axis square
+    axis off
+end
+
+for i = 1:length(detection_grids)
+    subplot(1,length(detection_grids),i)
+%     subplot(2,ceil(length(detection_grids)/2),i)
+    caxis([0 max_val])
+end
+
+spike_counts_4_6_s3c8_r3 = spike_counts;
+
+%% delay times and get means
+
+delays = zeros([size(detection_grids{1}) length(detection_grids)]);
+max_val = 0;
+
+axs = [];
+
+figure
+
+colormap hot
+for i = 1:length(detection_grids)
     
+    this_grid = detection_grids{i};
+    for j = 1:size(this_grid,1)
+        for k = 1:size(this_grid,2)
+            
+            these_delays = [];
+            
+            for m = 1:size(this_grid{j,k},1)
+                these_delays = [these_delays find(this_grid{j,k}(m,:),1,'first')/20000 - .005];
+            end
+            
+            delays(j,k,i) = mean(these_delays);
+            
+            if delays(j,k,i) > max_val
+                max_val = delays(j,k,i);
+            end
+            
+        end
+    end
+    subplot(2,ceil(length(detection_grids)/2),i)
+    pcolor(delays(:,:,i));
+    axis ij
+    axis square
+    axis off
+end
+
+delays_4_6_s3c8_r3 = delays;
+
+for i = 1:length(detection_grids)
+    subplot(2,ceil(length(detection_grids)/2),i)
+    caxis([0 max_val])
+end
+
+%%
+
+figure 
+
+for i = 1:3
     
+    subplot(3,3,i)
+    pcolor(flipud(delays_3_31_s2c2_r2_3(:,:,i+3)));
+    caxis([0 .05])
+    axis square
+    axis off
+end
+
+for i = 1:3
     
+    subplot(3,3,i+3)
+    pcolor(flipud(delays_3_29_s1c2_r2(:,:,i)));
+    caxis([0 .05])
+    axis square
+    axis off
+end
+
+
+for i = 1:3
     
+    subplot(3,3,i+6)
+    pcolor(flipud(delays_3_31_s1c2_r4_5(:,:,i+3)));
+    caxis([0 .05])
+    axis square
+    axis off
+end
+
+
+colormap hot
+
+%%
+
+figure 
+
+for i = 1:3
     
+    subplot(3,3,i)
+    imagesc(spike_counts_4_6_s3c5_r1(:,:,i));
+    caxis([0 2])
+    axis square
+    axis off
+end
+
+for i = 1:3
     
+    subplot(3,3,i+3)
+    imagesc(spike_counts_4_6_s3c2_r1(:,:,i));
+    caxis([0 2])
+    axis square
+    axis off
+end
+
+
+for i = 1:3
     
+    subplot(3,3,i+6)
+    imagesc(spike_counts_4_6_s3c7_r2(:,:,i));
+    caxis([0 2])
+    axis square
+    axis off
+end
+colormap hot
+
+%%
+figure
+for i = 1:6
     
+    subplot(2,6,i)
+    imagesc(spike_counts_3_31_s2c2_r2_3(:,:,i));
+    caxis([0 3])
+%     axis square
+    axis off
+end
+
+for i = 1:6
+    
+    subplot(2,6,i + 6)
+    imagesc(spike_counts_3_31_s1c2_r4_5(:,:,i));
+    caxis([0 3])
+%     axis square
+    axis off
+end
+
+
+
+colormap hot
+
+%%
+
+%%
+trace_grid_ch1 = traces_by_location_5_12_s2c1_2_r4{1};
+trace_grid_ch2= traces_by_location_5_12_s2c1_2_r4{2};
+
+across_ch_corr_image = zeros(size(trace_grid_ch1));
+
+for i = 1:size(trace_grid_ch1,1)
+    for j = 1:size(trace_grid_ch1,2)
+        for k = 1:size(trace_grid_ch1{i,j},1)
+            corr_mat = corr([trace_grid_ch1{i,j}(k,:); trace_grid_ch2{i,j}(k,:)]');
+            across_ch_corr_image(i,j) = across_ch_corr_image(i,j) + corr_mat(1,2);
+        end
+        across_ch_corr_image(i,j) = across_ch_corr_image(i,j)/size(trace_grid_ch1{i,j},1);
+    end
+end
+
+figure; 
+imagesc(across_ch_corr_image)
+colormap hot
+colorbar
+

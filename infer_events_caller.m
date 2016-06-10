@@ -13,8 +13,9 @@ if ~isempty(varargin) && ~isempty(varargin{1})
     load(varargin{1},'params');
 %     [pathname, filename] = fileparts(params.traces_filename);
 %     pathname = '/media/shababo/Layover/projects/mapping/code/psc-detection/data/for-paper/';
-%     params.traces_filename = 'data/direct_stim_smaller_events_further.mat';
-%     params.savename = [params.traces_filename(1:end-4) '-3001.mat'];
+%     params.is_grid = 1;
+%     params.traces_filename = 'data/3_8_s5c2_r4_grid.mat';
+    params.savename = [params.traces_filename(1:end-4) '-0003-new.mat'];
 %     params.stim_in = [zeros(1,5*20) ones(1,20*10) zeros(1,1500-15*20)];%linspace(0,1,20*10)
 %     % ar noise model
 %     params.p = 0; % how many time steps to regress on
@@ -23,19 +24,22 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     params.a_min = .5;
 %     load('data/for-paper/chr2-stim-response.mat');
 %     params.stim_shape = chr2_response;
-%     params.par = 0;
+    params.par = 0;
 %     params = rmfield(params,'start_ind');
 %     params = rmfield(params,'duration');
-%     params.p_spike = 1e-5;
+%     params = rmfield(params,'trace_ind');
+%     params.p_spike = 1e-10;
 %     params.noise_est_subset = 1:800;
-%     params.a_min = 2.5;
+%     params.a_min = 20;
 %     params.start_ind = 7200;
 %     params.duration = 800;
-%     params.tau1_min = 5.0000e-04;
-%     params.tau1_max = .0020;
+%     params.tau1_min = 1.0000e-04;
+%     params.tau1_max = .0010;
 %     params.tau2_min = 1.0000e-03;
-%     params.tau2_max = 0.0100;
-%     params.num_sweeps = 3000;
+%     params.tau2_max = 0.0080;
+%     params.phi_0 = [0.982949319747574 -0.407063852831604]';
+%     params.noise_var_init = 3.0;
+    params.num_sweeps = 2000;
 %     params.par = 1;
 %     
 %     params.stim_tau_rise = 6.5000e-04;
@@ -49,6 +53,11 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     
 %     load('data/direct_stim_2_9_s3c1_emperical.mat')
 %     params.stim_shape = -direct_stim_in;
+    
+%     params.cluster = 0;
+
+%     params.init_method.theshold = 2.0;
+%     params.init_method.min_interval = 100;
     
 end
 

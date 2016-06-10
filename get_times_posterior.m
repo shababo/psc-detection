@@ -3,11 +3,12 @@ function time_posteriors = get_times_posterior(results_file, trace_offset, do_pl
 load(results_file)
 params.traces_filename
 try
-    disp('succesfully loaded')
+    
     load(params.traces_filename)
+    disp('succesfully loaded')
 catch
     disp('loading default')
-    load('data/for-paper/all-evoked-ipscs.mat')
+    load('data/for-paper/direct-stim-w-events-real.mat')
 
 end
 
@@ -20,6 +21,11 @@ end
 
 if ~isfield(params,'duration')
     params.duration = size(traces,2);
+end
+
+if isfield(params,'is_grid') && params.is_grid
+    traces = stack_traces(traces);
+%     results = stack_results(results);
 end
 
 traces = traces(:,params.start_ind:(params.start_ind + params.duration - 1));
@@ -55,7 +61,7 @@ end
 
 time_posteriors = zeros(size(traces));
 
-burn_in = 250;
+burn_in = 1;
 % burn_in = 250;
 
 
