@@ -370,9 +370,11 @@ plot_trace_stack(ar10_sim_data,20,zeros(3,3),'-',[.010 10])
 title('Simulated Noise From Fits - AR(10)')
 
 %% plot individual traces from real data example - fig0
+
 load('/home/shababo/projects/mapping/code/psc-detection/stimfit/real-fit-events.mat')
 figure;
 legend_names = cell(1,3);
+
 % for i = 1:3
     t = 0:1:.015*20000;
     tau_decay = event1_fit_params.tau1*20; decay = exp(-t/tau_decay);
@@ -396,6 +398,7 @@ legend_names = cell(1,3);
     hold on; 
     legend_names{3} = ['event 3'];
 % end
+
 hold on
 legend(legend_names)
 axis off
@@ -651,6 +654,7 @@ for j = 1:length(trial_ids1)
 end
 
 %% X Y ONLY
+
 positions = -60:15:60;
 colors = lines(length(filenames));
 switch_ind = length(peak_currents_trial_std)/2;
@@ -678,7 +682,9 @@ for i = 1:length(filenames)
 end
 % legend(filenames)
 title('y')
+
 %%
+
 positions = -60:15:60;
 
 %% X Y Z
@@ -915,15 +921,15 @@ trace_grids_4_5_s2c1_r5 = {traces_by_location_4_5_s2c1_r5_25mw, traces_by_locati
 
 trace_grids_4_6_s3c2_r1 = {traces_by_location_4_6_s3c2_r1_25mw, traces_by_location_4_6_s3c2_r1_50mw, traces_by_location_4_6_s3c2_r1_100mw};
 
-traces_trids_4_6_s3c5_r1 = {traces_by_location_4_6_s3c5_r1_25mw, traces_by_location_4_6_s3c5_r1_50mw, traces_by_location_4_6_s3c5_r1_100mw};
+trace_grids_4_6_s3c5_r1 = {traces_by_location_4_6_s3c5_r1_25mw, traces_by_location_4_6_s3c5_r1_50mw, traces_by_location_4_6_s3c5_r1_100mw};
 
-traces_trids_4_6_s3c7_r2 = {traces_by_location_4_6_s3c7_r2_25mw, traces_by_location_4_6_s3c7_r2_50mw, traces_by_location_4_6_s3c7_r2_100mw};
+trace_grids_4_6_s3c7_r2 = {traces_by_location_4_6_s3c7_r2_25mw, traces_by_location_4_6_s3c7_r2_50mw, traces_by_location_4_6_s3c7_r2_100mw};
 
-traces_trids_4_6_s3c8_r3 = {traces_by_location_4_6_s3c8_r3_25mw, traces_by_location_4_6_s3c8_r3_50mw, traces_by_location_4_6_s3c8_r3_100mw};
+trace_grids_4_6_s3c8_r3 = {traces_by_location_4_6_s3c8_r3_25mw, traces_by_location_4_6_s3c8_r3_50mw, traces_by_location_4_6_s3c8_r3_100mw};
 
 %%
 
-trace_grids = traces_trids_4_6_s3c8_r3;
+trace_grids = trace_grids_4_6_s3c8_r3;
 
 detection_grids = cell(size(trace_grids));
 
@@ -932,20 +938,17 @@ for i = 1:length(trace_grids)
     trace_grid_tmp = trace_grids{i};
     [traces_tmp, rebuild_map] = stack_traces(trace_grid_tmp);
 
-    detection_results = detect_peaks(-1.0*bsxfun(@minus,traces_tmp,median(traces_tmp,2)),4.0,20,1,1,0)*70;
+    detection_results = detect_peaks(-1.0*bsxfun(@minus,traces_tmp,median(traces_tmp,2)),0.1,20,1,1,0)*70;
     detection_grids{i} = unstack_traces(detection_results,rebuild_map);
     
 end
-
+    
 detection_results_4_6_s3c8_r3 = detection_results;
 detection_grids_4_6_s3c8_r3 = detection_grids;
 
-%%
-
 
 figure; compare_trace_stack_grid({trace_grids{:},detection_grids_4_6_s3c8_r3{:}},...
-    5,1,0,{'25 mW', '50 mW', '100 mW'},2)
-
+    5,1,[],0,{'25 mW', '50 mW', '100 mW'},2)
 
 %% count spikes and get means
 
@@ -1351,5 +1354,63 @@ end
 results_5_12_s2c1_r4_tracegrid
 
 
+%%
+
+load('/media/shababo/Layover/fly/High Res MaxProj of few z sections (4x more frames and acquisition rate ~3x faster)/Fly2d_Day1_FemaleV_MB247lexA_LexAopGC6s_20160712_40x_zoomed_200TPsift_snmu_results_r50.mat')
+good_comps = [4 6 7 9 10 12 13 14 16 17 19 20 22 24 25 26];
+edgesize = sqrt(size(spatial,1));
+figure
+set(gcf,'position',[66 1 1855 1121])
+
+for j = 1:size(temporal,2)
+    count = 1;
+    for i = good_comps
+        subplot(4,4,count)
+        imagesc(reshape(spatial(:,i),[edgesize edgesize])*temporal(i,j)); colormap gray
+        axis off
+        axis tight
+        title(['Component ' num2str(i)])
+        caxis([0 2e3])
+        count = count + 1;
+    end
+
+    components_movie(j) = getframe(gcf);
+
+end
+
+myVideo = VideoWriter('components_movie_onlygood.avi');
+uncompressedVideo = VideoWriter('components_movie.avi', 'Uncompressed AVI');
+myVideo.FrameRate = 5;  % Default 30
+
+open(myVideo);
+writeVideo(myVideo,components_movie);
+close(myVideo);
+%%
+
+figure
+imagesc(corr(spatial))
+axis off
+colorbar
+title('Correlations between spatial components')
+
+%%
+
+figure
+for i = 1:50
+    
+    subplot(50,1,i)
+    plot(temporal(i,:))
+    axis off
+    
+end
+
+%%
+figure
+imagesc(temporal)
+colormap gray
+set(gca,'xticklabels',{})
+title('Fluor Traces For Each Component')
+
+%%
 
 
