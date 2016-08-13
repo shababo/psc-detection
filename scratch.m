@@ -370,9 +370,11 @@ plot_trace_stack(ar10_sim_data,20,zeros(3,3),'-',[.010 10])
 title('Simulated Noise From Fits - AR(10)')
 
 %% plot individual traces from real data example - fig0
+
 load('/home/shababo/projects/mapping/code/psc-detection/stimfit/real-fit-events.mat')
 figure;
 legend_names = cell(1,3);
+
 % for i = 1:3
     t = 0:1:.015*20000;
     tau_decay = event1_fit_params.tau1*20; decay = exp(-t/tau_decay);
@@ -396,6 +398,7 @@ legend_names = cell(1,3);
     hold on; 
     legend_names{3} = ['event 3'];
 % end
+
 hold on
 legend(legend_names)
 axis off
@@ -651,6 +654,7 @@ for j = 1:length(trial_ids1)
 end
 
 %% X Y ONLY
+
 positions = -60:15:60;
 colors = lines(length(filenames));
 switch_ind = length(peak_currents_trial_std)/2;
@@ -678,7 +682,9 @@ for i = 1:length(filenames)
 end
 % legend(filenames)
 title('y')
+
 %%
+
 positions = -60:15:60;
 
 %% X Y Z
@@ -915,15 +921,15 @@ trace_grids_4_5_s2c1_r5 = {traces_by_location_4_5_s2c1_r5_25mw, traces_by_locati
 
 trace_grids_4_6_s3c2_r1 = {traces_by_location_4_6_s3c2_r1_25mw, traces_by_location_4_6_s3c2_r1_50mw, traces_by_location_4_6_s3c2_r1_100mw};
 
-traces_trids_4_6_s3c5_r1 = {traces_by_location_4_6_s3c5_r1_25mw, traces_by_location_4_6_s3c5_r1_50mw, traces_by_location_4_6_s3c5_r1_100mw};
+trace_grids_4_6_s3c5_r1 = {traces_by_location_4_6_s3c5_r1_25mw, traces_by_location_4_6_s3c5_r1_50mw, traces_by_location_4_6_s3c5_r1_100mw};
 
-traces_trids_4_6_s3c7_r2 = {traces_by_location_4_6_s3c7_r2_25mw, traces_by_location_4_6_s3c7_r2_50mw, traces_by_location_4_6_s3c7_r2_100mw};
+trace_grids_4_6_s3c7_r2 = {traces_by_location_4_6_s3c7_r2_25mw, traces_by_location_4_6_s3c7_r2_50mw, traces_by_location_4_6_s3c7_r2_100mw};
 
-traces_trids_4_6_s3c8_r3 = {traces_by_location_4_6_s3c8_r3_25mw, traces_by_location_4_6_s3c8_r3_50mw, traces_by_location_4_6_s3c8_r3_100mw};
+trace_grids_4_6_s3c8_r3 = {traces_by_location_4_6_s3c8_r3_25mw, traces_by_location_4_6_s3c8_r3_50mw, traces_by_location_4_6_s3c8_r3_100mw};
 
 %%
 
-trace_grids = traces_trids_4_6_s3c8_r3;
+trace_grids = trace_grids_4_6_s3c8_r3;
 
 detection_grids = cell(size(trace_grids));
 
@@ -932,20 +938,17 @@ for i = 1:length(trace_grids)
     trace_grid_tmp = trace_grids{i};
     [traces_tmp, rebuild_map] = stack_traces(trace_grid_tmp);
 
-    detection_results = detect_peaks(-1.0*bsxfun(@minus,traces_tmp,median(traces_tmp,2)),4.0,20,1,1,0)*70;
+    detection_results = detect_peaks(-1.0*bsxfun(@minus,traces_tmp,median(traces_tmp,2)),0.1,20,1,1,0)*70;
     detection_grids{i} = unstack_traces(detection_results,rebuild_map);
     
 end
-
+    
 detection_results_4_6_s3c8_r3 = detection_results;
 detection_grids_4_6_s3c8_r3 = detection_grids;
 
-%%
-
 
 figure; compare_trace_stack_grid({trace_grids{:},detection_grids_4_6_s3c8_r3{:}},...
-    5,1,0,{'25 mW', '50 mW', '100 mW'},2)
-
+    5,1,[],0,{'25 mW', '50 mW', '100 mW'},2)
 
 %% count spikes and get means
 
@@ -1121,6 +1124,28 @@ end
 colormap hot
 
 %%
+baseline_window = [1800 2000];
+measure_window = [2000 3000];
+
+amps_50 = get_current_amp(traces_s1c1_50mw,baseline_window,measure_window);
+amps_75 = get_current_amp(traces_s1c1_75mw,baseline_window,measure_window);
+amps_100 = get_current_amp(traces_s1c1_100mw,baseline_window,measure_window);
+amps_125 = get_current_amp(traces_s1c1_125mw,baseline_window,measure_window);
+amps_150 = get_current_amp(traces_s1c1_150mw,baseline_window,measure_window);
+amps_175 = get_current_amp(traces_s1c1_175mw,baseline_window,measure_window);
+
+baseline_window = [3800 4000];
+measure_window = [4000 5000];
+
+amps2_50 = get_current_amp(traces_s2c2_50mw,baseline_window,measure_window);
+% amps2_75 = get_current_amp(traces_s2c2_75mw,baseline_window,measure_window);
+amps2_100 = get_current_amp(traces_s2c2_100mw,baseline_window,measure_window);
+amps2_125 = get_current_amp(traces_s2c2_125mw,baseline_window,measure_window);
+amps2_150 = get_current_amp(traces_s2c2_150mw,baseline_window,measure_window);
+amps2_175 = get_current_amp(traces_s2c2_175mw,baseline_window,measure_window);
+
+figure; plot([50 75 100 125 150 175], [mean(amps_50) mean(amps_75) mean(amps_100) mean(amps_125) mean(amps_150) mean(amps_175)])
+hold on; plot([50 100 125 150 175], [mean(amps2_50) mean2(amps2_100) mean(amps2_125) mean(amps2_150) mean(amps2_175)])
 
 %%
 trace_grid_ch1 = traces_by_location_5_12_s2c1_2_r4{1};
@@ -1145,26 +1170,113 @@ colorbar
 
 %%
 
+time_posteriors = zeros(length(results),2000);
+
+
+for i = 1:length(results)
+    time_posteriors(i,:) = histcounts(results(i).trials.times,0:2000);
+end
+
+time_posteriors2 = zeros(length(results),2000);
+
+
+for i = 1:length(results2)
+    time_posteriors2(i,:) = histcounts(results2(i).trials.times,0:2000);
+end
+%%
+
 event_timeseries2 = get_event_times_init(results2,2000,1,10);
-event_timeseries1 = get_event_times_init(results,2000,1,10);
-event_timeseries1_smooth = smoothts(event_timeseries1,'g',100,20);
-event_timeseries2_smooth = smoothts(event_timeseries2,'g',100,20);
-events_ts_grid1_smooth = unstack_traces(event_timeseries1_smooth*1000,params.rebuild_map);
-events_ts_grid2_smooth = unstack_traces(event_timeseries2_smooth*1000,params2.rebuild_map);
+event_timeseries1 = get_event_times_init(results,2000,1,5);
+event_timeseries1_smooth = smoothts(time_posteriors,'g',100,20);
+event_timeseries2_smooth = smoothts(time_posteriors2,'g',100,20);
+% time_posteriors(:,1:50) = 0;
+events_ts_grid1_smooth = unstack_traces(event_timeseries1_smooth/5,params.rebuild_map);
+events_ts_grid2_smooth = unstack_traces(event_timeseries2_smooth/5,params.rebuild_map);
+events_ts_grid1_smooth = unstack_traces(event_timeseries1_smooth*300,params.rebuild_map);
+
+events_ts_grid2_smooth = unstack_traces(event_timeseries2_smooth*300,params.rebuild_map);
 figure; compare_trace_stack_grid_overlap({events_ts_grid1_smooth,events_ts_grid2_smooth},3,1,[],0,{'L4','L5'},1)
 
 %%
+event_timeseries2 = get_event_times_init(results_5_12_s2c2_r4_tracegrid,2000,1,10);
+event_timeseries1 = get_event_times_init(results_5_12_s2c1_r4_tracegrid,2000,1,10);
+event_timeseries1_smooth = smoothts(event_timeseries1,'g',100,20);
+event_timeseries2_smooth = smoothts(event_timeseries2,'g',100,20);
+events_ts_grid1_smooth = unstack_traces(event_timeseries1*50,params.rebuild_map);
+events_ts_grid2_smooth = unstack_traces(event_timeseries2_smooth*1000,params.rebuild_map);
+figure; compare_trace_stack_grid([traces_by_location_5_12_s2c1_2_r4(:); {events_ts_grid1_smooth}; {events_ts_grid2_smooth}],3,1,[],0,{'L4','L5'},1)
+figure; compare_trace_stack_grid_overlap({events_ts_grid1_smooth,traces},3,1,[],0,{'L4','L5'},1)
 
-max_xcorr = cell(size(events_ts_grid1_smooth));
-mad_xcorr_lag = cell(size(events_ts_grid1_smooth));
+% figure; compare_trace_stack_grid_overlap({events_ts_grid1_smooth,events_ts_grid2_smooth},3,1,[],0,{'L4','L5'},1)
 
-for i = 1:size(events_ts_grid1_smooth,1)
-    for j = 1:size(events_ts_grid1_smooth,2)
-        max_xcorr{i,j} = zeros(size(events_ts_grid1_smooth{i,j},1),1);
-        mad_xcorr_lag{i,j} = zeros(size(events_ts_grid1_smooth{i,j},1),1);
-        for k = 1:size(events_ts_grid1_smooth{i,j},1)
-            [max_xcorr{i,j}(k), mad_xcorr_lag{i,j}(k)] = max(xcorr(events_ts_grid1_smooth{i,j}(k,:),events_ts_grid1_smooth{i,j}(k,:)));
+%%
+event_timeseries2 = zeros(length(results_5_12_s2c1_r4_tracegrid),2000);
+event_timeseries1 = zeros(length(results_5_12_s2c2_r4_tracegrid),2000);
+
+for i = 1:length(results_5_12_s2c1_r4_tracegrid)
+    event_timeseries1(i,:) = histcounts(results_5_12_s2c1_r4_tracegrid(i).trials.times,0:1:2000);
+    event_timeseries2(i,:) = histcounts(results_5_12_s2c2_r4_tracegrid(i).trials.times,0:1:2000);
+    event_timeseries1(i,1:20) = 0;
+    event_timeseries2(i,1:20) = 0;
+end
+
+events_ts_grid1_smooth = unstack_traces(event_timeseries1/10,params.rebuild_map);
+events_ts_grid2_smooth = unstack_traces(event_timeseries2/10,params.rebuild_map);
+% figure; compare_trace_stack_grid({events_ts_grid1_smooth,events_ts_grid2_smooth},3,1,[],0,{'L4','L5'},1)
+
+
+
+%%
+
+
+max_xcorr = cell(size(detection_grid_5_12_s2c1_r4_2000));
+mad_xcorr_lag = cell(size(detection_grid_5_12_s2c1_r4_2000));
+
+max_xcorr_img = zeros(size(detection_grid_5_12_s2c1_r4_2000));
+mad_xcorr_lag_img = zeros(size(detection_grid_5_12_s2c1_r4_2000));
+
+for i = 1:size(detection_grid_5_12_s2c1_r4_2000,1)
+    for j = 1:size(detection_grid_5_12_s2c1_r4_2000,2)
+        max_xcorr{i,j} = zeros(size(detection_grid_5_12_s2c1_r4_2000{i,j},1),1);
+        mad_xcorr_lag{i,j} = zeros(size(detection_grid_5_12_s2c1_r4_2000{i,j},1),1);
+        trace1_tmp = [];
+        trace2_tmp = [];
+        for k = 1:size(detection_grid_5_12_s2c1_r4_2000{i,j},1)
+            trace1_tmp = [trace1_tmp smoothts(detection_grid_5_12_s2c1_r4_2000{i,j}(k,:),'g',100,10)];
+            trace2_tmp = [trace2_tmp smoothts(detection_grid_5_12_s2c2_r4_2000{i,j}(k,:),'g',100,10)];
         end
+        full_xcorr = xcorr(trace1_tmp,trace2_tmp,'coeff');
+        [max_xcorr_img(i,j), mad_xcorr_lag_img(i,j)] = max(full_xcorr(9900:10100));
+    end
+end
+
+%%
+
+max_xcorr = cell(size(detection_grid_5_12_s2c1_r4_2000));
+mad_xcorr_lag = cell(size(detection_grid_5_12_s2c1_r4_2000));
+
+max_xcorr_img_shuff = zeros(size(detection_grid_5_12_s2c1_r4_2000));
+mad_xcorr_lag_img = zeros(size(detection_grid_5_12_s2c1_r4_2000));
+
+shuffle_rows = randperm(size(detection_grid_5_12_s2c1_r4_2000,1));
+shuffle_cols = randperm(size(detection_grid_5_12_s2c1_r4_2000,2));
+shuffle_trials = randperm(size(detection_grid_5_12_s2c1_r4_2000{1,1},1));
+while isequal(1:size(detection_grid_5_12_s2c1_r4_2000{1,1},1),shuffle_trials)
+    shuffle_trials = randperm(size(detection_grid_5_12_s2c1_r4_2000{1,1},1));
+end
+
+for i = 1:size(detection_grid_5_12_s2c1_r4_2000,1)
+    for j = 1:size(detection_grid_5_12_s2c1_r4_2000,2)
+        max_xcorr{i,j} = zeros(size(detection_grid_5_12_s2c1_r4_2000{i,j},1),1);
+        mad_xcorr_lag{i,j} = zeros(size(detection_grid_5_12_s2c1_r4_2000{i,j},1),1);
+        trace1_tmp = [];
+        trace2_tmp = [];
+        for k = 1:size(detection_grid_5_12_s2c1_r4_2000{i,j},1)
+            trace1_tmp = [trace1_tmp smoothts(detection_grid_5_12_s2c1_r4_2000{i,j}(k,:),'g',100,10)];
+            trace2_tmp = [trace2_tmp smoothts(detection_grid_5_12_s2c2_r4_2000{i,j}(shuffle_trials(k),:),'g',100,10)];
+        end
+        full_xcorr = xcorr(trace1_tmp,trace2_tmp,'coeff');
+        [max_xcorr_img_shuff(i,j), mad_xcorr_lag_img(i,j)] = max(full_xcorr(9900:10100));
     end
 end
 
@@ -1175,19 +1287,54 @@ mad_xcorr_lag_img = zeros(size(events_ts_grid1_smooth));
 
 for i = 1:size(events_ts_grid1_smooth,1)
     for j = 1:size(events_ts_grid1_smooth,2)
-        max_xcorr_img(i,j) = mean(max_xcorr{i,j});
-        mad_xcorr_lag_img(i,j) = mean(mad_xcorr_lag{i,j});
+        [max_xcorr_img(i,j), max_i] = max(max_xcorr{i,j});
+        mad_xcorr_lag_img(i,j) = mad_xcorr_lag{i,j}(max_i);
 
     end
 end
+
+%%
+
 
 figure;
 subplot(121)
 imagesc(max_xcorr_img)
 colorbar
 subplot(122)
+% mad_xcorr_lag_img(mad_xcorr_lag_img >= 5060) = 0;
 imagesc(mad_xcorr_lag_img)
+% caxis([4940 5060])
 colorbar
+
+colormap hot
+
+%%
+
+figure; histogram(max_xcorr_img_shuff(:))
+
+%%
+
+max_xcorr_img_sig = max_xcorr_img;
+mad_xcorr_lag_img_sig = mad_xcorr_lag_img;
+max_xcorr_img_sig(max_xcorr_img_sig < quantile(max_xcorr_img_shuff(:),.0)) = 0;
+mad_xcorr_lag_img_sig(max_xcorr_img_sig < quantile(max_xcorr_img_shuff(:),.0)) = 0;
+
+figure;
+subplot(121)
+imagesc(max_xcorr_img_sig)
+axis off
+title('Correlations')
+colorbar
+subplot(122)
+% mad_xcorr_lag_img(mad_xcorr_lag_img >= 5060) = 0;
+imagesc(mad_xcorr_lag_img_sig - 100)
+axis off
+title('Max Correlation Lag (samples)')
+% caxis([4940 5060])
+colorbar
+
+colormap hot
+
 
 %%
 
@@ -1203,7 +1350,67 @@ for i = 1:size(events_ts_grid1_smooth,1)
     end
 end
 
+%%
+results_5_12_s2c1_r4_tracegrid
 
 
+%%
+
+load('/media/shababo/Layover/fly/High Res MaxProj of few z sections (4x more frames and acquisition rate ~3x faster)/Fly2d_Day1_FemaleV_MB247lexA_LexAopGC6s_20160712_40x_zoomed_200TPsift_snmu_results_r50.mat')
+good_comps = [4 6 7 9 10 12 13 14 16 17 19 20 22 24 25 26];
+edgesize = sqrt(size(spatial,1));
+figure
+set(gcf,'position',[66 1 1855 1121])
+
+for j = 1:size(temporal,2)
+    count = 1;
+    for i = good_comps
+        subplot(4,4,count)
+        imagesc(reshape(spatial(:,i),[edgesize edgesize])*temporal(i,j)); colormap gray
+        axis off
+        axis tight
+        title(['Component ' num2str(i)])
+        caxis([0 2e3])
+        count = count + 1;
+    end
+
+    components_movie(j) = getframe(gcf);
+
+end
+
+myVideo = VideoWriter('components_movie_onlygood.avi');
+uncompressedVideo = VideoWriter('components_movie.avi', 'Uncompressed AVI');
+myVideo.FrameRate = 5;  % Default 30
+
+open(myVideo);
+writeVideo(myVideo,components_movie);
+close(myVideo);
+%%
+
+figure
+imagesc(corr(spatial))
+axis off
+colorbar
+title('Correlations between spatial components')
+
+%%
+
+figure
+for i = 1:50
+    
+    subplot(50,1,i)
+    plot(temporal(i,:))
+    axis off
+    
+end
+
+%%
+figure
+imagesc(temporal)
+colormap gray
+set(gca,'xticklabels',{})
+title('Fluor Traces For Each Component')
+
+%%
 
 

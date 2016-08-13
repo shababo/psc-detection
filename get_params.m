@@ -1,12 +1,14 @@
 function params = get_params(varargin)
 
 if ~isempty(varargin)
-    params = varargin{1};
+    load(varargin{1});
+else
+    params = struct();
 end
 
 if ~isfield(params,'cluster')
 
-    params.cluster = 0;
+    params.cluster = 1;
 
 end
 
@@ -78,7 +80,7 @@ if ~isfield(params,'a_max')
     params.a_max = Inf;
 end
 if ~isfield(params,'a_min')
-    params.a_min = 10;
+    params.a_min = 5;
 
 end
 
@@ -108,14 +110,14 @@ end
 % params.p_spike = 1e-3;
 
 if ~isfield(params,'tau1_max')
-    params.tau1_max = 50/20000;
+    params.tau1_max = 100/20000;
 end
 % min and max for "decay time" in seconds
 if ~isfield(params,'tau2_min')
     params.tau2_min = 100/20000;
 end
 if ~isfield(params,'tau2_max')
-    params.tau2_max = 500/20000;
+    params.tau2_max = 700/20000;
 end
 % how long to make kernel in samples
 if ~isfield(params,'event_samples')
@@ -124,7 +126,7 @@ end
 
 % poisson/rate - that is the probability of seeing a spike/sample
 if ~isfield(params,'p_spike')
-    params.p_spike = 1e-7;%1e-4;
+    params.p_spike = 1e-4;%1e-4;
 end
 
 
@@ -134,27 +136,26 @@ if ~isfield(params,'p')
     params.p = 2; % how many time steps to regress on
 end
 if ~isfield(params,'phi_0')
-    params.phi_0 = [0.982949319747574, -0.407063852831604]';
+    params.phi_0 = [0.982949319747574, -0.307063852831604]';
 end
 if ~isfield(params,'Phi_0')
     params.Phi_0 = 10*eye(params.p); %inverse covariance 3
 end
 
 if ~isfield(params,'noise_var_init')
-    params.noise_var_init = 3.0;
+    params.noise_var_init = 3.9;
 end
 
 if ~isfield(params, 'noise_known')
-    params.noise_known = 0;
+    params.noise_known = 1;
     if params.noise_known
-        params.phi_known = [1.000000000000000, -0.982949319747574, 0.407063852831604];%[1.0 0.78 -0.13];
-        params.noise_var_known = 3.0;%4.3;
+        params.phi_known = [1.000000000000000, 1.05, -.30];%[1.0 0.78 -0.13];
+        params.noise_var_known = 3.9;%4.3;
     end
 end
 
 if ~isfield(params,'noise_est_subset')
-%     params.noise_est_subset = 1:5000;
-%     params.noise_est_subset = 1:1000;
+    params.noise_est_subset = [];
 end
 
 %% direct stim
@@ -227,16 +228,13 @@ if ~isfield(params,'stim_amp_init')
     params.stim_amp_init = 5;
 end
 
-if ~isfield(params,'noise_est_subset')
-    params.noise_est_subset = [];
-end
 
 %% sampling params
 
 
 % how long to run the sampler
 if ~isfield(params,'num_sweeps')
-    params.num_sweeps = 1000;
+    params.num_sweeps = 2000;
 end
 if ~isfield(params,'burn_in_sweeps')
     params.burn_in_sweeps = 0;
@@ -304,7 +302,7 @@ end
     % ipsc
 %     params.init_method.template_file = 'data/epsc-template.mat';
     params.init_method.ar_noise_params.sigma_sq = 3.0;
-    params.init_method.ar_noise_params.phi = [1.000000000000000, -0.982949319747574, 0.407063852831604];
+    params.init_method.ar_noise_params.phi = [1.000000000000000, 0.982949319747574, -0.207063852831604];
     params.init_method.theshold = 2.25;
     params.init_method.min_interval = 20;
 % end
@@ -336,17 +334,17 @@ if ~isfield(params,'savepath')
 %     end
     params.savepath = '';
 end
-if ~isfield(params,'savename')
+% if ~isfield(params,'savename')
 %     if params.cluster
 %         savefile_basename = '/simulated-epscs-1027-results-0000-pspike-%0.0e-amin-%0.0e-num_sweeps-%0.0e.mat';
 %         params.savename = sprintf(savefile_basename,params.p_spike,params.a_min,params.num_sweeps);
 %         params.savename = strrep(params.savename,'+','');
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
-        params.savename = [params.traces_filename(1:end-4) '-0000.mat'];
+        params.savename = [params.traces_filename(1:end-4) '-2000.mat'];
 %     end
 
-end
+% end
 
 params.full_save_string = [params.savename];
 
