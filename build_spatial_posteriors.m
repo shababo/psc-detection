@@ -19,7 +19,7 @@ for i = 1:size(posteriors_grid,1)
         
         if ~isempty(posteriors_grid{i,j})
             
-            spatial_posteriors(i,j).amps = [];
+            spatial_posteriors(i,j).amp = [];
             spatial_posteriors(i,j).num_events = [];
             spatial_posteriors(i,j).tau1 = [];
             spatial_posteriors(i,j).tau2 = [];
@@ -30,7 +30,7 @@ for i = 1:size(posteriors_grid,1)
                      if ~(i+ii < 1 || i+ii > size(posteriors_grid,1) || j+jj < 1 || j+jj > size(posteriors_grid,2))
                          
                          
-                         spatial_posteriors(i,j).amps = [spatial_posteriors(i,j).amps [posteriors_grid{i+ii,j+jj}.amps]];
+                         spatial_posteriors(i,j).amp = [spatial_posteriors(i,j).amp [posteriors_grid{i+ii,j+jj}.amp]];
                          spatial_posteriors(i,j).num_events = [spatial_posteriors(i,j).num_events [posteriors_grid{i+ii,j+jj}.num_events]];
                          spatial_posteriors(i,j).tau1 = [spatial_posteriors(i,j).tau1 [posteriors_grid{i+ii,j+jj}.tau1]];
                          spatial_posteriors(i,j).tau2 = [spatial_posteriors(i,j).tau2 [posteriors_grid{i+ii,j+jj}.tau2]];
@@ -46,9 +46,9 @@ for i = 1:size(posteriors_grid,1)
                         
             figure(9991)
             subplot1((i-1)*size(posteriors_grid,2) + j);
-            histogram(spatial_posteriors(i,j).amps,[20:3:300],'Normalization','countdensity')
+            histogram(spatial_posteriors(i,j).amp,[20:3:300],'Normalization','countdensity')
             axis off
-            ylim([0 40]*10*3)
+%             ylim([0 40]*10*3)
             xlim([20 300])
             
             figure(9992)
@@ -72,7 +72,7 @@ for i = 1:size(posteriors_grid,1)
             histogram(spatial_posteriors(i,j).tau2,[30:5:600],'Normalization','countdensity')
             axis tight
             axis off
-            ylim([0 40]*10*3)
+%             ylim([0 40]*10*3)
             xlim([30 600])
             
 
@@ -80,7 +80,7 @@ for i = 1:size(posteriors_grid,1)
             subplot1((i-1)*size(posteriors_grid,2) + j);
             histogram(spatial_posteriors(i,j).times,(0:.001:.1)*20000,'Normalization','countdensity') %
             axis off
-            ylim([0 25]*10*3)
+%             ylim([0 25]*10*3)
             xlim([0 .1]*20000)
             
         end
@@ -89,7 +89,7 @@ end
 
 figure(9991)
 subplot1(1);
-title('amps')
+title('amp')
 % 
 % figure(9992)
 % subplot1(1)
