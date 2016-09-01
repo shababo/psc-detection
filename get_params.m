@@ -43,7 +43,7 @@ end
 % direction/sign of events: upward is 1 (e.g. ipscs, ca imaging), downard is -1
 % (e.g. epscs)
 if ~isfield(params,'event_sign')
-    params.event_sign = 1;
+    params.event_sign = -1;
 end
 
 %% subtraces
@@ -98,7 +98,7 @@ end
 % params.kernel = @kernel_function; ignore this
 % min and max for "rise time" in seconds
 if ~isfield(params,'tau1_min')
-    params.tau1_min = 10/20000;
+    params.tau1_min = .00025;
 end
 % params.tau1_max = 60/20000;
 % params.tau2_min = 75/20000;
@@ -109,14 +109,14 @@ end
 % params.p_spike = 1e-3;
 
 if ~isfield(params,'tau1_max')
-    params.tau1_max = 100/20000;
+    params.tau1_max = .0025;
 end
 % min and max for "decay time" in seconds
 if ~isfield(params,'tau2_min')
-    params.tau2_min = 100/20000;
+    params.tau2_min = .0015;
 end
 if ~isfield(params,'tau2_max')
-    params.tau2_max = 700/20000;
+    params.tau2_max = .01;
 end
 % how long to make kernel in samples
 if ~isfield(params,'event_samples')
@@ -125,7 +125,7 @@ end
 
 % poisson/rate - that is the probability of seeing a spike/sample
 if ~isfield(params,'p_spike')
-    params.p_spike = 1e-4;%1e-4;
+    params.p_spike = 1e-8;%1e-4;
 end
 
 
@@ -146,7 +146,7 @@ if ~isfield(params,'noise_var_init')
 end
 
 if ~isfield(params, 'noise_known')
-    params.noise_known = 1;
+    params.noise_known = 0;
     if params.noise_known
         params.phi_known = [1.000000000000000, 1.05, -.30];%[1.0 0.78 -0.13];
         params.noise_var_known = 3.9;%4.3;
@@ -233,7 +233,7 @@ end
 
 % how long to run the sampler
 if ~isfield(params,'num_sweeps')
-    params.num_sweeps = 2000;
+    params.num_sweeps = 5000;
 end
 if ~isfield(params,'burn_in_sweeps')
     params.burn_in_sweeps = 0;
@@ -297,7 +297,7 @@ end
     params.init_method.amp_thresh = 5;
     params.init_method.conv_thresh = 1;
     % epsc
-    params.init_method.template_file = 'data/ipsc-template.mat';
+    params.init_method.template_file = 'data/epsc-template.mat';
     % ipsc
 %     params.init_method.template_file = 'data/epsc-template.mat';
     params.init_method.ar_noise_params.sigma_sq = 3.0;
@@ -320,7 +320,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/5_13_s2c1_r4_tracegrid.mat'];
+            ['data/4_6_s3c1_r4_traces.mat'];
 
 %     end
 end
@@ -340,7 +340,7 @@ end
 %         params.savename = strrep(params.savename,'+','');
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
-        params.savename = [params.traces_filename(1:end-4) '-2000.mat'];
+        params.savename = [params.traces_filename(1:end-4) '-0000.mat'];
 %     end
 
 % end

@@ -46,9 +46,10 @@ for i = 1:size(posteriors_grid,1)
                         
             figure(9991)
             subplot1((i-1)*size(posteriors_grid,2) + j);
-            histogram(spatial_posteriors(i,j).amp,[20:3:300],'Normalization','countdensity')
+
+            histogram(spatial_posteriors(i,j).amp,'Normalization','countdensity')
             axis off
-%             ylim([0 40]*10*3)
+            ylim([0 40]*10*5)
             xlim([20 300])
             
             figure(9992)
@@ -69,10 +70,12 @@ for i = 1:size(posteriors_grid,1)
 %             
             figure(99944)
             subplot1((i-1)*size(posteriors_grid,2) + j);
-            histogram(spatial_posteriors(i,j).tau2,[30:5:600],'Normalization','countdensity')
+            histogram(spatial_posteriors(i,j).tau2,'Normalization','countdensity')
             axis tight
             axis off
-%             ylim([0 40]*10*3)
+
+            ylim([0 40]*10*5)
+
             xlim([30 600])
             
 
@@ -80,7 +83,8 @@ for i = 1:size(posteriors_grid,1)
             subplot1((i-1)*size(posteriors_grid,2) + j);
             histogram(spatial_posteriors(i,j).times,(0:.001:.1)*20000,'Normalization','countdensity') %
             axis off
-%             ylim([0 25]*10*3)
+
+            ylim([0 25]*10*5)
             xlim([0 .1]*20000)
             
         end

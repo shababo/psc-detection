@@ -40,7 +40,7 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     params.phi_0 = [0.982949319747574 -0.407063852831604]';
 %     params.noise_var_init = 3.0;
 %     params.num_sweeps = 2000;
-%     params.par = 1;
+%     params.par = 0;
 %     
 %     params.stim_tau_rise = 6.5000e-04;
 %     params.stim_tau_rise_min = 6.5000e-06;
@@ -54,15 +54,17 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     load('data/direct_stim_2_9_s3c1_emperical.mat')
 %     params.stim_shape = -direct_stim_in;
     
-%     params.cluster = 0;
+    params.cluster = 0;
 
 %     params.init_method.theshold = 2.0;
 %     params.init_method.min_interval = 100;
+else
+    params = get_params();
     
 end
 
 % fill with default params
-params = get_params(params);
+% params = get_params(params);
 
 % check that you're not writing over a previous results file
 if exist(params.full_save_string, 'file') == 2
