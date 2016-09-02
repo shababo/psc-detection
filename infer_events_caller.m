@@ -62,7 +62,7 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 end
 
 % fill with default params
-params = get_params(params);
+%params = get_params(params);
 
 % check that you're not writing over a previous results file
 if exist(params.full_save_string, 'file') == 2

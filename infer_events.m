@@ -59,19 +59,10 @@ disp(['About to run inference on: ' num2str(size(traces,1)) ' traces...']);
 
 if params.par
     
-    if params.cluster
-
-        addpath(genpath(params.source_path));
-
-        maxNumCompThreads(12)
-        matlabpool(12)
-
-    else
 
         delete(gcp('nocreate'))
         this_pool = parpool();
 
-    end
     
     load_struct = load(params.init_method.template_file);
     template = load_struct.template;
@@ -87,11 +78,14 @@ if params.par
         
         
         
-        nfft = length(trace) + length(template);
-        [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
-            nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
-        event_times_init
-        event_sizes_init
+        %nfft = length(trace) + length(template);
+        %[filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
+        %    nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
+        %event_times_init
+        %event_sizes_init
+        event_times_init = [];
+        filtered_trace = [];
+        event_sizes_init = [];
 %         assignin('base','event_times_init_old',event_times_init_old)
 %         assignin('base','event_times_init',event_times_init)
         results(trace_ind).event_times_init = event_times_init;
@@ -113,11 +107,7 @@ if params.par
     end
     
     
-    if params.cluster
-        matlabpool close
-    else
         delete(this_pool)
-    end
 
 else
     

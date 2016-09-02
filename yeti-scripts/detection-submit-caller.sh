@@ -5,7 +5,7 @@
 #noise_type=1
 
 
-dirname="/vega/stats/users/bms2156/psc-detection/data/param-files/som-test-1"
+dirname="/vega/stats/users/bms2156/psc-detection/data/param-files/4_6_noise_known"
 
 for param_file in "$dirname"/*; #486
 do
