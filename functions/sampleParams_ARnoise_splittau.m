@@ -94,7 +94,13 @@ end
 N_sto = [];
 objective = [];
 
-NoiseVar = noise_var_init; %separate calcium per trial
+if params.noise_known
+    phi = params.phi_known;
+    NoiseVar = params.noise_var_known;
+else
+    phi = [1 zeros(1,p)];
+    NoiseVar = params.noise_var_init;
+end
 baseline = b;
 
 % intiailize burst train and predicted calcium
@@ -105,7 +111,7 @@ ati = []; % array of lists of spike times
 sti = []; % array of lists of spike times
 sti_ = []; % array of lists of spike times
 taus = cell(1); % array of lists of event taus
-phi = [1 zeros(1,p)];
+
 
 efs = cell(1,length(Tguess));
 
@@ -173,6 +179,7 @@ timeMoves = [0 0];
 ampMoves = [0 0];
 tauMoves = [0 0];
 
+if ~params.noise_known
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % re-estimate the noise model
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,6 +239,7 @@ tauMoves = [0 0];
 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+end
 
 if observe
         figure
@@ -623,7 +631,7 @@ for i = 1:num_sweeps
             end
         end
     end
-    
+ if ~params.noise_known   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % re-estimate the noise model
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -681,7 +689,7 @@ for i = 1:num_sweeps
 %         end
 %     end
 
-    
+ end   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 
