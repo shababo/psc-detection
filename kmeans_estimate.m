@@ -19,12 +19,12 @@ for i = 1:num_traces
         [labels, event_feature_means] = kmeans(samples_matrix,k);
 
         
-        gscatter(posteriors(i).times,-posteriors(i).amp,labels,colors_lines(i,:),[],[],0)
-        hold on
-        gscatter(posteriors(i).times,posteriors(i).tau1,labels,colors_lines(i,:),[],[],0)
-        hold on
-        gscatter(posteriors(i).times,posteriors(i).tau2,labels,colors_lines(i,:),[],[],0)
-        hold on
+%         gscatter(posteriors(i).times,-posteriors(i).amp,labels,colors_lines(i,:),[],1,0)
+%         hold on
+%         gscatter(posteriors(i).times,posteriors(i).tau1,labels,colors_lines(i,:),[],1,0)
+%         hold on
+%         gscatter(posteriors(i).times,posteriors(i).tau2,labels,colors_lines(i,:),[],1,0)
+%         hold on
         scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
         hold on
         scatter(event_feature_means(:,4), event_feature_means(:,2),100,colors_lines(i,:),'x','LineWidth',2)
@@ -36,7 +36,7 @@ for i = 1:num_traces
 
         all_event_features = [all_event_features; event_feature_means];
     end
-     plot(1:2000,traces(i,:) - traces(i,1) - 200,'color',colors_lines(i,:))
+     plot(1:2000,traces(i,:) - traces(i,1) - 200 - 25*(i-1),'color',colors_lines(i,:))
         xlim([1 2000])
         event_count = event_count + k;
     
