@@ -146,10 +146,10 @@ if ~isfield(params,'noise_var_init')
 end
 
 if ~isfield(params, 'noise_known')
-    params.noise_known = 0;
+    params.noise_known = 1;
     if params.noise_known
-        params.phi_known = [1.000000000000000, 1.05, -.30];%[1.0 0.78 -0.13];
-        params.noise_var_known = 3.9;%4.3;
+        params.phi_known = [1.000000000000000, 1.05, -.40];%[1.0 0.78 -0.13];
+        params.noise_var_known = 5.0;%4.3;
     end
 end
 
@@ -320,7 +320,8 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/4_6_s3c1_r2_traces.mat'];
+
+            ['data/4_6_s3c1_r3_traces.mat'];
 
 %     end
 end
@@ -340,7 +341,8 @@ end
 %         params.savename = strrep(params.savename,'+','');
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
-        params.savename = [params.traces_filename(1:end-4) '-x0003.mat'];
+
+        params.savename = [params.traces_filename(1:end-4) '-2000.mat'];
 %     end
 
 % end
