@@ -1412,5 +1412,40 @@ set(gca,'xticklabels',{})
 title('Fluor Traces For Each Component')
 
 %%
+num_results = length(results)/5;
+
+figure;
+for i = 1:num_results
+    
+    subplot(num_results,1,i)
+    all_points = [];
+    for j = 1:5
+        all_points = [all_points results((i-1)*5+j).trials.times];
+    end
+%     scatter(results(i).trials.times,results(i).trials.tau2)
+    histogram(all_points,[0:1:2000])
+    xlim([0 2000])
+%     ylim([0 2000])
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

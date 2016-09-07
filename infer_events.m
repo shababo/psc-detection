@@ -16,6 +16,7 @@ end
 try
     load(params.traces_filename,'traces')
 catch e
+    params.traces_filename
     params.traces_filename = 'data/for-paper/direct-stim-w-events-real.mat';
     load('data/for-paper/direct-stim-w-events-real.mat')
 end
@@ -28,6 +29,13 @@ end
 % load(params.traces_filename,'traces');
 
 if params.is_grid
+    traces_reduce = cell(size(traces));
+    for i = randsample(1:size(traces,1),3)
+        for j = randsample(1:size(traces,2),3)
+            traces_reduce{i,j} = traces{i,j};
+        end
+    end
+    traces = traces_reduce;
     [traces, rebuild_map] = stack_traces(traces);
     params.rebuild_map = rebuild_map;
 end
@@ -88,8 +96,11 @@ if params.par
         
         
         nfft = length(trace) + length(template);
-        [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
-            nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
+%         [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
+%             nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
+        filtered_trace = [];
+        event_times_init = [];
+        event_sizes_init = [];
         event_times_init
         event_sizes_init
 %         assignin('base','event_times_init_old',event_times_init_old)
@@ -177,7 +188,7 @@ end
 % results = results_grid;
 
 disp('saving...')
-save(params.full_save_string,'results','params')
+save(params.full_save_string,'results','params','traces')
 
 disp('done')
 

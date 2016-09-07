@@ -8,7 +8,7 @@ end
 
 if ~isfield(params,'cluster')
 
-    params.cluster = 1;
+    params.cluster = 0;
 
 end
 
@@ -26,7 +26,7 @@ if ~isfield(params,'rand')
 end
 
 if ~isfield(params,'seed')
-    params.seed = 12341;
+    params.seed = 1234231;
 end
 
 % rng(params.seed)
@@ -116,7 +116,7 @@ if ~isfield(params,'tau2_min')
     params.tau2_min = .0015;
 end
 if ~isfield(params,'tau2_max')
-    params.tau2_max = .01;
+    params.tau2_max = .02;
 end
 % how long to make kernel in samples
 if ~isfield(params,'event_samples')
@@ -233,7 +233,7 @@ end
 
 % how long to run the sampler
 if ~isfield(params,'num_sweeps')
-    params.num_sweeps = 5000;
+    params.num_sweeps = 500;
 end
 if ~isfield(params,'burn_in_sweeps')
     params.burn_in_sweeps = 0;
@@ -320,7 +320,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/4_6_s3c1_r4_traces.mat'];
+            ['data/4_6_s3c1_r2_traces.mat'];
 
 %     end
 end
@@ -340,7 +340,7 @@ end
 %         params.savename = strrep(params.savename,'+','');
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
-        params.savename = [params.traces_filename(1:end-4) '-0000.mat'];
+        params.savename = [params.traces_filename(1:end-4) '-x0003.mat'];
 %     end
 
 % end
