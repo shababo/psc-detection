@@ -8,7 +8,7 @@ end
 
 if ~isfield(params,'cluster')
 
-    params.cluster = 0;
+    params.cluster = 1;
 
 end
 
@@ -69,7 +69,7 @@ end
 
 % is this a matrix of traces or a grid array
 if ~isfield(params,'is_grid')
-    params.is_grid = 1;
+    params.is_grid = 0;
 end
 
 %% inference params
@@ -98,7 +98,7 @@ end
 % params.kernel = @kernel_function; ignore this
 % min and max for "rise time" in seconds
 if ~isfield(params,'tau1_min')
-    params.tau1_min = .00025;
+    params.tau1_min = .0001;
 end
 % params.tau1_max = 60/20000;
 % params.tau2_min = 75/20000;
@@ -109,14 +109,14 @@ end
 % params.p_spike = 1e-3;
 
 if ~isfield(params,'tau1_max')
-    params.tau1_max = .0025;
+    params.tau1_max = 15/20000;
 end
 % min and max for "decay time" in seconds
 if ~isfield(params,'tau2_min')
-    params.tau2_min = .0015;
+    params.tau2_min = .0005;
 end
 if ~isfield(params,'tau2_max')
-    params.tau2_max = .02;
+    params.tau2_max = 100/20000;
 end
 % how long to make kernel in samples
 if ~isfield(params,'event_samples')
@@ -125,7 +125,7 @@ end
 
 % poisson/rate - that is the probability of seeing a spike/sample
 if ~isfield(params,'p_spike')
-    params.p_spike = 1e-8;%1e-4;
+    params.p_spike = 1e-4;%1e-4;
 end
 
 
@@ -233,7 +233,7 @@ end
 
 % how long to run the sampler
 if ~isfield(params,'num_sweeps')
-    params.num_sweeps = 500;
+    params.num_sweeps = 5000;
 end
 if ~isfield(params,'burn_in_sweeps')
     params.burn_in_sweeps = 0;
@@ -320,8 +320,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-
-            ['data/4_6_s3c1_r3_traces.mat'];
+            ['data/SOMepsctraces.mat'];
 
 %     end
 end
@@ -342,7 +341,7 @@ end
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
 
-        params.savename = [params.traces_filename(1:end-4) '-2000.mat'];
+        params.savename = [params.traces_filename(1:end-4) '-0006.mat'];
 %     end
 
 % end

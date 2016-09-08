@@ -49,7 +49,8 @@ for i = 1:num_traces
 %             drawnow
 %         end
 
-        [y,model] = mixGaussGb(samples_matrix);
+%         [y,model] = mixGaussGb(samples_matrix);
+          dpmm_fit = dpmm(Y,100);
         
         
 %         gscatter(posteriors(i).times,posteriors(i).amp,labels,colors_groups(event_count:event_count+k-1,:),[],[],0)
