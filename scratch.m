@@ -1429,7 +1429,28 @@ for i = 1:num_results
 end
 
 
+%%
+latency_image1(10+8,4+11) = 0;
+figure; subplot(131); 
+imagesc(latency_image2(9:21,12:20)); axis off; 
 
+subplot(132); imagesc(latency_image1(9:21,12:20)); axis off; 
+
+subplot(133); axis off; imagesc(min(latency_image1(9:21,12:20),latency_image2(9:21,12:20)))
+axis off
+colormap hot
+
+%%
+sum_image1(10+8,4+11) = 0;
+figure; subplot(131); 
+imagesc(sum_image2(9:21,12:20)); axis off; 
+caxis([0 1.5])
+subplot(132); imagesc(sum_image1(9:21,12:20)); axis off; 
+caxis([0 1.5])
+subplot(133); axis off; imagesc(sum_image1(9:21,12:20) + sum_image2(9:21,12:20))
+axis off
+caxis([0 1.5])
+colormap hot
 
 
 
