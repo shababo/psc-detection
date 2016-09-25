@@ -1,4 +1,4 @@
-function build_trace_param_files(traces_full,params_base,tracedir,paramdir)
+function params = build_trace_param_files(traces_full,params_base,tracedir,paramdir)
 
 if ~isempty(tracedir)
     tracedir = [tracedir '/'];
@@ -8,9 +8,11 @@ if ~isempty(paramdir)
     paramdir = [paramdir '/'];
 end
 
+[~,traces_basename] = fileparts(params_base.traces_filename); 
+
 if iscell(traces_full)
     [traces_full, rebuild_map] = stack_traces(traces_full);
-    rebuild_savename = [tracedir params_base.traces_filename(1:end-4) '-rebuildmap.mat'];
+    rebuild_savename = [tracedir traces_basename '-rebuildmap.mat'];
     save(rebuild_savename,'rebuild_map')
 end
 
@@ -31,8 +33,9 @@ for i = 1:num_jobs
     params.savename = [params.savename(1:end-8) '-subjob-' sprintf('%03d',i) '-' params.savename(end-7:end-4) '.mat'];
     params.full_save_string = params.savename;
     
-    save([tracedir params.traces_filename],'traces')
     [~,basename] = fileparts(params.traces_filename);
+    save([tracedir basename],'traces')
+    
     
     paramfilename = [paramdir basename '-params.mat'];
     save(paramfilename,'params')
