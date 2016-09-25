@@ -7,6 +7,8 @@ colors_groups = colors_groups(randperm(100),:);
 colors_lines =  lines(100);
 event_count = 1;
 
+offset = 50;
+
 all_event_features = zeros(0,4);
 figure
 for i = 1:num_traces
@@ -48,8 +50,8 @@ for i = 1:num_traces
 
         all_event_features = [all_event_features; event_feature_means];
     end
-     plot(1:2000,traces(i,:) - traces(i,1) - 200 - 25*(i-1),'color',colors_lines(i,:))
-     plot(1:2000, -1.0*build_curve(event_feature_means,0,.1,1/20000,2000) - 200 - 25*(i-1),'color',colors_lines(i,:),'Linewidth',2)
+     plot(1:2000,traces(i,:) - traces(i,1) - 200 - offset*(i-1),'color',colors_lines(i,:))
+     plot(1:2000, -1.0*build_curve(event_feature_means,0,.1,1/20000,2000) - 200 - offset*(i-1),'color',colors_lines(i,:),'Linewidth',2)
 
      xlim([1 2000])
      event_count = event_count + k;
