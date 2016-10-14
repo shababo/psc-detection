@@ -44,7 +44,10 @@ inverse_template_f = 1./template_f_clean;
 noise_P = noise_P'/sum(noise_P);
 % size(trace_P)
 % size(noise_P)
-first_i = find(trace_P<=noise_P,1,'first');
+first_i = find(trace_P<=noise_P,1,'first') ;
+if isempty(first_i)
+    first_i = nfft;
+end
 % trace_P = trace_P.*(trace_P>noise_P)+noise_P.*(trace_P<=noise_P);
 disp(nfft)
 disp(size(trace_P))

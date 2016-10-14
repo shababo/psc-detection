@@ -6,7 +6,7 @@ if ~isfield(params,'noise_est_subset') || isempty(params.noise_est_subset)
 end
 
 observe = 0;
-observe_freq = 2;
+observe_freq = 250;
 
 %noise level here matters for the proposal distribution (how much it 
 %should trust data for proposals vs how much it should mix based on uniform prior)
@@ -139,7 +139,7 @@ for i = 1:length(Tguess)
 %     tmpi = tmpi_tmp + start_ind - 1;
     start_ind = max(1,floor(tmpi));
     end_ind = min(start_ind + params.a_init_window*2,length(diffY));
-    [local_max,tmpi_tmp] = max(diffY(start_ind:end_ind));
+    [local_max,tmpi_tmp] = max(diffY_(start_ind:end_ind));
     tmpi = tmpi_tmp + start_ind - 1;
     sti_ = [sti tmpi];
     a_init = max(local_max/A + a_std*randn,a_min);
@@ -171,6 +171,8 @@ diffY = diffY_;
 sti_= sti;
 diffY_= diffY;
 N=length(sti);
+
+
 
 %% loop over sweeps to generate samples
 addMoves = [0 0]; %first elem is number successful, second is number total
@@ -468,7 +470,8 @@ for i = 1:num_sweeps
                 end
                 N = length(sti);
             end
-
+            
+            if i > 250
 
             % delete
             if N>0%i.e. we if have at least one spike           
@@ -523,7 +526,9 @@ for i = 1:num_sweeps
                     %reject - do nothing
                     dropMoves = dropMoves + [0 1];
                 end
+
                 N = length(sti);
+            end
             end
         end
     end

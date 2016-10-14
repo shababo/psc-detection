@@ -16,6 +16,7 @@ end
 try
     load(params.traces_filename,'traces')
 catch e
+    disp('bad file')
     params.traces_filename
     params.traces_filename = 'data/for-paper/direct-stim-w-events-real.mat';
     load('data/for-paper/direct-stim-w-events-real.mat')
@@ -29,10 +30,13 @@ end
 % load(params.traces_filename,'traces');
 
 if params.is_grid
-    traces_reduce = cell(size(traces));
-    for i = randsample(1:size(traces,1),3)
-        for j = randsample(1:size(traces,2),3)
-            traces_reduce{i,j} = traces{i,j};
+    edge_num = 3;
+    traces_reduce = cell(edge_num);
+    i_picks = randsample(1:size(traces,1),edge_num);
+    j_picks = randsample(1:size(traces,2),edge_num);
+    for i = 1:edge_num
+        for j = 1:edge_num
+            traces_reduce{i,j} = traces{i_picks(i),j_picks(j)};
         end
     end
     traces = traces_reduce;
@@ -40,7 +44,7 @@ if params.is_grid
     params.rebuild_map = rebuild_map;
 end
 
-% assignin('base','rebuild_map',rebuild_map)
+% assignin('base','params',params)
 % return
 
 if ~isfield(params,'duration')
@@ -94,13 +98,14 @@ if params.par
 %             params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
         
         
+figure; plot(template)
         
         nfft = length(trace) + length(template);
-%         [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
-%             nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
+        [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
+            nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
         filtered_trace = [];
-        event_times_init = [];
-        event_sizes_init = [];
+%         event_times_init = [];
+%         event_sizes_init = [];
         event_times_init
         event_sizes_init
 %         assignin('base','event_times_init_old',event_times_init_old)
@@ -147,7 +152,7 @@ else
 
         
         nfft = length(trace) + length(template);
-        [~, event_times_init,event_sizes_init] = wiener_filter(params.event_sign*trace,template,params.init_method.ar_noise_params,...
+        [~, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
             nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
         event_times_init
         event_sizes_init
