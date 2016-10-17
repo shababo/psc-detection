@@ -4,8 +4,9 @@
 #param_file="/vega/stats/users/bms2156/psc-detection/data/psc_parameters_test01.mat"
 #noise_type=1
 
+paramdir=$1
 
-dirname="/vega/stats/users/bms2156/psc-detection/data/param-files/4_6_noise_known"
+dirname="/vega/stats/users/bms2156/psc-detection/data/param-files/$paramdir"
 
 for param_file in "$dirname"/*; #486
 do

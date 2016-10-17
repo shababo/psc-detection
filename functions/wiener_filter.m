@@ -49,7 +49,10 @@ first_i = find(trace_P<=noise_P,1,'first');
 disp(nfft)
 disp(size(trace_P))
 disp(size(noise_P))
+<<<<<<< HEAD
 
+=======
+>>>>>>> d0b70b78c56a7c3264f1b80bfb45fb376bba0901
 trace_P = trace_P.*((1:nfft)<first_i)+noise_P.*((1:nfft)>=first_i);
 wien_filter = inverse_template_f.*(trace_P-noise_P)./(trace_P); %in denom: -(1-alpha)*noise_P
 

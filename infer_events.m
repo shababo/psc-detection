@@ -27,6 +27,12 @@ end
 % of samples
 % load(params.traces_filename,'traces');
 
+if iscell(traces)
+    params.is_grid = 1;
+else
+    params.is_grid = 0;
+end
+
 if params.is_grid
     [traces, rebuild_map] = stack_traces(traces);
     params.rebuild_map = rebuild_map;
@@ -60,9 +66,12 @@ disp(['About to run inference on: ' num2str(size(traces,1)) ' traces...']);
 if params.par
     
 
-        delete(gcp('nocreate'))
-        this_pool = parpool();
-
+    delete(gcp('nocreate'))
+    this_pool = parpool();
+    addAttachedFiles(this_pool,{'functions/sampleParams_ARnoise_splittau.m',...
+				'functions/add_base_ar.m','functions/addSpike_ar.m',...
+				'functions/genEfilt_ar.m','functions/predAR.m',...
+				'functions/remove_base_ar.m','functions/removeSpike_ar.m'});
     
     load_struct = load(params.init_method.template_file);
     template = load_struct.template;
@@ -81,11 +90,12 @@ if params.par
         %nfft = length(trace) + length(template);
         %[filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
         %    nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
+	[event_sizes_init, event_times_init] = findpeaks(trace,'minpeakheight',30,'minpeakprominence',10);
         %event_times_init
         %event_sizes_init
-        event_times_init = [];
+        %event_times_init = [];
         filtered_trace = [];
-        event_sizes_init = [];
+        %event_sizes_init = [];
 %         assignin('base','event_times_init_old',event_times_init_old)
 %         assignin('base','event_times_init',event_times_init)
         results(trace_ind).event_times_init = event_times_init;
@@ -99,6 +109,10 @@ if params.par
     %             event_times_init = ceil(length(trace)*rand(1,length(trace)*params.p_spike));
                 [results(trace_ind).trials, results(trace_ind).mcmc]  = sampleParams_ar_2taus_directstim(trace,tau,event_times_init,params);
             else
+		class(trace)
+		class(tau)
+		class(event_times_init)
+		class(params)
     %             event_times_init = template_matching(-1*params.event_sign*traces(trace_ind,:), params.dt,...
     %                 params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
                 [results(trace_ind).trials, results(trace_ind).mcmc]  = sampleParams_ARnoise_splittau(trace,tau,event_times_init,params);

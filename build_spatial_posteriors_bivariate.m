@@ -1,10 +1,10 @@
-function spatial_posteriors = build_spatial_posteriors_bivariate(posteriors_grid, neighborhood_size)
+function spatial_posteriors = build_spatial_posteriors_bivariate(posteriors_grid, neighborhood_size, trace_choice)
 
 spatial_posteriors = struct();
 
 
 figure(9991)
-subplot1(size(posteriors_grid,1), size(posteriors_grid,2), 'Gap', [.005 .005], 'XTickL', 'Margin', 'YTickL', 'Margin');
+% subplot1(size(posteriors_grid,1), size(posteriors_grid,2), 'Gap', [.005 .005], 'XTickL', 'Margin', 'YTickL', 'Margin');
 % figure(9992)
 % subplot1(size(posteriors_grid,1), size(posteriors_grid,2), 'Gap', [.005 .005], 'XTickL', 'Margin', 'YTickL', 'Margin');
 % figure(9993)
@@ -14,12 +14,12 @@ subplot1(size(posteriors_grid,1), size(posteriors_grid,2), 'Gap', [.005 .005], '
 % figure(9995)
 % subplot1(size(posteriors_grid,1), size(posteriors_grid,2), 'Gap', [.005 .005], 'XTickL', 'Margin', 'YTickL', 'Margin');
 
-for i = 1:size(posteriors_grid,1)
-    for j = 1:size(posteriors_grid,2)
+for i = size(posteriors_grid,1)-3
+    for j = 4
         
         if ~isempty(posteriors_grid{i,j})
             
-            spatial_posteriors(i,j).amps = [];
+            spatial_posteriors(i,j).amp = [];
             spatial_posteriors(i,j).num_events = [];
             spatial_posteriors(i,j).tau1 = [];
             spatial_posteriors(i,j).tau2 = [];
@@ -29,12 +29,11 @@ for i = 1:size(posteriors_grid,1)
                 for jj = -neighborhood_size:neighborhood_size
                      if ~(i+ii < 1 || i+ii > size(posteriors_grid,1) || j+jj < 1 || j+jj > size(posteriors_grid,2))
                          
-                         
-                         spatial_posteriors(i,j).amps = [spatial_posteriors(i,j).amps [posteriors_grid{i+ii,j+jj}.amps]];
-                         spatial_posteriors(i,j).num_events = [spatial_posteriors(i,j).num_events [posteriors_grid{i+ii,j+jj}.num_events]];
-                         spatial_posteriors(i,j).tau1 = [spatial_posteriors(i,j).tau1 [posteriors_grid{i+ii,j+jj}.tau1]];
-                         spatial_posteriors(i,j).tau2 = [spatial_posteriors(i,j).tau2 [posteriors_grid{i+ii,j+jj}.tau2]];
-                         spatial_posteriors(i,j).times = [spatial_posteriors(i,j).times [posteriors_grid{i+ii,j+jj}.times]];
+                         spatial_posteriors(i,j).amp = [spatial_posteriors(i,j).amp [posteriors_grid{i+ii,j+jj}(trace_choice).amp]];
+                         spatial_posteriors(i,j).num_events = [spatial_posteriors(i,j).num_events [posteriors_grid{i+ii,j+jj}(trace_choice).num_events]];
+                         spatial_posteriors(i,j).tau1 = [spatial_posteriors(i,j).tau1 [posteriors_grid{i+ii,j+jj}(trace_choice).tau1]];
+                         spatial_posteriors(i,j).tau2 = [spatial_posteriors(i,j).tau2 [posteriors_grid{i+ii,j+jj}(trace_choice).tau2]];
+                         spatial_posteriors(i,j).times = [spatial_posteriors(i,j).times [posteriors_grid{i+ii,j+jj}(trace_choice).times]];
                          
                      end
                 end
@@ -45,17 +44,22 @@ for i = 1:size(posteriors_grid,1)
 
                         
             figure(9991)
-            subplot1((i-1)*size(posteriors_grid,2) + j);
-            if ~isempty(spatial_posteriors(i,j).amps)
-                hist3([spatial_posteriors(i,j).amps' spatial_posteriors(i,j).times'],'Edges',{[40:20:150],[0:.005:.1]*20000},'EdgeAlpha',0)
-                colormap(hot)
-                set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
+%             subplot1((i-1)*size(posteriors_grid,2) + j);
+            if ~isempty(spatial_posteriors(i,j).amp)
+%                 hist3([spatial_posteriors(i,j).amp' spatial_posteriors(i,j).times'],'Edges',{[0:5:300],[0:.005:.1]*20000},'EdgeAlpha',0)
+                scatter(spatial_posteriors(i,j).times',-spatial_posteriors(i,j).amp',2,'.'); hold on;
+                scatter(spatial_posteriors(i,j).times',spatial_posteriors(i,j).tau1',2,'.'); hold on;
+                scatter(spatial_posteriors(i,j).times',spatial_posteriors(i,j).tau2',2,'.');
+                
+%                 colormap(hot)
+%                 set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
             end
-            view(3); 
-            axis off
+%             view(3); 
+%             axis off
 %             ylim([0 10000])
 %             xlim([20 250])
-            
+%             figure(132)
+%             histogram(spatial_posteriors(i,j).times,[0:100:2000])
 %             figure(9992)
 %             subplot1((i-1)*size(posteriors_grid,2) + j);
 %             hist3([spatial_posteriors(i,j).num_events' spatial_posteriors(i,j).times'],'Edges',{0:8,[0:.005:.1]*20000})
@@ -93,8 +97,8 @@ for i = 1:size(posteriors_grid,1)
 end
 
 figure(9991)
-subplot1(1);
-title('amps')
+% subplot1(1);
+title('amp')
 
 % figure(9992)
 % subplot1(1)
