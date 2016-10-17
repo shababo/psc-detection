@@ -72,6 +72,10 @@ if ~isfield(params,'is_grid')
     params.is_grid = 1;
 end
 
+if ~isfield(params,'grid_reduce')
+    params.grid_reduce = 0;
+end
+
 %% inference params
 
 % event amplitude bounds
@@ -120,7 +124,7 @@ if ~isfield(params,'tau2_min')
 end
 if ~isfield(params,'tau2_max')
 %     params.tau2_max = 100/20000;
-    params.tau2_max = 3e-2;
+    params.tau2_max = 4e-2;
 end
 % how long to make kernel in samples
 if ~isfield(params,'event_samples')
@@ -237,7 +241,7 @@ end
 
 % how long to run the sampler
 if ~isfield(params,'num_sweeps')
-    params.num_sweeps = 1000;
+    params.num_sweeps = 5000;
 end
 if ~isfield(params,'burn_in_sweeps')
     params.burn_in_sweeps = 0;
@@ -324,7 +328,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/som-mapping-st/detection-test-map1.mat'];
+            ['data/som-mapping-st/detection-test-map_ch1.mat'];
 
 %     end
 end

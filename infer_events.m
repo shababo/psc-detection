@@ -98,7 +98,7 @@ if params.par
 %             params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
         
         
-figure; plot(template)
+%figure; plot(template)
         
         nfft = length(trace) + length(template);
         [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...

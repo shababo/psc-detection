@@ -1,6 +1,6 @@
 function [all_event_features, events_by_trace] = kmeans_estimate(posteriors,traces,do_plot)
 
-burn_in = 1;
+burn_in = 2500;
 num_traces = length(posteriors);
 colors_groups = hsv(100);
 colors_groups = colors_groups(randperm(100),:);

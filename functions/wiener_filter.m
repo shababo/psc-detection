@@ -70,9 +70,10 @@ filtered_trace = filtered_trace(1:length(trace));
 
 
 [~, event_times] = findpeaks(filtered_trace,'MinPeakHeight',threshold*std(filtered_trace),'MinPeakDistance',min_window);
+
 event_sizes = zeros(size(event_times));
 for j = 1:length(event_times)
-    baseline = min(trace(max(1,event_times(j)-40):event_times(j)));
+    baseline = min(trace(max(1,event_times(j)-40):min(event_times(j),length(trace))));
     event_sizes(j) = max(trace(event_times(j):min(event_times(j)+200,length(trace)))) - 10 - baseline;
 end
 
