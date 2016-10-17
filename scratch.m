@@ -1412,5 +1412,61 @@ set(gca,'xticklabels',{})
 title('Fluor Traces For Each Component')
 
 %%
+num_results = length(results)/5;
+
+figure;
+for i = 1:num_results
+    
+    subplot(num_results,1,i)
+    all_points = [];
+    for j = 1:5
+        all_points = [all_points results((i-1)*5+j).trials.times];
+    end
+%     scatter(results(i).trials.times,results(i).trials.tau2)
+    histogram(all_points,[0:1:2000])
+    xlim([0 2000])
+%     ylim([0 2000])
+end
+
+
+%%
+latency_image1(10+8,4+11) = 0;
+figure; subplot(131); 
+imagesc(latency_image2(9:21,12:20)); axis off; 
+
+subplot(132); imagesc(latency_image1(9:21,12:20)); axis off; 
+
+subplot(133); axis off; imagesc(min(latency_image1(9:21,12:20),latency_image2(9:21,12:20)))
+axis off
+colormap hot
+
+%%
+sum_image1(10+8,4+11) = 0;
+figure; subplot(131); 
+imagesc(sum_image2(9:21,12:20)); axis off; 
+caxis([0 1.5])
+subplot(132); imagesc(sum_image1(9:21,12:20)); axis off; 
+caxis([0 1.5])
+subplot(133); axis off; imagesc(sum_image1(9:21,12:20) + sum_image2(9:21,12:20))
+axis off
+caxis([0 1.5])
+colormap hot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

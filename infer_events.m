@@ -16,6 +16,8 @@ end
 try
     load(params.traces_filename,'traces')
 catch e
+    disp('bad file')
+    params.traces_filename
     params.traces_filename = 'data/for-paper/direct-stim-w-events-real.mat';
     load('data/for-paper/direct-stim-w-events-real.mat')
 end
@@ -34,11 +36,21 @@ else
 end
 
 if params.is_grid
+    edge_num = 3;
+    traces_reduce = cell(edge_num);
+    i_picks = randsample(1:size(traces,1),edge_num);
+    j_picks = randsample(1:size(traces,2),edge_num);
+    for i = 1:edge_num
+        for j = 1:edge_num
+            traces_reduce{i,j} = traces{i_picks(i),j_picks(j)};
+        end
+    end
+    traces = traces_reduce;
     [traces, rebuild_map] = stack_traces(traces);
     params.rebuild_map = rebuild_map;
 end
 
-% assignin('base','rebuild_map',rebuild_map)
+% assignin('base','params',params)
 % return
 
 if ~isfield(params,'duration')
@@ -86,6 +98,7 @@ if params.par
 %             params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
         
         
+% figure; plot(template)
         
         %nfft = length(trace) + length(template);
         %[filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
@@ -96,6 +109,7 @@ if params.par
         %event_times_init = [];
         filtered_trace = [];
         %event_sizes_init = [];
+
 %         assignin('base','event_times_init_old',event_times_init_old)
 %         assignin('base','event_times_init',event_times_init)
         results(trace_ind).event_times_init = event_times_init;
@@ -140,7 +154,7 @@ else
 
         
         nfft = length(trace) + length(template);
-        [~, event_times_init,event_sizes_init] = wiener_filter(params.event_sign*trace,template,params.init_method.ar_noise_params,...
+        [~, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
             nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
         event_times_init
         event_sizes_init
@@ -181,7 +195,7 @@ end
 % results = results_grid;
 
 disp('saving...')
-save(params.full_save_string,'results','params')
+save(params.full_save_string,'results','params','traces')
 
 disp('done')
 

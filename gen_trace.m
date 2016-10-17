@@ -47,8 +47,7 @@ Y = zeros(1,data_params.T);
 C = zeros(1,data_params.T);
 Y_AR = zeros(1,data_params.T);
 Spk = cell(1,K);
-taus = cell(1,K);
-amplitudes = cell(1,K);
+taus = zeros(0,2);
 
 
 tau = [mean(bg_params.tau_r_bounds)/data_params.dt mean(bg_params.tau_f_bounds)/data_params.dt]; %time constants in bin-units
@@ -118,6 +117,7 @@ nc = 1; %trials
         N = length(ssi); %number of spikes in spiketrain
         trace_amps = [trace_amps a_init];
         trace_taus{i} = tau;
+        taus = [taus; tau];
     end
     
     % evoked spikes
@@ -157,6 +157,7 @@ nc = 1; %trials
         N = length(ssi); %number of spikes in spiketrain
         trace_amps = [trace_amps a_init];
         trace_taus{i} = tau;
+        taus = [taus; tau];
     end
     
     
@@ -231,8 +232,8 @@ Spk = startingSpikeTimes;
 
 trace = -Y_AR;
 true_signal.trace = -C;
-true_signal.event_times = Spk;
-true_signal.amplitudes = amplitudes; true_signal.taus = taus;
+true_signal.event_times = ssi;
+true_signal.amplitudes = trace_amps; true_signal.taus = taus;
 % 
 % sorted_times = sort(true_event_times{1});
 % legend_names = {};
