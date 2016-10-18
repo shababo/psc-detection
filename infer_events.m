@@ -37,7 +37,7 @@ end
 
 if params.is_grid
     
-    if params.grid_reduce
+    if isfield(params,'grid_reduce) && params.grid_reduce
         edge_num = params.grid_reduce_count;
         traces_reduce = cell(edge_num);
         i_picks = randsample(1:size(traces,1),edge_num);
@@ -80,8 +80,9 @@ disp(['About to run inference on: ' num2str(size(traces,1)) ' traces...']);
 
 if params.par
     
-
-    delete(gcp('nocreate'))
+    if ~params.cluster
+        delete(gcp('nocreate'))
+    end
     this_pool = parpool();
     addAttachedFiles(this_pool,{'functions/sampleParams_ARnoise_splittau.m',...
 				'functions/add_base_ar.m','functions/addSpike_ar.m',...
@@ -106,8 +107,8 @@ if params.par
         [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
            nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
 %         [event_sizes_init, event_times_init] = findpeaks(trace,'minpeakheight',30,'minpeakprominence',10);
-        %event_times_init
-        %event_sizes_init
+        event_times_init
+        event_sizes_init
         %event_times_init = [];
 %         filtered_trace = [];
         %event_sizes_init = [];
