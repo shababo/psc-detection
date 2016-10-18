@@ -5,6 +5,8 @@ function infer_events_caller(varargin)
 
 % varargin{1}: paramfile
 
+clearvars -except varargin
+
 params = struct();
         
 % load params from file if given

@@ -64,6 +64,7 @@ if ~isfield(params,'traces_ind')
 %     params.traces_ind = 1278;
 %     params.traces_ind = 1;
 
+%    params.traces_ind = 1:6;
 %     params.traces_ind = 1:4;
 end
 

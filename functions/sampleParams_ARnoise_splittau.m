@@ -60,7 +60,7 @@ baseline_sweeps = params.baseline_sweeps;
 tau1_sweeps = params.tau1_sweeps;
 tau2_sweeps = params.tau2_sweeps;
 
-maxNbursts = Inf;
+maxNbursts = 30;
 
 indreport=.1:.1:1;
 indreporti=round(num_sweeps*indreport);
@@ -416,7 +416,9 @@ for i = 1:num_sweeps
     %define removal proposal distribution as uniform over bursts
     %perhaps better is to choose smarter removals.
         for ii = 1:adddrop 
-            %propose a uniform add
+            
+
+	    %propose a uniform add
             %pick a random point
             tmpi = min(nBins)*rand;
             %dont add if we have too many bursts or the proposed new location
@@ -470,6 +472,7 @@ for i = 1:num_sweeps
                 end
                 N = length(sti);
             end
+
             
             if i > 250
 
@@ -509,7 +512,7 @@ for i = 1:num_sweeps
                     if observe
                         
     
-    subplot(311)
+            subplot(311)
             plot(pr)
             hold on
             plot(trace)

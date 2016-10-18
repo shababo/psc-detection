@@ -29,17 +29,26 @@ end
 % of samples
 % load(params.traces_filename,'traces');
 
+if iscell(traces)
+    params.is_grid = 1;
+else
+    params.is_grid = 0;
+end
+
 if params.is_grid
-    edge_num = 3;
-    traces_reduce = cell(edge_num);
-    i_picks = randsample(1:size(traces,1),edge_num);
-    j_picks = randsample(1:size(traces,2),edge_num);
-    for i = 1:edge_num
-        for j = 1:edge_num
-            traces_reduce{i,j} = traces{i_picks(i),j_picks(j)};
+    
+    if params.grid_reduce
+        edge_num = params.grid_reduce_count;
+        traces_reduce = cell(edge_num);
+        i_picks = randsample(1:size(traces,1),edge_num);
+        j_picks = randsample(1:size(traces,2),edge_num);
+        for i = 1:edge_num
+            for j = 1:edge_num
+                traces_reduce{i,j} = traces{i_picks(i),j_picks(j)};
+            end
         end
-    end
-    traces = traces_reduce;
+        traces = traces_reduce;
+    end 
     [traces, rebuild_map] = stack_traces(traces);
     params.rebuild_map = rebuild_map;
 end
@@ -71,19 +80,13 @@ disp(['About to run inference on: ' num2str(size(traces,1)) ' traces...']);
 
 if params.par
     
-    if params.cluster
 
-        addpath(genpath(params.source_path));
-
-        maxNumCompThreads(12)
-        matlabpool(12)
-
-    else
-
-        delete(gcp('nocreate'))
-        this_pool = parpool();
-
-    end
+    delete(gcp('nocreate'))
+    this_pool = parpool();
+    addAttachedFiles(this_pool,{'functions/sampleParams_ARnoise_splittau.m',...
+				'functions/add_base_ar.m','functions/addSpike_ar.m',...
+				'functions/genEfilt_ar.m','functions/predAR.m',...
+				'functions/remove_base_ar.m','functions/removeSpike_ar.m'});
     
     load_struct = load(params.init_method.template_file);
     template = load_struct.template;
@@ -98,42 +101,43 @@ if params.par
 %             params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
         
         
-%figure; plot(template)
         
         nfft = length(trace) + length(template);
         [filtered_trace, event_times_init,event_sizes_init] = wiener_filter(trace,template,params.init_method.ar_noise_params,...
-            nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
-        filtered_trace = [];
-%         event_times_init = [];
-%         event_sizes_init = [];
-        event_times_init
-        event_sizes_init
+           nfft, params.dt, params.init_method.theshold, params.init_method.min_interval);
+%         [event_sizes_init, event_times_init] = findpeaks(trace,'minpeakheight',30,'minpeakprominence',10);
+        %event_times_init
+        %event_sizes_init
+        %event_times_init = [];
+%         filtered_trace = [];
+        %event_sizes_init = [];
+
 %         assignin('base','event_times_init_old',event_times_init_old)
 %         assignin('base','event_times_init',event_times_init)
         results(trace_ind).event_times_init = event_times_init;
         results(trace_ind).filtered_trace = filtered_trace;
         results(trace_ind).event_sizes_init = event_sizes_init;
         
-        tau = [mean([params.tau1_min params.tau1_max]) mean([params.tau2_min params.tau2_max])]/params.dt;
+        tau = [mean([params.tau1_min params.tau1_max]) ...
+            mean([params.tau2_min params.tau2_max])]/params.dt;
         
         if isfield(params,'init_only') && ~params.init_only
             if params.direct_stim
     %             event_times_init = ceil(length(trace)*rand(1,length(trace)*params.p_spike));
-                [results(trace_ind).trials, results(trace_ind).mcmc]  = sampleParams_ar_2taus_directstim(trace,tau,event_times_init,params);
+                [results(trace_ind).trials, results(trace_ind).mcmc]  = ...
+                    sampleParams_ar_2taus_directstim(trace,tau,event_times_init,params);
             else
+
     %             event_times_init = template_matching(-1*params.event_sign*traces(trace_ind,:), params.dt,...
     %                 params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
-                [results(trace_ind).trials, results(trace_ind).mcmc]  = sampleParams_ARnoise_splittau(trace,tau,event_times_init,params);
+                [results(trace_ind).trials, results(trace_ind).mcmc]  = ...
+                    sampleParams_ARnoise_splittau(trace,tau,event_times_init,params);
             end
         end
     end
     
     
-    if params.cluster
-        matlabpool close
-    else
         delete(this_pool)
-    end
 
 else
     
