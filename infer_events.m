@@ -37,7 +37,7 @@ end
 
 if params.is_grid
     
-    if isfield(params,'grid_reduce) && params.grid_reduce
+    if isfield(params,'grid_reduce') && params.grid_reduce
         edge_num = params.grid_reduce_count;
         traces_reduce = cell(edge_num);
         i_picks = randsample(1:size(traces,1),edge_num);
@@ -82,8 +82,10 @@ if params.par
     
     if ~params.cluster
         delete(gcp('nocreate'))
+	this_pool = parpool()
+    else
+        this_pool = parpool('local',16);
     end
-    this_pool = parpool();
     addAttachedFiles(this_pool,{'functions/sampleParams_ARnoise_splittau.m',...
 				'functions/add_base_ar.m','functions/addSpike_ar.m',...
 				'functions/genEfilt_ar.m','functions/predAR.m',...
