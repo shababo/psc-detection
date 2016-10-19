@@ -6,7 +6,7 @@ else
     do_plot = 0;
 end
 
-burn_in = 500;
+burn_in = 1500;
 num_traces = length(posteriors);
 colors_groups = hsv(100);
 colors_groups = colors_groups(randperm(100),:);
@@ -20,12 +20,13 @@ all_event_features = zeros(0,4);
 if do_plot
     figure
 end
+
 for i = 1:num_traces
     posterior = truncate_samples(posteriors(i),[burn_in length(posteriors(i).num_events)]);
     k = ceil(mean(posterior.num_events));
     subsample_i = 1:length(posterior.times);
     
-    k_opts = k-1:k+1;
+    k_opts = k-2:k+2;
     minerr = Inf;
     event_feature_means = [];
     for k_tmp = k_opts
@@ -46,7 +47,7 @@ for i = 1:num_traces
             
             [labels_tmp, event_feature_means_tmp] = kmeans(samples_matrix(subsample_i,:)',k_tmp);
             event_feature_means_tmp = event_feature_means_tmp';
-            denoised_curve = 1.0*build_curve(event_feature_means_tmp,0,size(traces,2)/20000,1/20000,3600);
+            denoised_curve = -1.0*build_curve(event_feature_means_tmp,0,size(traces,2)/20000,1/20000,3600);
             denoised_curve = denoised_curve - median(denoised_curve);
             
             this_error = sqrt(mean((denoised_curve - (traces(i,:) - median(traces(i,:)))).^2));
@@ -83,7 +84,7 @@ for i = 1:num_traces
 
         
         plot(1:size(traces,2),traces(i,:) - traces(i,end) - 200 - offset*(i-1),'color',colors_lines(i,:))
-        plot(1:size(traces,2), 1.0*build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000) - 200 - offset*(i-1),'color',colors_lines(i,:),'Linewidth',2)
+        plot(1:size(traces,2), -1.0*build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000) - 200 - offset*(i-1),'color',colors_lines(i,:),'Linewidth',2)
         xlim([1 size(traces,2)])
     elseif do_plot
         plot(1:size(traces,2),traces(i,:) - traces(i,end) - 200 - offset*(i-1),'color',colors_lines(i,:))

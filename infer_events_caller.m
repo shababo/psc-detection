@@ -57,6 +57,11 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     params.stim_shape = -direct_stim_in;
     
     params.cluster = 0;
+    params.grid_reduce = 1;
+    params.traces_filename = 'data/4_6_s3c1_r2_traces.mat';
+    params.savename = 'data/4_6_s3c1_r2_traces-9999.mat';
+    params.full_save_string = params.savename;
+    params.grid_reduce_count = 3;
 
 %     params.init_method.theshold = 2.0;
 %     params.init_method.min_interval = 100;

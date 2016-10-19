@@ -75,6 +75,7 @@ end
 
 if ~isfield(params,'grid_reduce')
     params.grid_reduce = 0;
+    params.grid_reduce_count = 3;
 end
 
 %% inference params
