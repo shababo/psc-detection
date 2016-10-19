@@ -6,7 +6,7 @@ else
     do_plot = 0;
 end
 
-burn_in = 1500;
+burn_in = 1;
 num_traces = length(posteriors);
 colors_groups = hsv(100);
 colors_groups = colors_groups(randperm(100),:);
@@ -47,10 +47,14 @@ for i = 1:num_traces
             
             [labels_tmp, event_feature_means_tmp] = kmeans(samples_matrix(subsample_i,:)',k_tmp);
             event_feature_means_tmp = event_feature_means_tmp';
-            denoised_curve = -1.0*build_curve(event_feature_means_tmp,0,size(traces,2)/20000,1/20000,3600);
+            denoised_curve = build_curve(event_feature_means_tmp,mean(posterior.base),size(traces,2)/20000,1/20000,3600);
             denoised_curve = denoised_curve - median(denoised_curve);
             
-            this_error = sqrt(mean((denoised_curve - (traces(i,:) - median(traces(i,:)))).^2));
+            trace = -1.0*traces(i,:);
+            trace = trace - min(trace);
+            
+%             this_error = sqrt(mean((denoised_curve - (traces(i,:) - median(traces(i,:)))).^2));
+            this_error = sqrt(mean((denoised_curve - trace).^2));
             if this_error < minerr
                 minerr = this_error;
                 event_feature_means = event_feature_means_tmp;
@@ -65,12 +69,12 @@ for i = 1:num_traces
     events_by_trace{i} = event_feature_means;
 %     k
     if do_plot && k > 0 && length(posterior.amp) >= k    
-%         gscatter(posterior.times(subsample_i),-posterior.amp(subsample_i),labels,colors_lines(i,:),[],1,0)
-%         hold on
-%         gscatter(posterior.times(subsample_i),posterior.tau1(subsample_i),labels,colors_lines(i,:),[],1,0)
-%         hold on
-%         gscatter(posterior.times(subsample_i),posterior.tau2(subsample_i),labels,colors_lines(i,:),[],1,0)
-%         hold on
+        gscatter(posterior.times(subsample_i),-posterior.amp(subsample_i),labels,colors_lines(i,:),[],1,0)
+        hold on
+        gscatter(posterior.times(subsample_i),posterior.tau1(subsample_i),labels,colors_lines(i,:),[],1,0)
+        hold on
+        gscatter(posterior.times(subsample_i),posterior.tau2(subsample_i),labels,colors_lines(i,:),[],1,0)
+        hold on
         
         
         scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
