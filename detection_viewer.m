@@ -117,7 +117,7 @@ for i = 1:num_traces
     event_feature_means = events_by_trace{i};
     k = size(event_feature_means,1);
     
-    if  k > 0 && length(posterior.amp) >= k
+
         
         if ~isfield(handles,'event_sign')
             recon_corr = corr([build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000)' ...
@@ -144,7 +144,7 @@ for i = 1:num_traces
         hold on
     
      
-
+    if  k > 0 && length(posterior.amp) >= k
         scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
         hold on
         scatter(event_feature_means(:,4), event_feature_means(:,2),100,colors_lines(i,:),'x','LineWidth',2)

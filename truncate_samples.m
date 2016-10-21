@@ -15,8 +15,8 @@ end
 
 posterior_trunc = struct();
 % num_new_events = sum(posterior.num_events(sweep_bounds(1):sweep_bounds(2)));
-event_sample_start = max(sum(posterior.num_events(1:sweep_bounds(1)-1)) + 1,1)
-event_sample_end = sum(posterior.num_events(1:sweep_bounds(2)))
+event_sample_start = max(sum(posterior.num_events(1:sweep_bounds(1)-1)) + 1,1);
+event_sample_end = sum(posterior.num_events(1:sweep_bounds(2)));
 if event_sample_end > 0
     posterior_trunc.amp = posterior.amp(event_sample_start:event_sample_end);
 else
@@ -45,9 +45,6 @@ event_count = 1;
 bad_samps = [];
 num_events_tmp = posterior_trunc.num_events;
 
-assignin('base','posterior_trunc',posterior_trunc)
-
-length(posterior_trunc.times)
 
 for i = 1:length(posterior_trunc.times)
     

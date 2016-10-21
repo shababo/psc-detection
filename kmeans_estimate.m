@@ -24,7 +24,7 @@ end
 for i = 1:num_traces
     
     posterior = truncate_samples(posteriors(i),[burn_in length(posteriors(i).num_events)],[]);
-    k = ceil(mean(posterior.num_events));
+    k = round(mean(posterior.num_events));
     subsample_i = 1:length(posterior.times);
     
     k_opts = k-1:k+1;
