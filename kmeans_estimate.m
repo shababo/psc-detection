@@ -22,19 +22,22 @@ if do_plot
 end
 
 for i = 1:num_traces
-    posterior = truncate_samples(posteriors(i),[burn_in length(posteriors(i).num_events)]);
+    
+    posterior = truncate_samples(posteriors(i),[burn_in length(posteriors(i).num_events)],[]);
     k = ceil(mean(posterior.num_events));
     subsample_i = 1:length(posterior.times);
     
-    k_opts = k-2:k+2;
+    k_opts = k-1:k+1;
+%     k_opts = round(mean(posterior.num_events));
     minerr = Inf;
     event_feature_means = [];
+    
     for k_tmp = k_opts
     
         if k_tmp > 0 && length(posterior.amp) >= k_tmp
 
             samples_matrix = [posterior.amp' posterior.tau1' posterior.tau2' posterior.times'];
-%             size(samples_matrix)
+    %             size(samples_matrix)
     %         
     %         subsample_rate = 10;
     %         subsample_i = randsample(size(samples_matrix,1),ceil(size(samples_matrix,1)/subsample_rate));

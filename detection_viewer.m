@@ -73,9 +73,11 @@ plot_trace_stack_grid(handles.data.trace_grid,Inf,1,0,[],handles.traces_grid_axe
 set(handles.grid_size,'String',['Grid Size: ' num2str(handles.row_max) ...
     ' x ' num2str(handles.col_max)])
 
-update_results_axes(handles)
 % Update handles structure
 guidata(hObject, handles);
+
+update_results_axes(handles)
+
 
 % UIWAIT makes detection_viewer wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -96,7 +98,7 @@ function update_results_axes(handles)
 axes(handles.detection_axes)
 
 offset = 100; % expose
-burn_in = 500;
+burn_in = 1;
 colors_groups = hsv(100);
 colors_groups = colors_groups(randperm(100),:);
 colors_lines =  lines(100);
@@ -120,19 +122,19 @@ for i = 1:num_traces
         if ~isfield(handles,'event_sign')
             recon_corr = corr([build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000)' ...
                 traces(i,:)' - traces(i,end)]);
-            handles.event_sign = recon_corr(2);
+            handles.event_sign = sign(recon_corr(2));
             guidata(handles.up,handles)
         end
         
-%         labels = ones(size(posterior.times));
+        labels = ones(size(posterior.times));
 %         length(posterior.times)
-        labels = 1:100:length(posterior.times);
+%         labels = 1:100:length(posterior.times);
 %         size(labels)
-        labels = repmat(labels,105,1);
+%         labels = repmat(labels,105,1);
 %         size(labels)
-        labels = labels(:);
+%         labels = labels(:);
 %         size(labels)
-        labels = labels(1:length(posterior.times));
+%         labels = labels(1:length(posterior.times));
 %         assignin('base','labels',labels)
         gscatter(posterior.times,-posterior.amp,labels,colors_lines(i,:),[],1,0)
         hold on
@@ -150,9 +152,12 @@ for i = 1:num_traces
         scatter(event_feature_means(:,4), event_feature_means(:,3),100,colors_lines(i,:),'x','LineWidth',2)
         hold on
 
-
-        plot(1:size(traces,2),traces(i,:) - traces(i,end) - 200 - offset*(i-1),'color',colors_lines(i,:))
-        plot(1:size(traces,2), handles.event_sign*build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000) - 200 - offset*(i-1),'color',colors_lines(i,:),'Linewidth',2)
+        trace = -1.0*traces(i,:);
+        trace = trace - min(trace);
+        
+        
+        plot(1:size(traces,2),handles.event_sign*trace - 200 - offset*(i-1),'color',colors_lines(i,:))
+        plot(1:size(traces,2), handles.event_sign*build_curve(event_feature_means,mean(posterior.base),size(traces,2)/20000,1/20000,2000) - 200 - offset*(i-1),'color',colors_lines(i,:),'Linewidth',2)
         xlim([1 size(traces,2)])
 
     else
