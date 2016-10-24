@@ -141,6 +141,7 @@ if params.par
                     sampleParams_ARnoise_splittau(trace,tau,event_times_init,params);
             end
         end
+        disp(['Finished trace #' num2str(trace_ind)])
     end
     
     

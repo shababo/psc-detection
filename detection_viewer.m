@@ -117,7 +117,6 @@ for i = 1:num_traces
     event_feature_means = events_by_trace{i};
     k = size(event_feature_means,1);
     
-
         
         if ~isfield(handles,'event_sign')
             recon_corr = corr([build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000)' ...
