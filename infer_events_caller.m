@@ -60,6 +60,7 @@ if ~isempty(varargin) && ~isempty(varargin{1})
     params.par = 0;
     params.cluster = 1;
     params.num_sweeps = 5000;
+    
 %     params.init_method.theshold = 2.0;
      params.init_method.min_interval = 100;
 else

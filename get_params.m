@@ -288,7 +288,7 @@ if ~isfield(params,'tau2_sweeps')
 end
 
 if ~isfield(params,'a_init_window')
-    params.a_init_window = 50;
+    params.a_init_window = 100;
 end
 
 if ~isfield(params,'exclusion_bound')
