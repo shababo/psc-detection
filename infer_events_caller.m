@@ -55,7 +55,7 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     
 %     load('data/direct_stim_2_9_s3c1_emperical.mat')
 %     params.stim_shape = -direct_stim_in;
-    
+
     params.cluster = 0;
 %     params.grid_reduce = 1;
 %     params.traces_filename = 'data/4_6_wtf.mat';
@@ -66,8 +66,9 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     params.init_method.min_interval = 100;
 %     params.rand = 0;
 
+
 %     params.init_method.theshold = 2.0;
-%     params.init_method.min_interval = 100;
+     params.init_method.min_interval = 100;
 else
     params = get_params();
     

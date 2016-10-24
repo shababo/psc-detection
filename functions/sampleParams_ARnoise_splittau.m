@@ -60,7 +60,7 @@ baseline_sweeps = params.baseline_sweeps;
 tau1_sweeps = params.tau1_sweeps;
 tau2_sweeps = params.tau2_sweeps;
 
-maxNbursts = 30;
+maxNbursts = 15;
 
 indreport=.1:.1:1;
 indreporti=round(num_sweeps*indreport);
