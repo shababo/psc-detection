@@ -204,7 +204,7 @@ if ~params.noise_known
 
 %         keyboard
         sample_phi = 1;
-        loop_count 0;
+        loop_count = 0;
         while sample_phi
             phi = [1 mvnrnd(phi_cond_mean,inv(Phi_n))];
 
@@ -284,12 +284,17 @@ for i = 1:num_sweeps
             tmpi = si(ni);
             tmpi_ = si(ni)+(time_proposal_var*randn); %add in noise 
             % bouncing off edges
+            loop_count = 0;
             while tmpi_>nBins || tmpi_<0
                 if tmpi_<0
                     tmpi_ = -(tmpi_);
                 elseif tmpi_>nBins
                     tmpi_ = nBins-(tmpi_-nBins);
                 end
+                loop_count = loop_count + 1;
+            end
+            if loop_count > max_loops
+                max_loops = loop_count;
             end
             %if its too close to another burst, reject this move
             if any(abs(tmpi_-si([1:(ni-1) (ni+1):end]))<exclusion_bound)
@@ -337,14 +342,18 @@ for i = 1:num_sweeps
             %sample with random walk proposal
             tmp_a = ai(ni);
             tmp_a_ = tmp_a+(a_std*randn); %with bouncing off min and max
+            loop_count = 0;
             while tmp_a_>a_max || tmp_a_<a_min
                 if tmp_a_<a_min
                     tmp_a_ = a_min+(a_min-tmp_a_);
                 elseif tmp_a_>a_max
                     tmp_a_ = a_max-(tmp_a_-a_max);
                 end
+                loop_count = loop_count + 1;
             end
-
+            if loop_count > max_loops
+                max_loops = loop_count;
+            end
             %set si_ to set of bursts with the move and pr_ to adjusted calcium and update logC_ to adjusted
             [si_, pr_, diffY_] = removeSpike_ar(si,pr,diffY,efs{ni},ai(ni),taus{ni},trace,si(ni),ni, Dt, A);
             [si_, pr_, diffY_] = addSpike_ar(si_,pr_,diffY_,efs{ni},tmp_a_,taus{ni},trace,si(ni),ni, Dt, A);
@@ -384,14 +393,18 @@ for i = 1:num_sweeps
         %sample with random walk proposal
         tmp_b = baseline;
         tmp_b_ = tmp_b+(b_std*randn); %with bouncing off min and max
+        loop_count = 0;
         while tmp_b_>b_max || tmp_b_<b_min
             if tmp_b_<b_min
                 tmp_b_ = b_min+(b_min-tmp_b_);
             elseif tmp_b_>b_max
                 tmp_b_ = b_max-(tmp_b_-b_max);
             end
+            loop_count = loop_count + 1;
         end
-
+        if loop_count > max_loops
+            max_loops = loop_count;
+        end
         %set si_ to set of bursts with the move and pr_ to adjusted calcium and update logC_ to adjusted
         [pr_, diffY_] = remove_base_ar(pr,diffY,tmp_b,trace,A);   
         [pr_, diffY_] = add_base_ar(pr_,diffY_,tmp_b_,trace,A);
@@ -552,14 +565,18 @@ for i = 1:num_sweeps
             tau_(1) = tau_(1)+(tau1_std*randn); %with bouncing off min and max
             tau_max = min([tau_(2) tau1_max]);
             tau_min = tau1_min;
+            loop_count = 0;
             while tau_(1)>tau_max || tau_(1)<tau_min
                 if tau_(1) < tau_min
                     tau_(1) = tau_min+(tau_min-tau_(1));
                 elseif tau_(1)>tau_max
                     tau_(1) = tau_max -(tau_(1)-tau_max);
                 end
+                loop_count = loop_count + 1;
             end 
-
+            if loop_count > max_loops
+                max_loops = loop_count;
+            end
             ef_ = genEfilt_ar(tau_,event_samples);%exponential filter
 
             %remove all old bumps and replace them with new bumps    
@@ -605,6 +622,7 @@ for i = 1:num_sweeps
             tau_(2) = tau_(2)+(tau2_std*randn);
             tau_min = max([tau_(1) tau2_min]);
             tau_max = tau2_max;
+            loop_count = 0;
             while tau_(2)>tau_max || tau_(2)<tau_(1)
                 if tau_(2)<tau_min
                     tau_(2) = tau_min+(tau_min-tau_(2));
@@ -612,6 +630,9 @@ for i = 1:num_sweeps
                     tau_(2) = tau_max-(tau_(2)-tau_max);
                 end
             end  
+            if loop_count > max_loops
+                max_loops = loop_count;
+            end
             ef_ = genEfilt_ar(tau_,event_samples);%exponential filter
 
             %remove all old bumps and replace them with new bumps    
@@ -668,6 +689,7 @@ for i = 1:num_sweeps
 
 %         keyboard
         sample_phi = 1;
+        loop_count = 0;
         while sample_phi
             phi = [1 mvnrnd(phi_cond_mean,inv(Phi_n))];
 
@@ -676,6 +698,10 @@ for i = 1:num_sweeps
             if all(abs(roots(phi_poly))<1) %check stability
                 sample_phi = 0;
             end
+            loop_count = loop_count + 1;
+        end
+        if loop_count > max_loops
+            max_loops = loop_count;
         end
         
     end
@@ -764,6 +790,7 @@ mcmc.dropMoves=dropMoves;
 mcmc.ampMoves=ampMoves;
 mcmc.tauMoves=tauMoves;
 mcmc.N_sto=N_sto;%number of bursts
+mcmc.max_loop_count = max_loops;
 
 if ~isfield(params,'posterior_data_struct') || strcmp(params.posterior_data_struct,'cells')
     posterior.amp=samples_a;
