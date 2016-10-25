@@ -181,12 +181,12 @@ timeMoves = [0 0];
 ampMoves = [0 0];
 tauMoves = [0 0];
 
-phi_flag = [];
-time_flag = [];
-amp_flag = [];
-tau1_flag = [];
-tau2_flag = [];
-base_flag = [];
+phi_flag = zeros(1,num_sweeps+1);
+time_flag = zeros(1,num_sweeps);
+amp_flag = zeros(1,num_sweeps);
+tau1_flag = zeros(1,num_sweeps);
+tau2_flag = zeros(1,num_sweeps);
+base_flag = zeros(1,num_sweeps);
 
 
 if ~params.noise_known
@@ -227,9 +227,7 @@ if ~params.noise_known
         
         if ~(loop_count < params.max_loops)
             phi = phi_;
-            phi_flag = [phi_flag 1];
-        else
-            phi_flag = [phi_flag 0];
+            phi_flag(1) = 1;
         end
 
         if loop_count > max_loops
@@ -312,10 +310,8 @@ for i = 1:num_sweeps
             
             if ~(loop_count < params.max_loops)
                 tmpi_ = tmpi;
-                time_flag = [time_flag 1];
-            else
-                time_flag = [time_flag 0];
-            end
+                time_flag(i) = 1;
+            end            
             
             if loop_count > max_loops
                 max_loops = loop_count;
@@ -375,13 +371,10 @@ for i = 1:num_sweeps
                 end
                 loop_count = loop_count + 1;
             end
-            
             if ~(loop_count < params.max_loops)
                 tmp_a_ = tmp_a;
-                amp_flag = [amp_flag 1];
-            else
-                amp_flag = [amp_flag 0];
-            end
+                amp_flag(i) = 1;
+            end 
             
             if loop_count > max_loops
                 max_loops = loop_count;
@@ -434,13 +427,11 @@ for i = 1:num_sweeps
             end
             loop_count = loop_count + 1;
         end
-        
         if ~(loop_count < params.max_loops)
             tmp_b_ = tmp_b;
-            base_flag = [base_flag 1];
-        else
-            base_flag = [base_flag 0];
-        end
+            base_flag(i) = 1;
+        end 
+
         if loop_count > max_loops
             max_loops = loop_count;
         end
@@ -615,10 +606,9 @@ for i = 1:num_sweeps
             end 
             if ~(loop_count < params.max_loops)
                 tau_ = taus{ni};
-                tau1_flag = [tau1_flag 1];
-            else
-                tau1_flag = [tau1_flag 0];
-            end
+                tau1_flag(i) = 1;
+            end 
+
 
             if loop_count > max_loops
                 max_loops = loop_count;
@@ -679,10 +669,8 @@ for i = 1:num_sweeps
             
             if ~(loop_count < params.max_loops)
                 tau_ = taus{ni};
-                tau2_flag = [tau2_flag 1];
-            else
-                tau2_flag = [tau2_flag 0];
-            end
+                tau2_flag(i) = 1;
+            end 
             
             if loop_count > max_loops
                 max_loops = loop_count;
@@ -757,10 +745,8 @@ for i = 1:num_sweeps
         end
         if ~(loop_count < params.max_loops)
             phi = phi_;
-            phi_flag = [phi_flag 1];
-        else
-            phi_flag = [phi_flag 0];
-        end        
+            phi_flag(i) = 1;
+        end         
         if loop_count > max_loops
             max_loops = loop_count;
         end
