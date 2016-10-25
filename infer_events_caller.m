@@ -55,12 +55,18 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     
 %     load('data/direct_stim_2_9_s3c1_emperical.mat')
 %     params.stim_shape = -direct_stim_in;
-    params.savename = [params.traces_filename(1:end-4) '-xoxox.mat'];
-    params.full_save_string = params.savename; 
-    params.par = 0;
-    params.cluster = 1;
+
+    params.cluster = 0;
+%     params.grid_reduce = 1;
+%     params.traces_filename = 'data/4_6_wtf.mat';
+%     params.savename = 'data/4_6_wtf-9997.mat';
+%     params.full_save_string = params.savename;
+%     params.grid_reduce_count = 3;
     params.num_sweeps = 5000;
-    
+%     params.init_method.min_interval = 100;
+%     params.rand = 0;
+
+
 %     params.init_method.theshold = 2.0;
      params.init_method.min_interval = 100;
 else

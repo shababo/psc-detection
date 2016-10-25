@@ -741,6 +741,10 @@ for i = 1:num_sweeps
 %     end
 
     objective = [objective -nBins/2*log(NoiseVar) + predAR(diffY,phi,p,1 )/(2*NoiseVar) + N*log(m) - log(factorial(N))];
+    if mod(i,500) == 0
+        i
+        N
+    end
 %     figure(10);
 %     plot(diffY_)
 %     drawnow
