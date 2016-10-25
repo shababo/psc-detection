@@ -181,6 +181,14 @@ timeMoves = [0 0];
 ampMoves = [0 0];
 tauMoves = [0 0];
 
+phi_flag = zeros(1,num_sweeps+1);
+time_flag = zeros(1,num_sweeps);
+amp_flag = zeros(1,num_sweeps);
+tau1_flag = zeros(1,num_sweeps);
+tau2_flag = zeros(1,num_sweeps);
+base_flag = zeros(1,num_sweeps);
+
+
 if ~params.noise_known
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % re-estimate the noise model
@@ -205,7 +213,8 @@ if ~params.noise_known
 %         keyboard
         sample_phi = 1;
         loop_count = 0;
-        while sample_phi
+        phi_ = phi;
+        while sample_phi && loop_count < params.max_loops
             phi = [1 mvnrnd(phi_cond_mean,inv(Phi_n))];
 
             phi_poly = -phi;
@@ -214,6 +223,11 @@ if ~params.noise_known
                 sample_phi = 0;
             end
             loop_count = loop_count + 1;
+        end
+        
+        if ~(loop_count < params.max_loops)
+            phi = phi_;
+            phi_flag(1) = 1;
         end
 
         if loop_count > max_loops
@@ -285,7 +299,7 @@ for i = 1:num_sweeps
             tmpi_ = si(ni)+(time_proposal_var*randn); %add in noise 
             % bouncing off edges
             loop_count = 0;
-            while tmpi_>nBins || tmpi_<0
+            while tmpi_>nBins || tmpi_<0 && loop_count < params.max_loops
                 if tmpi_<0
                     tmpi_ = -(tmpi_);
                 elseif tmpi_>nBins
@@ -293,6 +307,12 @@ for i = 1:num_sweeps
                 end
                 loop_count = loop_count + 1;
             end
+            
+            if ~(loop_count < params.max_loops)
+                tmpi_ = tmpi;
+                time_flag(i) = 1;
+            end            
+            
             if loop_count > max_loops
                 max_loops = loop_count;
             end
@@ -343,7 +363,7 @@ for i = 1:num_sweeps
             tmp_a = ai(ni);
             tmp_a_ = tmp_a+(a_std*randn); %with bouncing off min and max
             loop_count = 0;
-            while tmp_a_>a_max || tmp_a_<a_min
+            while tmp_a_>a_max || tmp_a_<a_min && loop_count < params.max_loops
                 if tmp_a_<a_min
                     tmp_a_ = a_min+(a_min-tmp_a_);
                 elseif tmp_a_>a_max
@@ -351,6 +371,11 @@ for i = 1:num_sweeps
                 end
                 loop_count = loop_count + 1;
             end
+            if ~(loop_count < params.max_loops)
+                tmp_a_ = tmp_a;
+                amp_flag(i) = 1;
+            end 
+            
             if loop_count > max_loops
                 max_loops = loop_count;
             end
@@ -394,7 +419,7 @@ for i = 1:num_sweeps
         tmp_b = baseline;
         tmp_b_ = tmp_b+(b_std*randn); %with bouncing off min and max
         loop_count = 0;
-        while tmp_b_>b_max || tmp_b_<b_min
+        while tmp_b_>b_max || tmp_b_<b_min && loop_count < params.max_loops
             if tmp_b_<b_min
                 tmp_b_ = b_min+(b_min-tmp_b_);
             elseif tmp_b_>b_max
@@ -402,6 +427,11 @@ for i = 1:num_sweeps
             end
             loop_count = loop_count + 1;
         end
+        if ~(loop_count < params.max_loops)
+            tmp_b_ = tmp_b;
+            base_flag(i) = 1;
+        end 
+
         if loop_count > max_loops
             max_loops = loop_count;
         end
@@ -566,7 +596,7 @@ for i = 1:num_sweeps
             tau_max = min([tau_(2) tau1_max]);
             tau_min = tau1_min;
             loop_count = 0;
-            while tau_(1)>tau_max || tau_(1)<tau_min
+            while tau_(1)>tau_max || tau_(1)<tau_min && loop_count < params.max_loops
                 if tau_(1) < tau_min
                     tau_(1) = tau_min+(tau_min-tau_(1));
                 elseif tau_(1)>tau_max
@@ -574,6 +604,12 @@ for i = 1:num_sweeps
                 end
                 loop_count = loop_count + 1;
             end 
+            if ~(loop_count < params.max_loops)
+                tau_ = taus{ni};
+                tau1_flag(i) = 1;
+            end 
+
+
             if loop_count > max_loops
                 max_loops = loop_count;
             end
@@ -623,13 +659,19 @@ for i = 1:num_sweeps
             tau_min = max([tau_(1) tau2_min]);
             tau_max = tau2_max;
             loop_count = 0;
-            while tau_(2)>tau_max || tau_(2)<tau_(1)
+            while tau_(2)>tau_max || tau_(2)<tau_(1) && loop_count < params.loop_count
                 if tau_(2)<tau_min
                     tau_(2) = tau_min+(tau_min-tau_(2));
                 elseif tau_(2)>tau_max
                     tau_(2) = tau_max-(tau_(2)-tau_max);
                 end
             end  
+            
+            if ~(loop_count < params.max_loops)
+                tau_ = taus{ni};
+                tau2_flag(i) = 1;
+            end 
+            
             if loop_count > max_loops
                 max_loops = loop_count;
             end
@@ -690,7 +732,8 @@ for i = 1:num_sweeps
 %         keyboard
         sample_phi = 1;
         loop_count = 0;
-        while sample_phi
+        phi_ = phi;
+        while sample_phi && loop_count < params.max_loops
             phi = [1 mvnrnd(phi_cond_mean,inv(Phi_n))];
 
             phi_poly = -phi;
@@ -700,6 +743,10 @@ for i = 1:num_sweeps
             end
             loop_count = loop_count + 1;
         end
+        if ~(loop_count < params.max_loops)
+            phi = phi_;
+            phi_flag(i) = 1;
+        end         
         if loop_count > max_loops
             max_loops = loop_count;
         end
@@ -791,6 +838,12 @@ mcmc.ampMoves=ampMoves;
 mcmc.tauMoves=tauMoves;
 mcmc.N_sto=N_sto;%number of bursts
 mcmc.max_loop_count = max_loops;
+mcmc.phi_flag = phi_flag;
+mcmc.amp_flag = amp_flag;
+mcmc.tau1_flag = tau1_flag;
+mcmc.base_flag = base_flag;
+mcmc.tau2_flag = tau2_flag;
+mcmc.time_flag = time_flag;
 
 if ~isfield(params,'posterior_data_struct') || strcmp(params.posterior_data_struct,'cells')
     posterior.amp=samples_a;
