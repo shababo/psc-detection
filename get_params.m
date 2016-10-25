@@ -300,6 +300,10 @@ end
 if ~isfield(params,'A')
     params.A = 1;
 end
+
+if ~isfield(params,'max_loops')
+    params.max_loops = 100;
+end
 % params.b
 %% template-matching initialization method
 % if ~isfield(params,'init_method')
