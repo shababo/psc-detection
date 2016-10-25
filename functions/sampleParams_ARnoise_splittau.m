@@ -172,7 +172,7 @@ sti_= sti;
 diffY_= diffY;
 N=length(sti);
 
-
+max_loops = 0;
 
 %% loop over sweeps to generate samples
 addMoves = [0 0]; %first elem is number successful, second is number total
@@ -204,6 +204,7 @@ if ~params.noise_known
 
 %         keyboard
         sample_phi = 1;
+        loop_count 0;
         while sample_phi
             phi = [1 mvnrnd(phi_cond_mean,inv(Phi_n))];
 
@@ -212,6 +213,11 @@ if ~params.noise_known
             if all(abs(roots(phi_poly))<1) %check stability
                 sample_phi = 0;
             end
+            loop_count = loop_count + 1;
+        end
+
+        if loop_count > max_loops
+            max_loops = loop_count;
         end
         
     end
