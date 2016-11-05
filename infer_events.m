@@ -84,7 +84,12 @@ if params.par
         delete(gcp('nocreate'))
         this_pool = parpool();
     else
-        this_pool = parpool('local',16);
+        jobdir = ['/vega/stats/users/bms2156/matlab-pool/' params.jobid];
+        mkdir(jobdir)
+        pc = parcluster('local'); 
+	pc.JobStorageLocation = jobdir;
+        this_pool = parpool(pc,16);
+        
     end
     addAttachedFiles(this_pool,{'functions/sampleParams_ARnoise_splittau.m',...
 				'functions/add_base_ar.m','functions/addSpike_ar.m',...
@@ -146,6 +151,9 @@ if params.par
     
     
         delete(this_pool)
+        if params.cluster
+            rmdir(jobdir)
+   	end
 
 else
     
