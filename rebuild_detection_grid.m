@@ -20,6 +20,8 @@ for i = 1:length(filestoload)
     
 end
 
+size(results_all)
+
 load(rebuild_file)
 
 results_grid = unstack_results(results_all, rebuild_map,do_posterior);
