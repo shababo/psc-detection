@@ -21,6 +21,5 @@ for i = 1:num_experiments
         tracedir,...
         paramdir);
 end
-end
 
 

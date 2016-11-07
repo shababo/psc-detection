@@ -1464,12 +1464,13 @@ cell_nums =[1 1 1 1 1 1 1 1 1 1 1];
 
 tags = {'', '', '', '', '', '', 'cont', 'cont', '', '', ''};% 
 
-% trials = {[6],[1 2 3 4],[3 4 5 6 7 8],[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
-trials = {[1:3],[1:6],[1:6],[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
+trials = {[6],[1 2 3 4],[3 4 5 6 7 8],[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
+% trials = {[1:3],[1:6],[1:6],[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
 tracedir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-job-01-dist';
 
 paramdir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-job-01-distparams';
 
+%%
 % mkdir(tracedir)
 % mkdir(paramdir)
 
@@ -1477,8 +1478,8 @@ paramdir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-
 
 % build_many_jobs(dates(6),slice_nums(6),cell_nums(6),tags(6),trials(6),params,map_index,tracedir,paramdir)
 
-
-exps_to_run = [9:11];
+%%
+exps_to_run = [1:6];
 
 for i = 1:length(exps_to_run)
     this_exp = exps_to_run(i);
@@ -1488,8 +1489,25 @@ for i = 1:length(exps_to_run)
 end
 
 %%
+exps_to_run = 2;
 
-for i = 1:length(glm_out)
+num_experiments = length(exps_to_run);
+
+
+dates = {'10_8', '10_8', '10_12','10_7','10_7','10_7','10_8','10_8','10_8' , '10_8' , '10_12'}; %
+
+slice_nums = [5 3 4 3 3 3 3 3 5 3 2];
+
+cell_nums =[1 1 1 1 1 1 1 1 1 1 1]; 
+
+tags = {'', '', '', '', '', '', 'cont', 'cont', '', '', ''};% 
+
+trials = {[1 2 3],[4 5],[3 4 5 6 7 8],[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
+% trials = {[1:9],[1:6],[1:6],[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
+
+for ii = 1:num_experiments
+    
+    i = exps_to_run(ii);
     figure;
     subplot(121)
     imagesc(reshape(...
@@ -1498,15 +1516,104 @@ for i = 1:length(glm_out)
     
     subplot(122)
     imagesc(reshape(...
-        glm_out(i).ch2.glmnet_fit.beta(2:end,glm_out(i).ch2.lambda == ...
-        glm_out(i).ch2.lambda_min),21,21)');
+        glm_out(i).ch2.glmnet_fit.beta(2:end,find(glm_out(i).ch2.lambda == ...
+        glm_out(i).ch2.lambda_min)+20),21,21)');
+    
+    
+    
 end
 
 
+%%
+
+exps_to_run = 2;
+
+num_experiments = length(exps_to_run);
 
 
+dates = {'10_8', '10_8', '10_12','10_7','10_7','10_7','10_8','10_8','10_8' , '10_8' , '10_12'}; %
+
+slice_nums = [5 3 4 3 3 3 3 3 5 3 2];
+
+cell_nums =[1 1 1 1 1 1 1 1 1 1 1]; 
+
+tags = {'', '', '', '', '', '', 'cont', 'cont', '', '', ''};% 
+
+trials = {[1 2 3],[4 5],[3 4 5 6 7 8],[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
+% trials = {[1:9],[1:6],[1:6],[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
+
+for i = 1:num_experiments
+
+    this_exp = exps_to_run(i);
+
+    data_file = ...
+        [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat'];
+    load(data_file)
+    [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_index,0);
+    
+    figure;
+    compare_trace_stack_grid_overlap({map_ch1,samples_psths{this_exp}{1}},Inf,1,[],0,{'L4','L5'},1)
+
+    figure;
+    %     plot_trace_stack_grid(samples_psths{this_exp}{1},Inf,1,1);
+    imagesc(cellfun(@(x) max(mean(x(:,150:450),1)),samples_psths{this_exp}{1}))
+    
+    figure;
+    compare_trace_stack_grid_overlap({map_ch2,samples_psths{this_exp}{2}},Inf,1,[],0,{'L4','L5'},1)
+    
+    figure;
+    %     plot_trace_stack_grid(samples_psths{this_exp}{2},Inf,1,1);
+    imagesc(cellfun(@(x) max(mean(x(:,150:450),1)),samples_psths{this_exp}{2}))
+
+end
 
 
+%%
+%%
 
 
+dates = {'10_31','10_31','10_31','10_31','10_31','11_1','11_1','11_1','11_1','11_1','11_1','11_1','11_1'};
+
+slice_nums = [4,5,5,6,7,1,1,3,4,5,6,7,8];
+
+cell_nums =[1,1,2,1,1,1,2,1,1,2,1,1,1]; 
+
+tags = {'','','','','','','','','','','','',''};
+
+trials = {[15 16],[9 10],[1 2 3],[6 7 8],[6 7],[6 7],[5 6],[9 10 11],[7 8],[5 6],[5 6],[5 6],[5 6]};% third from last
+
+tracedir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-job-02-dist';
+
+paramdir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-job-02-distparams';
+
+mkdir(tracedir)
+mkdir(paramdir)
+
+% load('/media/shababo/Layover/projects/mapping/data/som-mapping-st/map_index.mat')
+
+build_many_jobs(dates,slice_nums,cell_nums,tags,trials,params,map_index2,tracedir,paramdir)
+
+%%
+
+dates = {'11_2','11_2','11_2','11_2'};
+
+slice_nums = [1,2,3,4];
+
+cell_nums =[2,1,1,1,]; 
+
+tags = {'','','next',''};
+
+trials = {[5 6 7 8],[5 6],[5 6 7 8],[9 10]};% third from last
+
+tracedir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-job-02-11_2-dist';
+
+paramdir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-job-02-11_2-distparams';
+
+mkdir(tracedir)
+mkdir(paramdir)
+
+% load('/media/shababo/Layover/projects/mapping/data/som-mapping-st/map_index.mat')
+
+build_many_jobs(dates,slice_nums,cell_nums,tags,trials,params,map_index2,tracedir,paramdir)
 
