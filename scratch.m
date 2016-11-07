@@ -1487,7 +1487,20 @@ for i = 1:length(exps_to_run)
         cell_nums(this_exp),tags(this_exp));
 end
 
+%%
 
+for i = 1:length(glm_out)
+    figure;
+    subplot(121)
+    imagesc(reshape(...
+        glm_out(i).ch1.glmnet_fit.beta(2:end,glm_out(i).ch1.lambda == ...
+        glm_out(i).ch1.lambda_min),21,21)');
+    
+    subplot(122)
+    imagesc(reshape(...
+        glm_out(i).ch2.glmnet_fit.beta(2:end,glm_out(i).ch2.lambda == ...
+        glm_out(i).ch2.lambda_min),21,21)');
+end
 
 
 
