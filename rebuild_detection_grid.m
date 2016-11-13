@@ -10,14 +10,15 @@ filestoload = regexpdir(resultsdir,matchstr);
 
 for i = 1:length(filestoload)
     
-    load(filestoload{i})
+    result_struct = load(filestoload{i});
     
-    if i == 1
-        results_all = results;
-    else
-        results_all = [results_all results];
+    if isfield(result_struct,'results')
+        if i == 1
+            results_all = result_struct.results;
+        else
+            results_all = [results_all result_struct.results];
+        end
     end
-    
 end
 
 size(results_all)
