@@ -1477,7 +1477,7 @@ paramdir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-
 
 % build_many_jobs(dates(6),slice_nums(6),cell_nums(6),tags(6),trials(6),params,map_index,tracedir,paramdir)
 
-%%
+%% som mapping psc pairs
 
 dates = {'10_8', '10_8', '10_12', '10_12', '10_12', '10_8', '10_7', '10_7', '10_7', '10_7',...
     '10_31','10_31','10_31','10_31','10_31','11_1','11_1','11_1','11_1','11_1','11_1','11_1','11_1',...
@@ -1501,14 +1501,22 @@ trials_detection = {[1:9],[1:6],[1:6],[7:12],1:6,4:12,1:3,1:6,7:12,13:18,...
 
 pair_id = logical([0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 1 0]);
 
+map_index_id = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2];
+
 id_names = {'L4-L5','L5-L5'};
 
+skip_exps = [2 3 7 9 10 24 28];
+pair_id_tmp = pair_id;
+pair_id_tmp(skip_exps) = [];
+
+exps_to_run = setdiff(9,skip_exps); %  13 26
+
 %%
-exps_to_run = [6]; %  13 26
+
 % exps_to_run = [14:25 27:30];
 for i = 1:length(exps_to_run)
     this_exp = exps_to_run(i);
-    [glm_out_newer(this_exp),~,~] = ...
+    [glm_out_map_based(this_exp),~,~] = ...
         glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
         cell_nums(this_exp),tags(this_exp),trials_detection(this_exp));
 end
@@ -1516,16 +1524,22 @@ end
 
 %%
 
-exps_to_run = [1:5 7:12 14:17 19:25 27:29];
-exps_to_run = [16:23];
-exps_to_run = 30
+% exps_to_run = [1:5 7:12 14:17 19:25 27:29];
+% exps_to_run = [16:23];
+exps_to_run = 14;
+% 
+close all
+
+glm_to_plot = glm_out_map_based;
 
 num_experiments = length(exps_to_run);
-for ii = 1:1
+for ii = 1:length(exps_to_run)
     
     this_exp = exps_to_run(ii);
     
-    this_exp = 6;
+%     this_exp = 7;
+
+       
     figure;
     subplot(121)
 %     imagesc(reshape(...
@@ -1534,12 +1548,25 @@ for ii = 1:1
 %         glm_out_new(this_exp).ch1.lambda_min) + ...
 %         find(glm_out_new(this_exp).ch1.lambda == ...
 %         glm_out_new(this_exp).ch1.lambda_1se))/2)),21,21)'>0); colormap gray
-    imagesc(reshape(...
-        glm_out_newer(this_exp).ch1.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch1.lambda == ...
-        glm_out_newer(this_exp).ch1.lambda_1se)+2+5*(-pair_id(this_exp)+1)),21,21)'>0); colormap gray
+%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch1.glmnet_fit.beta(:) > 0,1,'first')/...
+%         size(glm_to_plot(this_exp).ch1.glmnet_fit.beta,1)+4);
+%     lambda_ind = max(find(glm_to_plot(this_exp).ch1.lambda == ...
+%         glm_to_plot(this_exp).ch1.lambda_1se),lambda_ind);
+%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch1.lambda == ...
+%         glm_to_plot(this_exp).ch1.lambda_min) + find(glm_to_plot(this_exp).ch1.lambda == ...
+%         glm_to_plot(this_exp).ch1.lambda_1se)/2);
+%     min_1seup = glm_to_plot(this_exp).ch1.cvup(glm_to_plot(this_exp).ch1.lambda == ...
+%         glm_to_plot(this_exp).ch1.lambda_min);
+%     lambda_ind = find(glm_to_plot(this_exp).ch1.cvm < min_1seup,1,'last');
+    num_nonzeros = unique(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0));
+    target_num = num_nonzeros(end-1);
+    lambda_ind = find(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0) == target_num,1,'last');
+    ch1_glm_map = reshape(...
+        glm_to_plot(this_exp).ch1.glmnet_fit.beta(2:end,lambda_ind),21,21)';
+    ch1_glm_map(ch1_glm_map < .25) = 0;
+    imagesc(ch1_glm_map); colormap gray
     title(['Experiment ' num2str(this_exp) ': CH1'])
     axis off
-    
     subplot(122)
 %     imagesc(reshape(...
 %         glm_out_new(this_exp).ch2.glmnet_fit.beta(2:end,...
@@ -1547,50 +1574,64 @@ for ii = 1:1
 %         glm_out_new(this_exp).ch2.lambda_min) + ...
 %         find(glm_out_new(this_exp).ch2.lambda == ...
 %         glm_out_new(this_exp).ch2.lambda_1se))/2)),21,21)'>0); colormap gray
-    imagesc(reshape(...
-        glm_out_newer(this_exp).ch2.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch2.lambda == ...
-        glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)),21,21)'>0); colormap gray
+%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch2.glmnet_fit.beta(:) > 0,1,'first')/...
+%         size(glm_to_plot(this_exp).ch2.glmnet_fit.beta,1)+4);
+%     lambda_ind = max(find(glm_to_plot(this_exp).ch2.lambda == ...
+%         glm_to_plot(this_exp).ch2.lambda_1se),lambda_ind);
+%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch2.lambda == ...
+%         glm_to_plot(this_exp).ch2.lambda_min) + find(glm_to_plot(this_exp).ch2.lambda == ...
+%         glm_to_plot(this_exp).ch2.lambda_1se)/2);
+%     min_1seup = glm_to_plot(this_exp).ch2.cvup(glm_to_plot(this_exp).ch2.lambda == ...
+%         glm_to_plot(this_exp).ch2.lambda_min);
+%     lambda_ind = find(glm_to_plot(this_exp).ch2.cvm < min_1seup,1,'last');
+    num_nonzeros = unique(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0));
+    target_num = num_nonzeros(end-1);
+    lambda_ind = find(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0) == target_num,1,'last');
+    ch2_glm_map = reshape(...
+        glm_to_plot(this_exp).ch2.glmnet_fit.beta(2:end,lambda_ind),21,21)';
+    ch2_glm_map(ch2_glm_map < .25) = 0;
+    imagesc(ch2_glm_map); colormap gray
     title(['Experiment ' num2str(this_exp) ': CH2'])
     axis off
-    
-    subplot(133)
-    imagesc(xcorr_images_new{this_exp})
-    title(['Experiment ' num2str(this_exp)])
+
+%     subplot(133)
+%     imagesc(xcorr_images_new{this_exp})
+%     title(['Experiment ' num2str(this_exp)])
     
      data_file = ...
         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat'];
     load(data_file)
-    [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_index,0);
+    [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1);
+    title(['Experiment ' num2str(this_exp)])
+%     figure;
+%     compare_trace_stack_grid_overlap({map_ch1,samples_psths_new{this_exp}{1}},Inf,1,[],0,{'L4','L5'},1)
+%     title(['Experiment ' num2str(this_exp) ': Detection CH1'])
+% 
+%     figure;
+%     %     plot_trace_stack_grid(samples_psths{this_exp}{1},Inf,1,1);
+%     imagesc(cellfun(@(x) max(mean(x(:,150:450),1)),samples_psths_new{this_exp}{1}))
+%     title(['Experiment ' num2str(this_exp) ': Max(mean(PSTH)) CH1'])
     
-    figure;
-    compare_trace_stack_grid_overlap({map_ch1,samples_psths_new{this_exp}{1}},Inf,1,[],0,{'L4','L5'},1)
-    title(['Experiment ' num2str(this_exp) ': Detection CH1'])
-
-    figure;
-    %     plot_trace_stack_grid(samples_psths{this_exp}{1},Inf,1,1);
-    imagesc(cellfun(@(x) max(mean(x(:,150:450),1)),samples_psths_new{this_exp}{1}))
-    title(['Experiment ' num2str(this_exp) ': Max(mean(PSTH)) CH1'])
+%     figure;
+%     compare_trace_stack_grid_overlap({map_ch2,samples_psths_new{this_exp}{2}},Inf,1,[],0,{'L4','L5'},1)
+%     title(['Experiment ' num2str(this_exp) ': Detection CH2'])
     
-    figure;
-    compare_trace_stack_grid_overlap({map_ch2,samples_psths_new{this_exp}{2}},Inf,1,[],0,{'L4','L5'},1)
-    title(['Experiment ' num2str(this_exp) ': Detection CH2'])
+%     figure;
+%     %     plot_trace_stack_grid(samples_psths{this_exp}{2},Inf,1,1);
+%     imagesc(cellfun(@(x) max(mean(x(:,150:450),1)),samples_psths_new{this_exp}{2}))
+%     title(['Experiment ' num2str(this_exp) ': Max(mean(PSTH)) CH2'])
     
-    figure;
-    %     plot_trace_stack_grid(samples_psths{this_exp}{2},Inf,1,1);
-    imagesc(cellfun(@(x) max(mean(x(:,150:450),1)),samples_psths_new{this_exp}{2}))
-    title(['Experiment ' num2str(this_exp) ': Max(mean(PSTH)) CH2'])
+%     figure;
+%     compare_trace_stack_grid_overlap({samples_psths_new{this_exp}{1},samples_psths_new{this_exp}{2}},Inf,1,[],0,{'L4','L5'},1)
+%     title(['Experiment ' num2str(this_exp) ': Detection CH1 vs. CH2'])
     
-    figure;
-    compare_trace_stack_grid_overlap({samples_psths_new{this_exp}{1},samples_psths_new{this_exp}{2}},Inf,1,[],0,{'L4','L5'},1)
-    title(['Experiment ' num2str(this_exp) ': Detection CH1 vs. CH2'])
-    
-    xcorr_tighter{this_exp} = cellfun(@(x,y) xcorr_peak_trials(x,y,[150 450],0),...
-        samples_psths_new{this_exp}{1},samples_psths_new{this_exp}{2});
-    xcorr_images_null{this_exp} = cellfun(@(x,y) xcorr_peak_trials(x,y,[150 450],1),...
-        samples_psths_new{this_exp}{1},samples_psths_new{this_exp}{2});
-    
-    figure; subplot(121); imagesc(xcorr_tighter{this_exp}); subplot(122); imagesc(xcorr_images_null{this_exp})
+%     xcorr_tighter{this_exp} = cellfun(@(x,y) xcorr_peak_trials(x,y,[150 450],0),...
+%         samples_psths_new{this_exp}{1},samples_psths_new{this_exp}{2});
+%     xcorr_images_null{this_exp} = cellfun(@(x,y) xcorr_peak_trials(x,y,[150 450],1),...
+%         samples_psths_new{this_exp}{1},samples_psths_new{this_exp}{2});
+%     
+%     figure; subplot(121); imagesc(xcorr_tighter{this_exp}); subplot(122); imagesc(xcorr_images_null{this_exp})
     
 end
 
@@ -2020,12 +2061,10 @@ binned_xcorr = bin_mat * norm_xcorrs_intersect';
 % imagesc(E)
 % subplot(133)
 % imagesc(C)
-%%
 
 
-skip_exps = [3 6 9 10 13 18 24 26 28];
-pair_id_tmp = pair_id;
-pair_id_tmp(skip_exps) = [];
+
+
 
 %%
 binned_xcorr(isnan(binned_xcorr)) = 0;
@@ -2220,4 +2259,94 @@ mkdir(paramdir)
 % load('/media/shababo/Layover/projects/mapping/data/som-mapping-st/map_index.mat')
 
 build_many_jobs(dates,slice_nums,cell_nums,tags,trials,params,map_index2,tracedir,paramdir)
+
+%% som  spike detection
+
+%% som spike maps
+
+dates = {'11_3','11_3','11_3','11_3','11_3','11_3','11_3','11_3','11_3',...
+    '11_4','11_4','11_4','11_4','11_4','11_4','11_4','11_4','11_4',...
+    '11_4','11_4','11_4','11_4','11_4','11_4','11_4','11_4','11_4','11_4'}; %
+
+slice_nums = [1 1 1 1 1 2 2 2 2 ...
+    1 1 1 2 2 2 2 2 2 ...
+    3 3 3 3 3 3 3 3 3 3];
+
+cell_nums = [1 1 1 1 1 1 3 4 4 ...
+    1 1 1 1 1 2 2 2 2 ...
+    1 1 4 4 5 5 6 6 7 7]; 
+
+tags = {'','','','','','next','','','',...
+    '','', '', '', '','', '', '', '',...
+    '','','','','','','','','',''}; %, '', '', 'cont', 'cont', '', '', ''};% 
+
+trials = {17:19,20:22,24:25,26:28,29,1:2,1:3,1:3,4:6,...
+    6:8,17:18,19:22,11:13,14:16,10:12,13:15,16:18,19:21,...
+    5:7,8:10,13:15,16:18,21:23,24:26,5:7,8:10,9:11,12:14}; %,[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
+trials_detection = {}; %,[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
+
+% 1 cell-attached, 2 current clamp, 3 voltage clamp
+patch_type = [2 2 3 2 3 1 1 1 1 ...
+    2 3 2 1 1 1 1 1 1 ...
+    1 1 1 1 1 1 1 1 1 1];
+
+row_inds = {4:8,4:8,4:8,4:8,4:8,4:6,4:6,4:6,4:6,...
+    4:6,4:6,4:6,1:11,1:11,1:5,1:5,3:7,3:7,...
+    1:11,1:11,4:6,4:6,1:11,1:11,4:6,4:6,3:7,3:7};
+col_inds = {4:8,4:8,4:8,4:8,4:8,5:7,5:7,5:7,5:7,...
+    5:7,5:7,5:7,1:11,1:11,1:5,1:5,4:8,4:8,...
+    1:11,1:11,5:7,5:7,1:11,1:11,5:7,5:7,4:8,4:8};
+
+% 1 is 200 mW @ 4 msec and 2 is 250 mW @ 10 msec
+power = [2 2 2 1 1 2 2 2 1 ...
+    2 2 2 2 1 2 1 1 2 ...
+    2 1 2 1 1 2 2 1 1 2];
+
+
+% id_names = {'L4-L5','L5-L5'};
+% 
+skip_exps = [];
+% pair_id_tmp = pair_id;
+% pair_id_tmp(skip_exps) = [];
+% 
+exps_to_run = 1:length(dates); %  13 26
+exps_to_run = setdiff(exps_to_run,skip_exps)
+%%
+
+exps_to_run = 6:10;
+detection_grids = cell(1,length(dates));
+
+for ii = 1:length(exps_to_run)
+    
+    this_exp = exps_to_run(ii);
+    data_file = ...
+        [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat'];
+    load(data_file)
+    figure
+    subplot(121)
+    [map_ch1,~] = see_grid(data,trials{this_exp},map_index_spikes,0,363);
+    plot_trace_stack_grid(map_ch1,Inf,1,0);
+    title(['Experiment ' num2str(this_exp)])
+    
+    detection_results = cell(size(map_ch1));
+    
+    for i = 1:size(map_ch1,1)
+        for j = 1:size(map_ch1,2)
+            switch patch_type(this_exp)
+                case 1
+                    detection_results{i,j} = detect_peaks(...
+                        zscore(-1.0*bsxfun(@minus,map_ch1{i,j},median(map_ch1{i,j},2)),[],2),2,20,1,1,0)*70;
+                case 2
+                    detection_results{i,j} = detect_peaks(...
+                        1.0*bsxfun(@minus,map_ch1{i,j},map_ch1{i,j}(:,1)),50,20,1,1,0)*70;
+            end
+        end
+    end
+    
+    detection_grids{this_exp} = detection_results;
+    subplot(122)
+    plot_trace_stack_grid(detection_results,Inf,1,0);
+end
+    
 
