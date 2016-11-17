@@ -2312,10 +2312,14 @@ skip_exps = [];
 exps_to_run = 1:length(dates); %  13 26
 exps_to_run = setdiff(exps_to_run,skip_exps)
 %%
-
-exps_to_run = 6:10;
+close all
+%issues 13,19,20 7 14 15
+% 16 too low
+exps_to_run = [ 16];
 detection_grids = cell(1,length(dates));
 
+thresholds = [40 50 0 450 0 6.5 7.5 15 15 30 0 30 5 6 6 8 10 ...
+    10 5 5 15 15 10 5 15 15 15 15];
 for ii = 1:length(exps_to_run)
     
     this_exp = exps_to_run(ii);
@@ -2329,17 +2333,22 @@ for ii = 1:length(exps_to_run)
     plot_trace_stack_grid(map_ch1,Inf,1,0);
     title(['Experiment ' num2str(this_exp)])
     
-    detection_results = cell(size(map_ch1));
+    this_row_i = row_inds{this_exp};
+    this_col_j = col_inds{this_exp};
+    detection_results = cell(length(this_row_i),length(this_col_j));
     
-    for i = 1:size(map_ch1,1)
-        for j = 1:size(map_ch1,2)
+    for i = 1:length(this_row_i)
+        for j = 1:length(this_col_j)
             switch patch_type(this_exp)
                 case 1
                     detection_results{i,j} = detect_peaks(...
-                        zscore(-1.0*bsxfun(@minus,map_ch1{i,j},median(map_ch1{i,j},2)),[],2),2,20,1,1,0)*70;
+...%                         -1.0*bsxfun(@minus,map_ch1{i,j},median(map_ch1{i,j}(:,1:100),2)),5,20,1,1,0,1)*70;
+                            -1.0*bsxfun(@minus,map_ch1{this_row_i(i),this_col_j(j)},map_ch1{this_row_i(i),this_col_j(j)}(:,1)),thresholds(this_exp),80,1,1,0,0,1)*70;
                 case 2
                     detection_results{i,j} = detect_peaks(...
-                        1.0*bsxfun(@minus,map_ch1{i,j},map_ch1{i,j}(:,1)),50,20,1,1,0)*70;
+                        1.0*bsxfun(@minus,map_ch1{this_row_i(i),this_col_j(j)},map_ch1{this_row_i(i),this_col_j(j)}(:,1)),thresholds(this_exp),80,1,1,0,0,0)*70;
+                case 3
+                    detection_results{i,j} = mean(map_ch1{this_row_i(i),this_col_j(j)});
             end
         end
     end
