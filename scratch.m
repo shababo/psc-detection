@@ -1843,8 +1843,8 @@ for ii = 1:length(exps_to_run)
 %         glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)));
 % 
 %     all_locs = union(input_locs1,input_locs2);
-%     all_locs = intersect(input_locs1,input_locs2);
-    all_locs = 1:441;
+    all_locs = intersect(input_locs1,input_locs2);
+%     all_locs = 1:441;
 %     all_locs = all_locs(26)
     [js,is] = ind2sub([21 21],all_locs);
     
@@ -1865,7 +1865,7 @@ for ii = 1:length(exps_to_run)
     disp('got locs')
 
 
-    iters = 500;
+    iters = 1000;
     if ~isempty(all_locs)
 
 
@@ -1990,10 +1990,11 @@ end
 %%
 
 for i = 1:size(norm_xcorrs,1)
-   
     common_input_score_norm(i) = nanmean(norm_xcorrs(i,30:50))
 end
+
 %%
+
 cis_tmp_null = num_shared_locs_null./num_event_locs_null;
 cis_tmp_null(skip_exps,:) = [];
 
