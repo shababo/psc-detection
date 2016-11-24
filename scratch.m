@@ -1501,7 +1501,7 @@ trials_detection = {[1:9],[1:6],[1:6],[7:12],1:6,4:12,1:3,1:6,7:12,13:18,...
 
 pair_id = logical([0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 1 0]);
 
-map_index_id = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2];
+map_index_id = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1];
 
 id_names = {'L4-L5','L5-L5'};
 
@@ -1509,28 +1509,35 @@ skip_exps = [2 3 7 9 10 24 28];
 pair_id_tmp = pair_id;
 pair_id_tmp(skip_exps) = [];
 
-exps_to_run = setdiff(9,skip_exps); %  13 26
+exps_to_run = setdiff(1:length(pair_id),skip_exps); %  13 26
 
 %%
 
-% exps_to_run = [14:25 27:30];
+exps_to_run = [26:30];
+% exps_to_run = 12;
+delete(gcp('nocreate'))
+pool = parpool(3);
 for i = 1:length(exps_to_run)
-    this_exp = exps_to_run(i);
-    [glm_out_map_based(this_exp),~,~] = ...
-        glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
-        cell_nums(this_exp),tags(this_exp),trials_detection(this_exp));
+    this_exp = exps_to_run(i)
+%     try
+        [glm_out_time_bins{this_exp},~,~] = ...
+...%            glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
+...%            cell_nums(this_exp),tags(this_exp),trials_detection(this_exp),glm_dummy);
+            glm_from_map_est(map_estimates(this_exp),glm_dummy);
+%     catch e
+%         disp([num2str(this_exp) ' fail'])
+%     end
 end
-
+delete(pool);
 
 %%
 
 % exps_to_run = [1:5 7:12 14:17 19:25 27:29];
 % exps_to_run = [16:23];
-exps_to_run = 14;
-% 
+exps_to_run = 30
 close all
 
-glm_to_plot = glm_out_map_based;
+glm_to_plot = glm_out_time_bins;
 
 num_experiments = length(exps_to_run);
 for ii = 1:length(exps_to_run)
@@ -1539,71 +1546,86 @@ for ii = 1:length(exps_to_run)
     
 %     this_exp = 7;
 
-       
-    figure;
-    subplot(121)
-%     imagesc(reshape(...
-%         glm_out_new(this_exp).ch1.glmnet_fit.beta(2:end,...
-%         ceil((find(glm_out_new(this_exp).ch1.lambda == ...
-%         glm_out_new(this_exp).ch1.lambda_min) + ...
-%         find(glm_out_new(this_exp).ch1.lambda == ...
-%         glm_out_new(this_exp).ch1.lambda_1se))/2)),21,21)'>0); colormap gray
-%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch1.glmnet_fit.beta(:) > 0,1,'first')/...
-%         size(glm_to_plot(this_exp).ch1.glmnet_fit.beta,1)+4);
-%     lambda_ind = max(find(glm_to_plot(this_exp).ch1.lambda == ...
-%         glm_to_plot(this_exp).ch1.lambda_1se),lambda_ind);
-%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch1.lambda == ...
-%         glm_to_plot(this_exp).ch1.lambda_min) + find(glm_to_plot(this_exp).ch1.lambda == ...
-%         glm_to_plot(this_exp).ch1.lambda_1se)/2);
-%     min_1seup = glm_to_plot(this_exp).ch1.cvup(glm_to_plot(this_exp).ch1.lambda == ...
-%         glm_to_plot(this_exp).ch1.lambda_min);
-%     lambda_ind = find(glm_to_plot(this_exp).ch1.cvm < min_1seup,1,'last');
-    num_nonzeros = unique(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0));
-    target_num = num_nonzeros(end-1);
-    lambda_ind = find(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0) == target_num,1,'last');
-    ch1_glm_map = reshape(...
-        glm_to_plot(this_exp).ch1.glmnet_fit.beta(2:end,lambda_ind),21,21)';
-    ch1_glm_map(ch1_glm_map < .25) = 0;
-    imagesc(ch1_glm_map); colormap gray
-    title(['Experiment ' num2str(this_exp) ': CH1'])
-    axis off
-    subplot(122)
-%     imagesc(reshape(...
-%         glm_out_new(this_exp).ch2.glmnet_fit.beta(2:end,...
-%         ceil((find(glm_out_new(this_exp).ch2.lambda == ...
-%         glm_out_new(this_exp).ch2.lambda_min) + ...
-%         find(glm_out_new(this_exp).ch2.lambda == ...
-%         glm_out_new(this_exp).ch2.lambda_1se))/2)),21,21)'>0); colormap gray
-%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch2.glmnet_fit.beta(:) > 0,1,'first')/...
-%         size(glm_to_plot(this_exp).ch2.glmnet_fit.beta,1)+4);
-%     lambda_ind = max(find(glm_to_plot(this_exp).ch2.lambda == ...
-%         glm_to_plot(this_exp).ch2.lambda_1se),lambda_ind);
-%     lambda_ind = ceil(find(glm_to_plot(this_exp).ch2.lambda == ...
-%         glm_to_plot(this_exp).ch2.lambda_min) + find(glm_to_plot(this_exp).ch2.lambda == ...
-%         glm_to_plot(this_exp).ch2.lambda_1se)/2);
-%     min_1seup = glm_to_plot(this_exp).ch2.cvup(glm_to_plot(this_exp).ch2.lambda == ...
-%         glm_to_plot(this_exp).ch2.lambda_min);
-%     lambda_ind = find(glm_to_plot(this_exp).ch2.cvm < min_1seup,1,'last');
-    num_nonzeros = unique(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0));
-    target_num = num_nonzeros(end-1);
-    lambda_ind = find(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0) == target_num,1,'last');
-    ch2_glm_map = reshape(...
-        glm_to_plot(this_exp).ch2.glmnet_fit.beta(2:end,lambda_ind),21,21)';
-    ch2_glm_map(ch2_glm_map < .25) = 0;
-    imagesc(ch2_glm_map); colormap gray
-    title(['Experiment ' num2str(this_exp) ': CH2'])
-    axis off
-
+    ch1_glm_map = zeros(21,21);
+    ch2_glm_map = zeros(21,21);
+    for j = 1:2
+        
+        ch1_glm_map = ch1_glm_map + reshape(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
+            find(glm_to_plot{this_exp}.ch1(j).lambda == ...
+            glm_to_plot{this_exp}.ch1(j).lambda_1se)),21,21)';
+        
+        ch2_glm_map = ch2_glm_map + reshape(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
+            find(glm_to_plot{this_exp}.ch2(j).lambda == ...
+            glm_to_plot{this_exp}.ch2(j).lambda_1se)),21,21)';
+        
+    end
+        figure;
+        subplot(121)
+%         imagesc(reshape(...
+%             glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
+%             find(glm_to_plot{this_exp}.ch1(j).lambda == ...
+%             glm_to_plot{this_exp}.ch1(j).lambda_1se)),21,21)'); colormap gray
+    %     lambda_ind = ceil(find(glm_to_plot(this_exp).ch1.glmnet_fit.beta(:) > 0,1,'first')/...
+    %         size(glm_to_plot(this_exp).ch1.glmnet_fit.beta,1)+4);
+    %     lambda_ind = max(find(glm_to_plot(this_exp).ch1.lambda == ...
+    %         glm_to_plot(this_exp).ch1.lambda_1se),lambda_ind);
+    %     lambda_ind = ceil(find(glm_to_plot(this_exp).ch1.lambda == ...
+    %         glm_to_plot(this_exp).ch1.lambda_min) + find(glm_to_plot(this_exp).ch1.lambda == ...
+    %         glm_to_plot(this_exp).ch1.lambda_1se)/2);
+    %     min_1seup = glm_to_plot(this_exp).ch1.cvup(glm_to_plot(this_exp).ch1.lambda == ...
+    %         glm_to_plot(this_exp).ch1.lambda_min);
+    %     lambda_ind = find(glm_to_plot(this_exp).ch1.cvm < min_1seup,1,'last');
+%         num_nonzeros = unique(sum(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta > 0));
+%         target_num = num_nonzeros(end-1);
+%         lambda_ind = find(sum(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta > 0) == target_num,1,'last');
+%         ch1_glm_map = reshape(...
+%             glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,lambda_ind),21,21)';
+%         ch1_glm_map(ch1_glm_map < .25) = 0;
+        imagesc(ch1_glm_map); colormap gray
+        title(['Experiment ' num2str(this_exp) ': CH1'])
+        axis off
+        subplot(122)
+%         imagesc(reshape(...
+%             glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
+%             find(glm_to_plot{this_exp}.ch2(j).lambda == ...
+%             glm_to_plot{this_exp}.ch2(j).lambda_1se)),21,21)'); colormap gray
+    %     lambda_ind = ceil(find(glm_to_plot(this_exp).ch2.glmnet_fit.beta(:) > 0,1,'first')/...
+    %         size(glm_to_plot(this_exp).ch2.glmnet_fit.beta,1)+4);
+    %     lambda_ind = max(find(glm_to_plot(this_exp).ch2.lambda == ...
+    %         glm_to_plot(this_exp).ch2.lambda_1se),lambda_ind);
+    %     lambda_ind = ceil(find(glm_to_plot(this_exp).ch2.lambda == ...
+    %         glm_to_plot(this_exp).ch2.lambda_min) + find(glm_to_plot(this_exp).ch2.lambda == ...
+    %         glm_to_plot(this_exp).ch2.lambda_1se)/2);
+    %     min_1seup = glm_to_plot(this_exp).ch2.cvup(glm_to_plot(this_exp).ch2.lambda == ...
+    %         glm_to_plot(this_exp).ch2.lambda_min);
+    %     lambda_ind = find(glm_to_plot(this_exp).ch2.cvm < min_1seup,1,'last');
+%         num_nonzeros = unique(sum(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta > 0));
+%         target_num = num_nonzeros(end-1);
+%         lambda_ind = find(sum(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta > 0) == target_num,1,'last');
+%         ch2_glm_map = reshape(...
+%             glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,lambda_ind),21,21)';
+%         ch2_glm_map(ch2_glm_map < .25) = 0;
+        imagesc(ch2_glm_map); colormap gray
+        title(['Experiment ' num2str(this_exp) ': CH2'])
+        axis off
+%     end
 %     subplot(133)
 %     imagesc(xcorr_images_new{this_exp})
 %     title(['Experiment ' num2str(this_exp)])
     
+
      data_file = ...
         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
-        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat'];
+        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
     load(data_file)
-    [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1);
+    [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
     title(['Experiment ' num2str(this_exp)])
+    
+    figure
+    imagesc(exp_shuffle_stats_map_est2_intersect(this_exp).input_map)
+    title(['Experiment: ' num2str(this_exp) ', ' id_names{pair_id(this_exp) + 1}])
+     
+    
 %     figure;
 %     compare_trace_stack_grid_overlap({map_ch1,samples_psths_new{this_exp}{1}},Inf,1,[],0,{'L4','L5'},1)
 %     title(['Experiment ' num2str(this_exp) ': Detection CH1'])
@@ -1653,166 +1675,172 @@ title(['Experiment ' num2str(this_exp) ': CH2'])
 axis off
 
 %%
-
-[glm_out_test,xcorr_images_test,samples_psths_test] = ...
-        glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
-        cell_nums(this_exp),tags(this_exp),trials_detection(this_exp));
+% 
+% [glm_out_test,xcorr_images_test,samples_psths_test] = ...
+%         glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
+%         cell_nums(this_exp),tags(this_exp),trials_detection(this_exp));
 
 %%
 
 exps_to_run = [1:5 7:8 11:12 14:17 19:25 27:30];
 % exps_to_run = 24;
+exps_to_run = 1:30;
 
 for ii = 1:length(exps_to_run)
 
     this_exp = exps_to_run(ii)
     
-    events1 = samples_psths_new{this_exp}{1};
-    events2 = samples_psths_new{this_exp}{2};
+    try
 
-    disp('got events')
-    input_locs1 = find(glm_out_newer(this_exp).ch1.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch1.lambda == ...
-            glm_out_newer(this_exp).ch1.lambda_1se)+2));%+5*(-pair_id(this_exp) + 1)
-    input_locs2 = find(glm_out_newer(this_exp).ch2.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch2.lambda == ...
-        glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)));
+        events1 = samples_psths_new{this_exp}{1};
+        events2 = samples_psths_new{this_exp}{2};
 
-%     all_locs = union(input_locs1,input_locs2);
-%     all_locs = intersect(input_locs1,input_locs2);
-    all_locs = 1:441;
-    [js,is] = ind2sub([21 21],all_locs);
-    
-    null = 1;
-    if null
-        iters = 10000;
-        for j = 1:iters
-            input_locs1 =  randsample(1:441,length(input_locs1));
+        disp('got events')
+        input_locs1 = find(glm_out_newer(this_exp).ch1.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch1.lambda == ...
+                glm_out_newer(this_exp).ch1.lambda_1se)+2));%+5*(-pair_id(this_exp) + 1)
+        input_locs2 = find(glm_out_newer(this_exp).ch2.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch2.lambda == ...
+            glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)));
 
-            num_event_locs_null(this_exp,j) = length(union(input_locs1,input_locs2));
-            num_shared_locs_null(this_exp,j) = length(intersect(input_locs1,input_locs2));
-        end
-    else
-        num_event_locs = length(union(input_locs1,input_locs2));
-        num_shared_locs = length(intersect(input_locs1,input_locs2));
-    end
+    %     all_locs = union(input_locs1,input_locs2);
+    %     all_locs = intersect(input_locs1,input_locs2);
+%         all_locs = 1:441;
+        [js,is] = ind2sub([21 21],all_locs);
 
-    disp('got locs')
+        null = 1;
+        if null
+            iters = 10000;
+            for j = 1:iters
+                input_locs1 =  randsample(1:441,length(input_locs1));
 
-    if ~isempty(all_locs)
-        psth1 = zeros(1,length(events1{1,1}(1,:)));
-        psth2 = zeros(size(psth1));
-
-        total_trials1 = 0;
-        total_trials2 = 0;
-
-        norm_factor = 1;
-        raw_jpsth = zeros(length(events1{1,1}(1,:)));
-        raw_psth1 = zeros(length(events1{1,1}(1,:)));
-        raw_psth2 = zeros(length(events1{1,1}(1,:)));
-        disp('getting psths')
-        disp('for all locs...')
-        length(all_locs)
-%         all_locs_save(this_exp) = length(all_locs);
-        for i = 1:length(all_locs)
-    %         i
-    %         psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
-    %         psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
-
-            for j= 1:size(events1{is(i),js(i)},1)
-    %             raw_jpsth = raw_jpsth + events1{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
-    %             raw_psth1 = raw_psth1 + events1{is(i),js(i)}(j,:)'/norm_factor*events1{is(i),js(i)}(j,:)/norm_factor;
-    %             raw_psth2 = raw_psth2 + events2{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
-                [~, event_times] = findpeaks(events1{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events1{is(i),js(i)}(j,:)),'MinPeakDistance',20);
-                events1{is(i),js(i)}(j,:) = zeros(size(events2{is(i),js(i)}(j,:)));
-                events1{is(i),js(i)}(j,event_times) = 1;
-
-                [~, event_times] = findpeaks(events2{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events2{is(i),js(i)}(j,:)),'MinPeakDistance',20);
-                events2{is(i),js(i)}(j,:) = zeros(size(events2{is(i),js(i)}(j,:)));
-                events2{is(i),js(i)}(j,event_times) = 1;
+                num_event_locs_null(this_exp,j) = length(union(input_locs1,input_locs2));
+                num_shared_locs_null(this_exp,j) = length(intersect(input_locs1,input_locs2));
             end
-            events_tmp1 = events1{is(i),js(i)};
-            events_tmp2 = events2{is(i),js(i)};
-
-
-            psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
-            psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
-
-            raw_jpsth = raw_jpsth + events1{is(i),js(i)}'/norm_factor*events2{is(i),js(i)}/norm_factor;
-            raw_psth1 = raw_psth1 + events1{is(i),js(i)}'/norm_factor*events1{is(i),js(i)}/norm_factor;
-            raw_psth2 = raw_psth2 + events2{is(i),js(i)}'/norm_factor*events2{is(i),js(i)}/norm_factor;
-            total_trials1 = total_trials1 + size(events1{is(i),js(i)},1);
-            total_trials2 = total_trials2 + size(events2{is(i),js(i)},1);
-
+        else
+            num_event_locs = length(union(input_locs1,input_locs2));
+            num_shared_locs = length(intersect(input_locs1,input_locs2));
         end
 
-        psth1 = psth1/total_trials1;
-        psth2 = psth2/total_trials2;
+        disp('got locs')
 
-        jpsth = psth1'*psth2;
-        jpsth1 = psth1'*psth1;
-        jpsth2 = psth2'*psth2;
-        raw_jpsth = raw_jpsth/total_trials1;
-        raw_psth1 = raw_psth1/total_trials1;
-        raw_psth2 = raw_psth2/total_trials1;
+        if ~isempty(all_locs)
+            psth1 = zeros(1,length(events1{1,1}(1,:)));
+            psth2 = zeros(size(psth1));
 
-    %     eff_mat = sqrt(raw_psth1.*(1-raw_psth1))./sqrt(raw_psth2.*(1-raw_psth2));
-    %     con_mat = sqrt(raw_psth2.*(1-raw_psth2))./sqrt(raw_psth1.*(1-raw_psth1));
+            total_trials1 = 0;
+            total_trials2 = 0;
 
-        disp('got psths')
-        disp('plotting...')
-    %     figure
-    %     subplot(221)
-    %     imagesc(jpsth)
-    %     xlim([150 800])
-    %     ylim([150 800])
-    %     title(['Experiment ' num2str(this_exp) ': ' num2str(trace(jpsth))])
+            norm_factor = 1;
+            raw_jpsth = zeros(length(events1{1,1}(1,:)));
+            raw_psth1 = zeros(length(events1{1,1}(1,:)));
+            raw_psth2 = zeros(length(events1{1,1}(1,:)));
+            disp('getting psths')
+            disp('for all locs...')
+            length(all_locs)
+    %         all_locs_save(this_exp) = length(all_locs);
+            for i = 1:length(all_locs)
+        %         i
+        %         psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
+        %         psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
 
-    %     subplot(222)
-    %     imagesc(raw_jpsth)
-    %     xlim([150 800])
-    %     ylim([150 800])
-    %     title(trace(raw_jpsth))
+                for j= 1:size(events1{is(i),js(i)},1)
+        %             raw_jpsth = raw_jpsth + events1{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
+        %             raw_psth1 = raw_psth1 + events1{is(i),js(i)}(j,:)'/norm_factor*events1{is(i),js(i)}(j,:)/norm_factor;
+        %             raw_psth2 = raw_psth2 + events2{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
+                    [~, event_times] = findpeaks(events1{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events1{is(i),js(i)}(j,:)),'MinPeakDistance',20);
+                    events1{is(i),js(i)}(j,:) = zeros(size(events2{is(i),js(i)}(j,:)));
+                    events1{is(i),js(i)}(j,event_times) = 1;
 
-        D = raw_jpsth - jpsth;
-        D1 = raw_psth1 - jpsth1;
-        D2 = raw_psth2 - jpsth2;
-        D1(D1 < 0) = 0;
-        D2(D2 < 0) = 0;
-    %     subplot(223)
-    %     imagesc(D)
-    %     xlim([150 800])
-    %     ylim([150 800])
-    %     title(trace(D))
+                    [~, event_times] = findpeaks(events2{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events2{is(i),js(i)}(j,:)),'MinPeakDistance',20);
+                    events2{is(i),js(i)}(j,:) = zeros(size(events2{is(i),js(i)}(j,:)));
+                    events2{is(i),js(i)}(j,event_times) = 1;
+                end
+                events_tmp1 = events1{is(i),js(i)};
+                events_tmp2 = events2{is(i),js(i)};
 
-        % diagD = diag(D);
-        % diagD(diagD < 0) = 0;
 
-        normalization_matrix = sqrt(diag(D1)*diag(D2)');
-        D_norm = D./normalization_matrix;
-    %     D_norm(isnan(D_norm)) = 0;
-    %     D_norm(D_norm < 0) = 0;
-    %     D_norm = sqrt(D_norm);
-        D_norm_all_alllocs(:,:,this_exp) = D_norm;
-    %     E = D_norm*eff_mat;
-    %     C = D_norm*con_mat;
-    %     E(isnan(E)) = 0;
-    %     C(isnan(C)) = 0;
+                psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
+                psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
 
-%         common_input_score_norm_intersect(this_exp) = 0;
-%         offsets = 0;
-%         for k = offsets
-%             D_norm(D_norm < 0) = 0;
-%             this_diag = diag(sqrt(D_norm),k);
-% 
-%             common_input_score_norm_intersect(this_exp) = common_input_score_norm_intersect(this_exp) + nanmean(this_diag(150-floor(abs(k)/2):450-floor(abs(k)/2)));%/(301*length(offsets))
-%         end
-    %     subplot(224)
-    %     imagesc(D_norm)
-    %     xlim([150 800])
-    %     ylim([150 800])
-    %     title(common_input_score_norm(this_exp))
-    else
-%         common_input_score_norm_intersect(this_exp) = 0;
-        D_norm_all_alllocs(:,:,this_exp) = zeros(1999);
+                raw_jpsth = raw_jpsth + events1{is(i),js(i)}'/norm_factor*events2{is(i),js(i)}/norm_factor;
+                raw_psth1 = raw_psth1 + events1{is(i),js(i)}'/norm_factor*events1{is(i),js(i)}/norm_factor;
+                raw_psth2 = raw_psth2 + events2{is(i),js(i)}'/norm_factor*events2{is(i),js(i)}/norm_factor;
+                total_trials1 = total_trials1 + size(events1{is(i),js(i)},1);
+                total_trials2 = total_trials2 + size(events2{is(i),js(i)},1);
+
+            end
+
+            psth1 = psth1/total_trials1;
+            psth2 = psth2/total_trials2;
+
+            jpsth = psth1'*psth2;
+            jpsth1 = psth1'*psth1;
+            jpsth2 = psth2'*psth2;
+            raw_jpsth = raw_jpsth/total_trials1;
+            raw_psth1 = raw_psth1/total_trials1;
+            raw_psth2 = raw_psth2/total_trials1;
+
+        %     eff_mat = sqrt(raw_psth1.*(1-raw_psth1))./sqrt(raw_psth2.*(1-raw_psth2));
+        %     con_mat = sqrt(raw_psth2.*(1-raw_psth2))./sqrt(raw_psth1.*(1-raw_psth1));
+
+            disp('got psths')
+            disp('plotting...')
+        %     figure
+        %     subplot(221)
+        %     imagesc(jpsth)
+        %     xlim([150 800])
+        %     ylim([150 800])
+        %     title(['Experiment ' num2str(this_exp) ': ' num2str(trace(jpsth))])
+
+        %     subplot(222)
+        %     imagesc(raw_jpsth)
+        %     xlim([150 800])
+        %     ylim([150 800])
+        %     title(trace(raw_jpsth))
+
+            D = raw_jpsth - jpsth;
+            D1 = raw_psth1 - jpsth1;
+            D2 = raw_psth2 - jpsth2;
+            D1(D1 < 0) = 0;
+            D2(D2 < 0) = 0;
+        %     subplot(223)
+        %     imagesc(D)
+        %     xlim([150 800])
+        %     ylim([150 800])
+        %     title(trace(D))
+
+            % diagD = diag(D);
+            % diagD(diagD < 0) = 0;
+
+            normalization_matrix = sqrt(diag(D1)*diag(D2)');
+            D_norm = D./normalization_matrix;
+        %     D_norm(isnan(D_norm)) = 0;
+        %     D_norm(D_norm < 0) = 0;
+        %     D_norm = sqrt(D_norm);
+            D_norm_all_alllocs(:,:,this_exp) = D_norm;
+        %     E = D_norm*eff_mat;
+        %     C = D_norm*con_mat;
+        %     E(isnan(E)) = 0;
+        %     C(isnan(C)) = 0;
+
+    %         common_input_score_norm_intersect(this_exp) = 0;
+    %         offsets = 0;
+    %         for k = offsets
+    %             D_norm(D_norm < 0) = 0;
+    %             this_diag = diag(sqrt(D_norm),k);
+    % 
+    %             common_input_score_norm_intersect(this_exp) = common_input_score_norm_intersect(this_exp) + nanmean(this_diag(150-floor(abs(k)/2):450-floor(abs(k)/2)));%/(301*length(offsets))
+    %         end
+        %     subplot(224)
+        %     imagesc(D_norm)
+        %     xlim([150 800])
+        %     ylim([150 800])
+        %     title(common_input_score_norm(this_exp))
+        else
+    %         common_input_score_norm_intersect(this_exp) = 0;
+            D_norm_all_alllocs(:,:,this_exp) = zeros(1999);
+        end
+    catch e
+        disp([num2str(this_exp) ' fail'])
     end
 %     disp('result:')
 %     this_exp
@@ -1824,139 +1852,213 @@ end
 
 %%
 
-
-exps_to_run = [1:5 7:8 11:12 14:17 19:25 27:30];
+clc;
+close all
+% exps_to_run = [1 4:5 8 11:12 14:17 19:23 27 29:30];
 % exps_to_run = [16:17 19:25 27:30];
-exps_to_run = 18;
-
+% exps_to_run = 12;
+exps_to_run = [1:12 14:30];
+% exps_to_run = [1:15 17:30];
+% 
+delete(gcp('nocreate'))
+this_pool = parpool();
 for ii = 1:length(exps_to_run)
 
     this_exp = exps_to_run(ii)
     
-    events1 = samples_psths_new{this_exp}{1};
-    events2 = samples_psths_new{this_exp}{2};
+%     try
 
-    disp('got events')
-%     input_locs1 = find(glm_out_newer(this_exp).ch1.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch1.lambda == ...
-%             glm_out_newer(this_exp).ch1.lambda_1se)+2));%+5*(-pair_id(this_exp) + 1)
-%     input_locs2 = find(glm_out_newer(this_exp).ch2.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch2.lambda == ...
-%         glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)));
-% 
-%     all_locs = union(input_locs1,input_locs2);
-    all_locs = intersect(input_locs1,input_locs2);
-%     all_locs = 1:441;
-%     all_locs = all_locs(26)
-    [js,is] = ind2sub([21 21],all_locs);
-    
-    null = 1;
-%     if null
-%         iters = 10000;
-%         for j = 1:iters
-%             input_locs1 =  randsample(1:441,length(input_locs1));
-% 
-%             num_event_locs_null(this_exp,j) = length(union(input_locs1,input_locs2));
-%             num_shared_locs_null(this_exp,j) = length(intersect(input_locs1,input_locs2));
-%         end
-%     else
-%         num_event_locs = length(union(input_locs1,input_locs2));
-%         num_shared_locs = length(intersect(input_locs1,input_locs2));
-%     end
+        events1 = map_estimates{this_exp}{1}{1};
+        events2 = map_estimates{this_exp}{1}{2};
 
-    disp('got locs')
+    %     events1= samples_psths_new{this_exp}{1};
+    %     events2 = samples_psths_new{this_exp}{2};
 
+        disp('got events')
+    %     input_locs1 = find(glm_out_newer(this_exp).ch1.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch1.lambda == ...
+    %             glm_out_newer(this_exp).ch1.lambda_1se)+2));%+5*(-pair_id(this_exp) + 1)
+    %     input_locs2 = find(glm_out_newer(this_exp).ch2.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch2.lambda == ...
+    %         glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)));
 
-    iters = 1000;
-    if ~isempty(all_locs)
-
-
-
-        length(all_locs)
-%         all_locs_save(this_exp) = length(all_locs);
-        for i = 1:length(all_locs)
-            if mod(i,10) == 0
-                i
-            end
-    %         psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
-    %         psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
-            exp_shuffle_stats(this_exp).locs(i).null_dist = zeros(iters,1);
-            exp_shuffle_stats(this_exp).locs(i).loc_ind = [is(i) js(i)];
-            
-            this_loc_events1 = zeros(size(events1{is(i),js(i)},1),65)';
-            this_loc_events2 = zeros(size(events1{is(i),js(i)},1),65)';
-
-            for j= 1:size(events1{is(i),js(i)},1)
-    %             raw_jpsth = raw_jpsth + events1{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
-    %             raw_psth1 = raw_psth1 + events1{is(i),js(i)}(j,:)'/norm_factor*events1{is(i),js(i)}(j,:)/norm_factor;
-    %             raw_psth2 = raw_psth2 + events2{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
-                [~, event_times] = findpeaks(events1{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events1{is(i),js(i)}(j,20:end)),'MinPeakDistance',10);
-                this_loc_events1(ceil((event_times-1)/10),j) = 1;
-
-                [~, event_times] = findpeaks(events2{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events2{is(i),js(i)}(j,20:end)),'MinPeakDistance',10);
-                this_loc_events2(ceil((event_times-1)/10),j) = 1;
-            end
-            
-            concat1_data = this_loc_events1(:);
-            concat2_data = this_loc_events2(:);
-            exp_shuffle_stats(this_exp).locs(i).zero_lag_corr = concat1_data(1:end-1)'*concat2_data(1:end-1)+ ...
-                    concat1_data(2:end)'*concat2_data(1:end-1) + ...
-                    concat1_data(1:end-1)'*concat2_data(2:end);
-            
-            tmp = repmat(1:ceil(length(concat1_data)/12),12,1);
-            tmp = tmp(:);
-            tmp = tmp(1:length(concat1_data));
-            poisson_rate1 = accumarray(tmp(:),concat1_data);
-            poisson_rate2 = accumarray(tmp(:),concat2_data);  
-            
-            for k = 1:iters
-                event_bins1 = find(poisson_rate1);
-                event_bins2 = find(poisson_rate2);
-                shuffled_events1 = zeros(size(concat1_data));
-                shuffled_events2 = zeros(size(concat2_data));
-                all_bins = union(event_bins1,event_bins2);
-                for l = 1:length(all_bins)
-                    this_bin = all_bins(l);
-                    num_events1 = poisson_rate1(this_bin);
-                    num_events2 = poisson_rate2(this_bin);
-
-                    shuffled_events1(randsample(1:12,num_events1) + (this_bin-1)*12) = 1;
-                    shuffled_events2(randsample(1:12,num_events2) + (this_bin-1)*12) = 1;
-                end
-                shuffled_events1 = shuffled_events1(1:length(concat1_data));
-                shuffled_events2 = shuffled_events2(1:length(concat2_data));
-                exp_shuffle_stats(this_exp).locs(i).null_dist(k) = shuffled_events1(1:end-1)'*shuffled_events2(1:end-1) + ...
-                    shuffled_events1(2:end)'*shuffled_events2(1:end-1) + ...
-                    shuffled_events1(1:end-1)'*shuffled_events2(2:end);
-            end
-            [f,x] = ecdf(exp_shuffle_stats(this_exp).locs(i).null_dist);
-            idx = find(x < exp_shuffle_stats(this_exp).locs(i).zero_lag_corr,1,'last');
-            if ~isempty(idx)
-                exp_shuffle_stats(this_exp).locs(i).p_val = 1 - f(idx);
-            else
-                exp_shuffle_stats(this_exp).locs(i).p_val = 1;
-            end
-               
-        end
-
-        exp_shuffle_stats(this_exp).input_map = ones(21,21);
-        for i = 1:length(exp_shuffle_stats(this_exp).locs)
-            inds = exp_shuffle_stats(this_exp).locs(i).loc_ind;
-            exp_shuffle_stats(this_exp).input_map(inds(1),inds(2)) = exp_shuffle_stats(this_exp).locs(i).p_val;
-        end
+    ch1_glm_map = zeros(21,21);
+    ch2_glm_map = zeros(21,21);
+    for j = 1:2
         
-        figure;
-        imagesc(exp_shuffle_stats(this_exp).input_map < .05)
-        title(['Experiment: ' num2str(this_exp)])
-       
-    else
-%         common_input_score_norm_intersect(this_exp) = 0;
-        exp_shuffle_stats(this_exp).locs(i).null_dist = [];
-        exp_shuffle_stats(this_exp).locs(i).loc_ind = [];
-        exp_shuffle_stats(this_exp).locs(i).zero_lag_corr = 0;
+        ch1_glm_map = ch1_glm_map + reshape(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
+            find(glm_to_plot{this_exp}.ch1(j).lambda == ...
+            glm_to_plot{this_exp}.ch1(j).lambda_1se)),21,21);
+        
+        ch2_glm_map = ch2_glm_map + reshape(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
+            find(glm_to_plot{this_exp}.ch2(j).lambda == ...
+            glm_to_plot{this_exp}.ch2(j).lambda_1se)),21,21);
+        
     end
+    input_locs1 = find(ch1_glm_map(:) > 0);
+    input_locs2 = find(ch2_glm_map(:) > 0);
+% 
+%         num_nonzeros = unique(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0));
+%         target_num = num_nonzeros(end-1);
+%         lambda_ind = find(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0) == target_num,1,'last');
+%         input_locs1 = find(...
+%             glm_to_plot(this_exp).ch1.glmnet_fit.beta(2:end,lambda_ind) > .25);
+% 
+%         num_nonzeros = unique(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0));
+%         target_num = num_nonzeros(end-1);
+%         lambda_ind = find(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0) == target_num,1,'last');
+%         input_locs2 = find(...
+%             glm_to_plot(this_exp).ch2.glmnet_fit.beta(2:end,lambda_ind) > .25);
+    % 
+    %     all_locs = union(input_locs1,input_locs2);
+        all_locs = intersect(input_locs1,input_locs2);
+        num_locs(this_exp) = length(all_locs)
+        num_locs1(this_exp) = length(input_locs1);
+        num_locs2(this_exp) = length(input_locs2);
+        num_locs_union(this_exp) = length(union(input_locs1,input_locs2));
+        continue
+    %     all_locs = 1:441;
+    %     all_locs = all_locs(26)
+        [js,is] = ind2sub([21 21],all_locs);
 
+        null = 1;
+    %     if null
+    %         iters = 10000;
+    %         for j = 1:iters
+    %             input_locs1 =  randsample(1:441,length(input_locs1));
+    % 
+    %             num_event_locs_null(this_exp,j) = length(union(input_locs1,input_locs2));
+    %             num_shared_locs_null(this_exp,j) = length(intersect(input_locs1,input_locs2));
+    %         end
+    %     else
+    %         num_event_locs = length(union(input_locs1,input_locs2));
+    %         num_shared_locs = length(intersect(input_locs1,input_locs2));
+    %     end
+
+        disp('got locs')
+
+
+        iters = 10000;
+        if ~isempty(all_locs)
+
+
+
+            length(all_locs)
+    %         all_locs_save(this_exp) = length(all_locs);
+            for i = 1:length(all_locs)
+                if mod(i,10) == 0
+                    i
+                end
+        %         psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
+        %         psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
+                null_dist = zeros(iters,1);
+                exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).loc_ind = [is(i) js(i)];
+
+    %             this_loc_events1 = zeros(size(events1{is(i),js(i)},1),130)';
+    %             this_loc_events2 = zeros(size(events1{is(i),js(i)},1),130)';
+                this_loc_events1 = zeros(length(events1{is(i),js(i)}),130)';
+                this_loc_events2 = zeros(length(events1{is(i),js(i)}),130)';
+
+                for j= 1:length(events1{is(i),js(i)})
+        %             raw_jpsth = raw_jpsth + events1{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
+        %             raw_psth1 = raw_psth1 + events1{is(i),js(i)}(j,:)'/norm_factor*events1{is(i),js(i)}(j,:)/norm_factor;
+        %             raw_psth2 = raw_psth2 + events2{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
+    %                 [~, event_times] = findpeaks(events1{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events1{is(i),js(i)}(j,20:end)),'MinPeakDistance',10);
+                    event_times = events1{is(i),js(i)}{j}.times;
+                    this_loc_events1(ceil((event_times-1)/10),j) = 1;
+
+    %                 [~, event_times] = findpeaks(events2{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events2{is(i),js(i)}(j,20:end)),'MinPeakDistance',10);
+                    event_times = events2{is(i),js(i)}{j}.times;
+                    this_loc_events2(ceil((event_times-1)/10),j) = 1;
+                end
+
+                concat1_data = this_loc_events1(:);
+                concat2_data = this_loc_events2(:);
+                exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).zero_lag_corr = concat1_data(1:end-1)'*concat2_data(1:end-1)+ ...
+                        concat1_data(2:end)'*concat2_data(1:end-1) + ...
+                        concat1_data(1:end-1)'*concat2_data(2:end);
+
+                tmp = repmat(1:ceil(length(concat1_data)/6),6,1);
+                tmp = tmp(:);
+                tmp = tmp(1:length(concat1_data));
+                poisson_rate1 = accumarray(tmp(:),concat1_data);
+                poisson_rate2 = accumarray(tmp(:),concat2_data);  
+
+                parfor k = 1:iters
+                    event_bins1 = find(poisson_rate1);
+% 
+%         num_nonzeros = unique(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0));
+%         target_num = num_nonzeros(end-1);
+%         lambda_ind = find(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0) == target_num,1,'last');
+%         input_locs2 = find(...
+%             glm_to_plot(this_exp).ch2.glmnet_fit.beta(2:end,lambda_ind) > .25);
+                    event_bins2 = find(poisson_rate2);
+                    shuffled_events1 = zeros(size(concat1_data));
+                    shuffled_events2 = zeros(size(concat2_data));
+                    all_bins = union(event_bins1,event_bins2);
+                    for l = 1:length(all_bins)
+                        this_bin = all_bins(l);
+                        num_events1 = poisson_rate1(this_bin);
+                        num_events2 = poisson_rate2(this_bin);
+
+                        shuffled_events1(randsample(1:12,num_events1) + (this_bin-1)*12) = 1;
+                        shuffled_events2(randsample(1:12,num_events2) + (this_bin-1)*12) = 1;
+                    end
+                    shuffled_events1 = shuffled_events1(1:length(concat1_data));
+                    shuffled_events2 = shuffled_events2(1:length(concat2_data));
+                    null_dist(k) = shuffled_events1(1:end-1)'*shuffled_events2(1:end-1) + ...
+                        shuffled_events1(2:end)'*shuffled_events2(1:end-1) + ...
+                        shuffled_events1(1:end-1)'*shuffled_events2(2:end);
+                end
+                exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).null_dist = null_dist;
+                [f,x] = ecdf(exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).null_dist);
+                idx = find(x < exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).zero_lag_corr,1,'last');
+                if ~isempty(idx)
+                    exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).p_val = 1 - f(idx);
+                else
+                    exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).p_val = 1;
+                end
+                if i == 65435435435
+                    break
+                end
+            end
+
+            exp_shuffle_stats_map_est2_intersect(this_exp).input_map = ones(21,21);
+            for i = 1:length(exp_shuffle_stats_map_est2_intersect(this_exp).locs)
+                inds = exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).loc_ind;
+                exp_shuffle_stats_map_est2_intersect(this_exp).input_map(inds(1),inds(2)) = exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).p_val;
+                if i == 100000
+                    break
+                end
+            end
+
+            figure;
+            imagesc(exp_shuffle_stats_map_est2_intersect(this_exp).input_map)
+            title(['Experiment: ' num2str(this_exp)])
+
+        else
+    %         common_input_score_norm_intersect(this_exp) = 0;
+            exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).null_dist = [];
+            exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).loc_ind = [];
+            exp_shuffle_stats_map_est2_intersect(this_exp).locs(i).zero_lag_corr = 0;
+            exp_shuffle_stats_map_est2_intersect(this_exp).input_map = zeros(21,21);
+        end
+%     catch e
+%         disp([num2str(this_exp) ' fail'])
+%     end
     
 end
 
+delete(this_pool)
+%%
+close all
+for i = 1:5
+    this_exp = i;
+    try
+        figure
+        imagesc(exp_shuffle_stats_map_est2_intersect(this_exp).input_map)
+        title(['Experiment: ' num2str(this_exp) ', ' id_names{pair_id(this_exp) + 1}])
+    catch e
+    end
+end
 
 %%
 
@@ -2020,7 +2122,7 @@ null_dist = cis_tmp_null(pair_id_tmp,:);
 histogram(null_dist(:),0:.01:.6);
 hold on
 counts = histcounts(null_dist(:),0:.01:.6);
-scatter(cis_tmp(pair_id_tmp),max(counts)/2*ones(sum(pair_id_tmp),1))
+scatter(cis_tmp(pair_id_tmp),max(counts)/2*ones(length(l4_pairs),1))
 cdf95 = quantile(null_dist(:),1 - .05/length(pair_id_tmp));
 plot([cdf95 cdf95],[0 max(counts)])
 title('L5-L5 Pairs, Spatial Coincidence')
@@ -2100,7 +2202,7 @@ scatter(1.25,mean(cis_tmp(~pair_id_tmp)),100,[0 0 0],'filled')
 hold on
 plot(1.25*[1 1],mean(cis_tmp(~pair_id_tmp)) + std(cis_tmp(~pair_id_tmp))/sqrt(length(cis_tmp(~pair_id_tmp)))*[-1 1],'k','Linewidth',2)
 hold on
-scatter(2*ones(sum(pair_id_tmp),1),cis_tmp(pair_id_tmp),'k','jitter','on', 'jitterAmount',0.05);
+scatter(2*ones(length(l4_pairs),1),cis_tmp(pair_id_tmp),'k','jitter','on', 'jitterAmount',0.05);
 hold on
 scatter(2.25,mean(cis_tmp(pair_id_tmp)),100,[0 0 0],'filled')
 hold on
@@ -2108,7 +2210,7 @@ plot(2.25*[1 1],mean(cis_tmp(pair_id_tmp)) + std(cis_tmp(pair_id_tmp))/sqrt(leng
 hold on
 xlim([0 3])
 set(gca,'Xtick',[1 2])
-set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(sum(~pair_id_tmp)) ')'],['L5-L5 Pairs (N = ' num2str(sum(pair_id_tmp)) ')']})
+set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(sum(~pair_id_tmp)) ')'],['L5-L5 Pairs (N = ' num2str(length(l4_pairs)) ')']})
 ylabel('Common Input Locations')
 
 [p,h] = ranksum(cis_tmp(~pair_id_tmp),cis_tmp(pair_id_tmp),'tail','left');
@@ -2123,14 +2225,14 @@ cis_tmp(skip_exps) = [];
 
 figure
 
-scatter(2.5*ones(sum(pair_id_tmp),1),cis_tmp(pair_id_tmp),'k');
+scatter(2.5*ones(length(l4_pairs),1),cis_tmp(pair_id_tmp),'k');
 hold on
 scatter(2.5,mean(cis_tmp(pair_id_tmp)),100,[0 0 0],'filled')
 hold on
 plot(2.5*[1 1],mean(cis_tmp(pair_id_tmp)) + std(cis_tmp(pair_id_tmp))/sqrt(length(cis_tmp(pair_id_tmp)))*[-1 1],'k','Linewidth',2)
 hold on
 
-scatter(3*ones(sum(pair_id_tmp),1),cis_tmp_null(pair_id_tmp),'k');
+scatter(3*ones(length(l4_pairs),1),cis_tmp_null(pair_id_tmp),'k');
 hold on
 scatter(3,mean(cis_tmp_null(pair_id_tmp)),100,[0 0 0],'filled')
 hold on
@@ -2159,7 +2261,7 @@ hold on
 
 xlim([0 4])
 set(gca,'Xtick',[1 1.5 2.5 3])
-set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(sum(~pair_id_tmp)) ')'],'L4-L5 Shuffle',['L5-L5 Pairs (N = ' num2str(sum(pair_id_tmp)) ')'],'L5-L5 Shuffle'})
+set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(sum(~pair_id_tmp)) ')'],'L4-L5 Shuffle',['L5-L5 Pairs (N = ' num2str(length(l4_pairs)) ')'],'L5-L5 Shuffle'})
 ylabel('Common Input Probability')
 
 [pl4,h] = ranksum(cis_tmp(~pair_id_tmp),cis_tmp_null(~pair_id_tmp),'tail','right')
@@ -2168,7 +2270,7 @@ title(['p_l4 = ' num2str(pl4) ', p_l5 = ' num2str(pl5)])
 
 % xlim([0 3])
 % set(gca,'Xtick',[1 2])
-% set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(sum(~pair_id_tmp)) ')'],['L5-L5 Pairs (N = ' num2str(sum(pair_id_tmp)) ')']})
+% set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(sum(~pair_id_tmp)) ')'],['L5-L5 Pairs (N = ' num2str(length(l4_pairs)) ')']})
 % ylabel('Common Input Probability')
 % 
 % [p,h] = ranksum(cis_tmp(~pair_id_tmp),cis_tmp(pair_id_tmp),'tail','left');
@@ -2359,4 +2461,65 @@ for ii = 1:length(exps_to_run)
     plot_trace_stack_grid(detection_results,Inf,1,0);
 end
     
+%%
+l4_pairs = [1 4 5 9 17 18 19 21 22 23 30];
+l5_pairs = [11 12 14 15 20 26 28];
+num_locs_exps = sum(num_locs(exps));
 
+p_val_thresh = .05/num_locs_exps;
+
+for i = exps
+    
+    
+    if num_locs(i) > 0
+        ci_score(i) = sum(sum(exp_shuffle_stats_map_est2_intersect(i).input_map < p_val_thresh))/num_locs_union(i);
+    else
+        ci_score(i) = 0;
+    end
+    
+end
+
+cis_tmp = ci_score;
+cis_tmp(29:30) = 0;
+% pair_id_tmp = zeros(1,30);
+% pair_id_tmp(exps) = 1;
+% pair_id_tmp = logical(pair_id_tmp);
+figure
+
+scatter(1.0*ones(length(l4_pairs),1),cis_tmp(l4_pairs),'k' ,'jitter','on', 'jitterAmount',0.05);
+hold on
+scatter(1.25,mean(cis_tmp(l4_pairs)),100,[0 0 0],'filled')
+hold on
+plot(1.25*[1 1],mean(cis_tmp(l4_pairs)) + std(cis_tmp(l4_pairs))/sqrt(length(cis_tmp(l4_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
+
+% scatter(3*ones(length(l4_pairs),1),cis_tmp_null(pair_id_tmp),'k');
+% hold on
+% scatter(3,mean(cis_tmp_null(pair_id_tmp)),100,[0 0 0],'filled')
+% hold on
+% plot([3 3],mean(cis_tmp_null(pair_id_tmp)) + std(cis_tmp_null(pair_id_tmp))/sqrt(length(cis_tmp_null(pair_id_tmp)))*[-1 1],'k','Linewidth',2)
+% hold on
+
+
+
+scatter(2.5*ones(length(l5_pairs),1),cis_tmp(l5_pairs),'k' ,'jitter','on', 'jitterAmount',0.05);
+hold on
+scatter(2.75,mean(cis_tmp(l5_pairs)),100,[0 0 0],'filled')
+hold on
+plot(2.75*[1 1],mean(cis_tmp(l5_pairs)) + std(cis_tmp(l5_pairs))/sqrt(length(cis_tmp(l5_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
+
+% scatter(1.5*ones(sum(~pair_id_tmp),1),cis_tmp_null(~pair_id_tmp),'k');
+% hold on
+% scatter(1.5,mean(cis_tmp_null(~pair_id_tmp)),100,[0 0 0],'filled')
+% hold on
+% plot([1.5 1.5],mean(cis_tmp_null(~pair_id_tmp)) + std(cis_tmp_null(~pair_id_tmp))/sqrt(length(cis_tmp_null(~pair_id_tmp)))*[-1 1],'k','Linewidth',2)
+% hold on
+
+xlim([0 4])
+set(gca,'Xtick',[1 2.5])
+set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(length(l4_pairs)) ')'],['L5-L5 Pairs (N = ' num2str(length(l5_pairs)) ')']})
+ylabel('Common Input Probability')
+
+[p,h] = ranksum(cis_tmp(l4_pairs),cis_tmp(l5_pairs),'tail','left');
+title(['p = ' num2str(p)])
