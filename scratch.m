@@ -1534,7 +1534,7 @@ delete(pool);
 
 % exps_to_run = [1:5 7:12 14:17 19:25 27:29];
 % exps_to_run = [16:23];
-exps_to_run = 30
+exps_to_run = 21
 close all
 
 glm_to_plot = glm_out_time_bins;
@@ -2418,7 +2418,7 @@ exps_to_run = setdiff(exps_to_run,skip_exps)
 close all
 %issues 13,19,20 7 14 15
 % 16 too low
-exps_to_run = [ 16];
+exps_to_run = [1:28];
 detection_grids = cell(1,length(dates));
 
 thresholds = [40 50 0 450 0 6.5 7.5 15 15 30 0 30 5 6 6 8 10 ...
@@ -2460,6 +2460,72 @@ for ii = 1:length(exps_to_run)
     subplot(122)
     plot_trace_stack_grid(detection_results,Inf,1,0);
 end
+
+%%
+exps_to_run = setdiff(1:length(dates),union([6 19 20 23 24],find(patch_type == 3)));
+
+centers = zeros(length(dates),2);
+centers(17,:) = [4 3];
+centers(13:14,:) = [5 6; 5 6];
+spike_counts = zeros(11,11,length(dates));
+first_spike_time = nan(11,11,length(dates));
+
+for ii = 1:length(exps_to_run)
+%     ii = 1
+    this_exp = exps_to_run(ii)
+    
+    if isequal(centers(this_exp,:),[0 0])
+        center = ceil(size(detection_grids{this_exp})/2);
+    else
+        center = centers(this_exp,:);
+    end
+    
+    for i = 1:size(detection_grids{this_exp},1)
+        for j = 1:size(detection_grids{this_exp},2)
+            
+            main_i = i - center(1) + ceil(size(spike_counts,1)/2);
+            main_j = j - center(2) + ceil(size(spike_counts,2)/2);
+            if main_i > 11 || main_j > 11
+                break
+            end
+            
+            spike_counts(main_i,main_j,this_exp) = ...
+                mean(sum(detection_grids{this_exp}{i,j}(:,100:end),2))/70;
+            
+%             first_spike_time(main_i,main_j,this_exp) = ...
+%                 arrayfun(@(x) find(x,1,'first'),detection_grids{this_exp}{i,j}(:,100:end));
+            if spike_counts(main_i,main_j,this_exp) > 0
+                count = 1;
+                for k = 1:size(detection_grids{this_exp}{i,j},1)
+                    time = find(detection_grids{this_exp}{i,j}(k,100:end),1,'first');
+                    if ~isempty(time)
+                        if count == 1
+                            first_spike_time(main_i,main_j,this_exp) = 0;
+                        end
+                        first_spike_time(main_i,main_j,this_exp) = ...
+                            first_spike_time(main_i,main_j,this_exp) + time;
+                        count = count + 1;
+                    end
+                end
+                first_spike_time(main_i,main_j,this_exp) = ...
+                    first_spike_time(main_i,main_j,this_exp)/count;
+            end
+            
+        end
+    end
+    
+
+end
+
+%%
+
+for ii = 1:length(exps_to_run)
+%     ii = 1
+    this_exp = exps_to_run(ii)
+    
+    num_spike_locations(this_exp) = sum(sum(spike_counts(:,:,this_exp) >= .75));
+    
+end
     
 %%
 l4_pairs = [1 4 5 9 17 18 19 21 22 23 30];
@@ -2472,7 +2538,7 @@ for i = exps
     
     
     if num_locs(i) > 0
-        ci_score(i) = sum(sum(exp_shuffle_stats_map_est2_intersect(i).input_map < p_val_thresh))/num_locs_union(i);
+        ci_score(i) = sum(sum(exp_shuffle_stats_map_est2_intersect(i).input_map < p_val_thresh))/num_locs2(i);
     else
         ci_score(i) = 0;
     end
