@@ -12,7 +12,7 @@ sweeps_window = [3000 5000];
 time_window = [150 800];
 amps_window = [10 Inf];
 
-time_windows = {[150 300],[301 550],[551 1000]};
+time_windows = {[141 500]};
 
 for i = 1:num_experiments
     
@@ -54,7 +54,7 @@ for i = 1:num_experiments
 %         'UniformOutput',0)),results_grid_ch1,'UniformOutput',0);
     disp('ch1')
     ch1(length(time_windows)) = glm_dummy;
-    parfor j = 1:length(time_windows)
+    for j = 1:length(time_windows)
         disp('j in for each time window:')
         disp(num2str(j))
         
@@ -62,7 +62,8 @@ for i = 1:num_experiments
 %             cellfun(@(x) arrayfun(@(y) ...
 %             truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
 %             results_grid_ch1,'UniformOutput',0);
-        ch1(j) = run_glm_num_events_spatial_mapest(this_exp_map_ch1,time_windows{j});
+        [ch1(j), resp_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch1,time_windows{j});
+        ch1(j).resp_map = resp_map;
     end
     glm_out(i).ch1 = ch1;
     
@@ -97,14 +98,15 @@ for i = 1:num_experiments
     disp('ch2')
 %     assignin('base','samples_psths_ch2',samples_psths_ch2)
     ch2(length(time_windows)) = glm_dummy;
-    parfor j = 1:length(time_windows)
-        disp('j in for each time window:')
+    for j = 1:length(time_windows)
+        disp('j for each time window:')
         disp(num2str(j))
 %         results_grid_trunc_ch2 = ...
 %             cellfun(@(x) arrayfun(@(y) ...
 %             truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
 %             results_grid_ch2,'UniformOutput',0);
-        ch2(j) = run_glm_num_events_spatial_mapest(this_exp_map_ch2,time_windows{j});
+        [ch2(j), resp_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch2,time_windows{j});
+        ch2(j).resp_map = resp_map;
     end
     glm_out(i).ch2 = ch2;
 %     glm_out(i).ch2 = run_glm_rate_spatial(results_grid_trunc_ch2);
