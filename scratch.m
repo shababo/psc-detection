@@ -1513,17 +1513,18 @@ exps_to_run = setdiff(1:length(pair_id),skip_exps); %  13 26
 
 %%
 
-exps_to_run = [1:4];
+exps_to_run = [1:12 14:30];
 % exps_to_run = 12;
 % delete(gcp('nocreate'))
 % pool = parpool(3);
 for i = 1:length(exps_to_run)
     this_exp = exps_to_run(i)
 %     try
-        [glm_out_time_bins_6{this_exp},~,~] = ...
+        [glm_out_vb_good1{this_exp}] = ...
 ...%            glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
 ...%            cell_nums(this_exp),tags(this_exp),trials_detection(this_exp),glm_dummy);
-            glm_from_map_est(map_estimates(this_exp),glm_dummy);
+...%            glm_from_map_est(map_estimates(this_exp),glm_dummy);
+                ROI_VB_som_data(map_estimates(this_exp),[1 pair_id(this_exp)])
 %     catch e
 %         disp([num2str(this_exp) ' fail'])
 %     end
@@ -1534,10 +1535,11 @@ end
 
 % exps_to_run = [1:5 7:12 14:17 19:25 27:29];
 % exps_to_run = [16:23];
-exps_to_run = 3
-% close all
+exps_to_run = [20]
+close all
 
-glm_to_plot = glm_out_time_bins_6;
+glm_to_plot = glm_out_vb_good1;
+resp_glm = glm_out_time_bins_6;
 
 num_experiments = length(exps_to_run);
 for ii = 1:length(exps_to_run)
@@ -1548,15 +1550,19 @@ for ii = 1:length(exps_to_run)
 
     ch1_glm_map = zeros(21,21);
     ch2_glm_map = zeros(21,21);
-    for j = 1:1
-        ch1_glm_map = ch1_glm_map + reshape(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
-            find(glm_to_plot{this_exp}.ch1(j).lambda == ...
-            glm_to_plot{this_exp}.ch1(j).lambda_min)),21,21)';
-        
-        ch2_glm_map = ch2_glm_map + reshape(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
-            find(glm_to_plot{this_exp}.ch2(j).lambda == ...
-            glm_to_plot{this_exp}.ch2(j).lambda_min)),21,21)';
-        
+    this_result = glm_to_plot{this_exp};
+    for j = 1:length(this_result(1).sub_vb)
+%         ch1_glm_map = ch1_glm_map + reshape(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
+%             find(glm_to_plot{this_exp}.ch1(j).lambda == ...
+%             glm_to_plot{this_exp}.ch1(j).lambda_min)),21,21)';
+%         
+%         ch2_glm_map = ch2_glm_map + reshape(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
+%             find(glm_to_plot{this_exp}.ch2(j).lambda == ...
+%             glm_to_plot{this_exp}.ch2(j).lambda_min)),21,21)';
+        struct_tmp = this_result(1).sub_vb(j);
+        ch1_glm_map = ch1_glm_map + reshape(struct_tmp.alpha,21,21)';
+        struct_tmp = this_result(2).sub_vb(j);
+        ch2_glm_map = ch2_glm_map + reshape(struct_tmp.alpha,21,21)';
     end
     
 %         ch1_glm_map = ch1_glm_map + reshape(glm_to_plot(this_exp).ch1.glmnet_fit.beta(2:end,...
@@ -1589,9 +1595,17 @@ for ii = 1:length(exps_to_run)
 %         ch1_glm_map = reshape(...
 %             glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,lambda_ind),21,21)';
 %         ch1_glm_map(ch1_glm_map < .25) = 0;
-        imagesc(ch1_glm_map); colormap gray
+
+        
+        imagesc(ch1_glm_map > .25); colormap gray
         title(['Experiment ' num2str(this_exp) ': CH1'])
         axis off
+        
+%                 subplot(223)
+%         imagesc(resp_glm{this_exp}.ch1.resp_map); colormap gray
+%         title(['Experiment ' num2str(this_exp) ': CH1'])
+%         axis off
+        
 %         axis image
         subplot(122)
 %         imagesc(reshape(...
@@ -1614,15 +1628,21 @@ for ii = 1:length(exps_to_run)
 %         ch2_glm_map = reshape(...
 %             glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,lambda_ind),21,21)';
 %         ch2_glm_map(ch2_glm_map < .25) = 0;
-        imagesc(ch2_glm_map); colormap gray
+        imagesc(ch2_glm_map > .25); colormap gray
         title(['Experiment ' num2str(this_exp) ': CH2'])
         axis off
+        
+%         input_maps(this_exp).ch1 = ch1_glm_map;
+%         input_maps(this_exp).ch2 = ch2_glm_map;
 %         axis image
 %     end
 %     subplot(133)
 %     imagesc(xcorr_images_new{this_exp})
 %     title(['Experiment ' num2str(this_exp)])
-    
+%         subplot(224)
+%         imagesc(resp_glm{this_exp}.ch2.resp_map); colormap gray
+%         title(['Experiment ' num2str(this_exp) ': CH1'])
+%         axis off
 
      data_file = ...
         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
@@ -1890,21 +1910,21 @@ for ii = 1:length(exps_to_run)
     %     input_locs2 = find(glm_out_newer(this_exp).ch2.glmnet_fit.beta(2:end,find(glm_out_newer(this_exp).ch2.lambda == ...
     %         glm_out_newer(this_exp).ch2.lambda_1se)+2+5*(-pair_id(this_exp)+1)));
 
-    ch1_glm_map = zeros(21,21);
-    ch2_glm_map = zeros(21,21);
-    for j = 1:2
-        
-        ch1_glm_map = ch1_glm_map + reshape(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
-            find(glm_to_plot{this_exp}.ch1(j).lambda == ...
-            glm_to_plot{this_exp}.ch1(j).lambda_1se)),21,21);
-        
-        ch2_glm_map = ch2_glm_map + reshape(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
-            find(glm_to_plot{this_exp}.ch2(j).lambda == ...
-            glm_to_plot{this_exp}.ch2(j).lambda_1se)),21,21);
-        
-    end
-    input_locs1 = find(ch1_glm_map(:) > 0);
-    input_locs2 = find(ch2_glm_map(:) > 0);
+%     ch1_glm_map = zeros(21,21);
+%     ch2_glm_map = zeros(21,21);
+%     for j = 1:2
+%         
+%         ch1_glm_map = ch1_glm_map + reshape(glm_to_plot{this_exp}.ch1(j).glmnet_fit.beta(2:end,...
+%             find(glm_to_plot{this_exp}.ch1(j).lambda == ...
+%             glm_to_plot{this_exp}.ch1(j).lambda_1se)),21,21);
+%         
+%         ch2_glm_map = ch2_glm_map + reshape(glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,...
+%             find(glm_to_plot{this_exp}.ch2(j).lambda == ...
+%             glm_to_plot{this_exp}.ch2(j).lambda_1se)),21,21);
+%         
+%     end
+    input_locs1 = find(input_maps(this_exp).ch1(:) > .25);
+    input_locs2 = find(input_maps(this_exp).ch2(:) > .25);
 % 
 %         num_nonzeros = unique(sum(glm_to_plot(this_exp).ch1.glmnet_fit.beta > 0));
 %         target_num = num_nonzeros(end-1);
@@ -1924,10 +1944,10 @@ for ii = 1:length(exps_to_run)
         num_locs1(this_exp) = length(input_locs1);
         num_locs2(this_exp) = length(input_locs2);
         num_locs_union(this_exp) = length(union(input_locs1,input_locs2));
-        continue
+%         continue
     %     all_locs = 1:441;
     %     all_locs = all_locs(26)
-        [js,is] = ind2sub([21 21],all_locs);
+        [is,js] = ind2sub([21 21],all_locs);
 
         null = 1;
     %     if null
@@ -2538,8 +2558,10 @@ for ii = 1:length(exps_to_run)
 end
     
 %%
-l4_pairs = [1 4 5 9 17 18 19 21 22 23 30];
-l5_pairs = [11 12 14 15 20 26 28];
+exclude = [13 4 2 9 10 25 28];
+l4_pairs = setdiff(find(pair_id == 0),exclude);%[1 4 5 9 17 18 19 21 22 23 30];
+l5_pairs = setdiff(find(pair_id == 1),exclude);%[11 12 14 15 20 26 28];
+exps = union(l4_pairs,l5_pairs);
 num_locs_exps = sum(num_locs(exps));
 
 p_val_thresh = .05/num_locs_exps;
@@ -2547,8 +2569,8 @@ p_val_thresh = .05/num_locs_exps;
 for i = exps
     
     
-    if num_locs(i) > 0
-        ci_score(i) = sum(sum(exp_shuffle_stats_map_est2_intersect(i).input_map < p_val_thresh))/num_locs2(i);
+    if num_locs_union(i) > 0 && num_locs(i) > 0
+        ci_score(i) = sum(sum(exp_shuffle_stats_map_est2_intersect(i).input_map < p_val_thresh))/num_locs_union(i);
     else
         ci_score(i) = 0;
     end
@@ -2556,7 +2578,7 @@ for i = exps
 end
 
 cis_tmp = ci_score;
-cis_tmp(29:30) = 0;
+% cis_tmp(29:30) = 0;
 % pair_id_tmp = zeros(1,30);
 % pair_id_tmp(exps) = 1;
 % pair_id_tmp = logical(pair_id_tmp);
