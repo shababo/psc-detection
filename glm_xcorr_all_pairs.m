@@ -9,8 +9,8 @@ xcorr_images = cell(num_experiments,1);
 samples_psths = cell(num_experiments,1);
 
 sweeps_window = [3000 5000];
-time_window = [150 800];
-amps_window = [10 Inf];
+time_window = [0 Inf];
+amps_window = [0 Inf];
 
 time_windows = {[150 300],[301 550],[551 1000]};
 
@@ -30,14 +30,14 @@ for i = 1:num_experiments
     rebuildmap_file);
     size(results_grid_ch1{1,1})
 %     trials_detection{i}
-%     results_grid_trunc_ch1 = ...
-%     cellfun(@(x) arrayfun(@(y) ...
-%     truncate_samples(y,sweeps_window,time_window,amps_window),x(trials_detection{i})),...
-%     results_grid_ch1,'UniformOutput',0);
+    results_grid_trunc_ch1 = ...
+    cellfun(@(x) arrayfun(@(y) ...
+    truncate_samples(y,sweeps_window,time_window,amps_window),x(trials_detection{i})),...
+    results_grid_ch1,'UniformOutput',0);
 %     
 
-%     samples_psths_ch1 = cellfun(@(x) arrayfun(@get_map_sample,x,'UniformOutput',0),...
-%         results_grid_trunc_ch1,'UniformOutput',0);
+    samples_psths_ch1 = cellfun(@(x) arrayfun(@get_map_sample,x,'UniformOutput',0),...
+        results_grid_trunc_ch1,'UniformOutput',0);
 
 
 %     samples_trials_combo_ch1 = cellfun(@(y) arrayfun(@(x) [x.times],y(trials_detection{i}),...
@@ -51,17 +51,17 @@ for i = 1:num_experiments
 %     num_event_array_grid = cellfun(@(y) cell2mat(arrayfun(@(x) mean([x.num_events]),y(trials_detection{i}),...
 %         'UniformOutput',0)),results_grid_ch1,'UniformOutput',0);
     disp('ch1')
-    ch1(length(time_windows)) = glm_dummy;
-    parfor j = 1:length(time_windows)
-        disp('j in for each time window:')
-        disp(num2str(j))
-        results_grid_trunc_ch1 = ...
-            cellfun(@(x) arrayfun(@(y) ...
-            truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
-            results_grid_ch1,'UniformOutput',0);
-        ch1(j) = run_glm_num_events_spatial(results_grid_trunc_ch1);
-    end
-    glm_out(i).ch1 = ch1;
+%     ch1(length(time_windows)) = glm_dummy;
+%     parfor j = 1:length(time_windows)
+%         disp('j in for each time window:')
+%         disp(num2str(j))
+%         results_grid_trunc_ch1 = ...
+%             cellfun(@(x) arrayfun(@(y) ...
+%             truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
+%             results_grid_ch1,'UniformOutput',0);
+%         ch1(j) = run_glm_num_events_spatial(results_grid_trunc_ch1);
+%     end
+%     glm_out(i).ch1 = ch1;
     
 %     glm_out(i).ch1 = run_glm_rate_spatial(results_grid_trunc_ch1);
 
@@ -75,14 +75,14 @@ for i = 1:num_experiments
     results_grid_ch2 = rebuild_detection_grid(...
     resultsdir,matchstr,...
     rebuildmap_file);
-%     
-%     results_grid_trunc_ch2 = ...
-%     cellfun(@(x) arrayfun(@(y) ...
-%     truncate_samples(y,sweeps_window,time_window,amps_window),x(trials_detection{i})),...
-%     results_grid_ch2,'UniformOutput',0);
+    
+    results_grid_trunc_ch2 = ...
+    cellfun(@(x) arrayfun(@(y) ...
+    truncate_samples(y,sweeps_window,time_window,amps_window),x(trials_detection{i})),...
+    results_grid_ch2,'UniformOutput',0);
 
-%     samples_psths_ch2 = cellfun(@(x) arrayfun(@get_map_sample,x,'UniformOutput',0),...
-%         results_grid_trunc_ch2,'UniformOutput',0);
+    samples_psths_ch2 = cellfun(@(x) arrayfun(@get_map_sample,x,'UniformOutput',0),...
+        results_grid_trunc_ch2,'UniformOutput',0);
 
 %     samples_trials_combo_ch2 = cellfun(@(y) arrayfun(@(x) [x.times],y(trials_detection{i}),...
 %         'UniformOutput',0),results_grid_ch2,'UniformOutput',0);
@@ -93,17 +93,17 @@ for i = 1:num_experiments
 %         samples_psths_ch2,'UniformOutput',0);
     disp('ch2')
 %     assignin('base','samples_psths_ch2',samples_psths_ch2)
-    ch2(length(time_windows)) = glm_dummy;
-    parfor j = 1:length(time_windows)
-        disp('j in for each time window:')
-        disp(num2str(j))
-        results_grid_trunc_ch2 = ...
-            cellfun(@(x) arrayfun(@(y) ...
-            truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
-            results_grid_ch2,'UniformOutput',0);
-        ch2(j) = run_glm_num_events_spatial(results_grid_trunc_ch2);
-    end
-    glm_out(i).ch2 = ch2;
+%     ch2(length(time_windows)) = glm_dummy;
+%     parfor j = 1:length(time_windows)
+%         disp('j in for each time window:')
+%         disp(num2str(j))
+%         results_grid_trunc_ch2 = ...
+%             cellfun(@(x) arrayfun(@(y) ...
+%             truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
+%             results_grid_ch2,'UniformOutput',0);
+%         ch2(j) = run_glm_num_events_spatial(results_grid_trunc_ch2);
+%     end
+%     glm_out(i).ch2 = ch2;
 %     glm_out(i).ch2 = run_glm_rate_spatial(results_grid_trunc_ch2);
 %     glm_out(i).ch2 = run_glm_num_events_spatial(results_grid_trunc_ch2);
 % 
@@ -111,8 +111,8 @@ for i = 1:num_experiments
 %         samples_psths_ch1,samples_psths_ch2);
 % 
     samples_psths{i} = cell(2,1);
-%     samples_psths{i}{1} = samples_psths_ch1;
-%     samples_psths{i}{2} = samples_psths_ch2;
+    samples_psths{i}{1} = samples_psths_ch1;
+    samples_psths{i}{2} = samples_psths_ch2;
 
 end
 end
