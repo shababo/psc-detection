@@ -16,19 +16,18 @@ for i = 1:length(exps_to_run)
 %     end
 end
 % delete(pool);
-
-
-
-clc;
+%%
+% 
+% clc;
 % close all
 % exps_to_run = [1 4:5 8 11:12 14:17 19:23 27 29:30];
 % exps_to_run = [16:17 19:25 27:30];
 % exps_to_run = 12;
-exps_to_run = [1:12 14:30];
+exps_to_run = [22:30];
 % exps_to_run = [1:15 17:30];
 % 
-delete(gcp('nocreate'))
-this_pool = parpool();
+% delete(gcp('nocreate'))
+% this_pool = parpool(6);
 for ii = 1:length(exps_to_run)
 
     this_exp = exps_to_run(ii)
@@ -77,10 +76,10 @@ for ii = 1:length(exps_to_run)
     % 
     %     all_locs = union(input_locs1,input_locs2);
         all_locs = intersect(input_locs1,input_locs2);
-        num_locs(this_exp) = length(all_locs)
-        num_locs1(this_exp) = length(input_locs1);
-        num_locs2(this_exp) = length(input_locs2);
-        num_locs_union(this_exp) = length(union(input_locs1,input_locs2));
+        num_locs_full(this_exp) = length(all_locs);
+        num_locs1_full(this_exp) = length(input_locs1);
+        num_locs2_full(this_exp) = length(input_locs2);
+        num_locs_union_full(this_exp) = length(union(input_locs1,input_locs2));
 %         continue
     %     all_locs = 1:441;
     %     all_locs = all_locs(26)
@@ -117,33 +116,34 @@ for ii = 1:length(exps_to_run)
         %         psth1 = psth1 + sum(events1{is(i),js(i)},1)/norm_factor;
         %         psth2 = psth2 + sum(events2{is(i),js(i)},1)/norm_factor;
                 null_dist = zeros(iters,1);
-                exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).loc_ind = [is(i) js(i)];
-
+                exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).loc_ind = [is(i) js(i)];
+                bin_size = 20;
     %             this_loc_events1 = zeros(size(events1{is(i),js(i)},1),130)';
     %             this_loc_events2 = zeros(size(events1{is(i),js(i)},1),130)';
-                this_loc_events1 = zeros(length(events1{is(i),js(i)}),130)';
-                this_loc_events2 = zeros(length(events1{is(i),js(i)}),130)';
-
+                this_loc_events1 = zeros(length(events1{is(i),js(i)}),2000/bin_size)';
+                this_loc_events2 = zeros(length(events1{is(i),js(i)}),2000/bin_size)';
+                
                 for j= 1:length(events1{is(i),js(i)})
         %             raw_jpsth = raw_jpsth + events1{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
         %             raw_psth1 = raw_psth1 + events1{is(i),js(i)}(j,:)'/norm_factor*events1{is(i),js(i)}(j,:)/norm_factor;
         %             raw_psth2 = raw_psth2 + events2{is(i),js(i)}(j,:)'/norm_factor*events2{is(i),js(i)}(j,:)/norm_factor;
     %                 [~, event_times] = findpeaks(events1{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events1{is(i),js(i)}(j,20:end)),'MinPeakDistance',10);
                     event_times = events1{is(i),js(i)}{j}.times;
-                    this_loc_events1(ceil((event_times-1)/10),j) = 1;
+                    this_loc_events1(ceil((event_times-1)/bin_size),j) = 1;
 
     %                 [~, event_times] = findpeaks(events2{is(i),js(i)}(j,150:800),'MinPeakHeight',0.25*std(events2{is(i),js(i)}(j,20:end)),'MinPeakDistance',10);
                     event_times = events2{is(i),js(i)}{j}.times;
-                    this_loc_events2(ceil((event_times-1)/10),j) = 1;
+                    this_loc_events2(ceil((event_times-1)/bin_size),j) = 1;
                 end
 
                 concat1_data = this_loc_events1(:);
                 concat2_data = this_loc_events2(:);
-                exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).zero_lag_corr = concat1_data(1:end-1)'*concat2_data(1:end-1)+ ...
+                exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).zero_lag_corr = concat1_data(1:end)'*concat2_data(1:end)+ ...
                         concat1_data(2:end)'*concat2_data(1:end-1) + ...
                         concat1_data(1:end-1)'*concat2_data(2:end);
-
-                tmp = repmat(1:ceil(length(concat1_data)/6),6,1);
+                jitter_window = 100;
+                jitter_window_bins = jitter_window/bin_size;
+                tmp = repmat(1:ceil(length(concat1_data)/jitter_window_bins),jitter_window_bins,1);
                 tmp = tmp(:);
                 tmp = tmp(1:length(concat1_data));
                 poisson_rate1 = accumarray(tmp(:),concat1_data);
@@ -151,12 +151,7 @@ for ii = 1:length(exps_to_run)
                 disp('before jittering')
                 parfor k = 1:iters
                     event_bins1 = find(poisson_rate1);
-% 
-%         num_nonzeros = unique(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0));
-%         target_num = num_nonzeros(end-1);
-%         lambda_ind = find(sum(glm_to_plot(this_exp).ch2.glmnet_fit.beta > 0) == target_num,1,'last');
-%         input_locs2 = find(...
-%             glm_to_plot(this_exp).ch2.glmnet_fit.beta(2:end,lambda_ind) > .25);
+
                     event_bins2 = find(poisson_rate2);
                     shuffled_events1 = zeros(size(concat1_data));
                     shuffled_events2 = zeros(size(concat2_data));
@@ -166,50 +161,54 @@ for ii = 1:length(exps_to_run)
                         num_events1 = poisson_rate1(this_bin);
                         num_events2 = poisson_rate2(this_bin);
 
-                        shuffled_events1(randsample(1:12,num_events1) + (this_bin-1)*12) = 1;
-                        shuffled_events2(randsample(1:12,num_events2) + (this_bin-1)*12) = 1;
+                        shuffled_events1(randsample(1:jitter_window_bins,num_events1) + (this_bin-1)*jitter_window_bins) = 1;
+                        shuffled_events2(randsample(1:jitter_window_bins,num_events2) + (this_bin-1)*jitter_window_bins) = 1;
                     end
                     shuffled_events1 = shuffled_events1(1:length(concat1_data));
                     shuffled_events2 = shuffled_events2(1:length(concat2_data));
-                    null_dist(k) = shuffled_events1(1:end-1)'*shuffled_events2(1:end-1) + ...
+                    null_dist(k) = shuffled_events1(1:end)'*shuffled_events2(1:end) + ...
                         shuffled_events1(2:end)'*shuffled_events2(1:end-1) + ...
                         shuffled_events1(1:end-1)'*shuffled_events2(2:end);
                 end
                 disp('end jitter')
-                exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).null_dist = null_dist;
-                [f,x] = ecdf(exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).null_dist);
-                idx = find(x < exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).zero_lag_corr,1,'last');
+                exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).null_dist = null_dist;
+                [f,x] = ecdf(exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).null_dist);
+                idx = find(x < exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).zero_lag_corr,1,'last');
                 if ~isempty(idx)
-                    exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).p_val = 1 - f(idx);
+                    if f(idx) == 1
+                        exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).p_val = 1/iters;
+                    else
+                        exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).p_val = 1 - f(idx);
+                    end
                 else
-                    exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).p_val = 1;
+                    exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).p_val = 1;
                 end
                 if i == 65435435435
                     break
                 end
             end
 
-            exp_shuffle_stats_map_est4_intersect(this_exp).input_map = ones(21,21);
-            for i = 1:length(exp_shuffle_stats_map_est4_intersect(this_exp).locs)
-                inds = exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).loc_ind;
+            exp_shuffle_stats_map_est7_intersect(this_exp).input_map = ones(21,21);
+            for i = 1:length(exp_shuffle_stats_map_est7_intersect(this_exp).locs)
+                inds = exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).loc_ind;
                 if ~isempty(inds)
-                    exp_shuffle_stats_map_est4_intersect(this_exp).input_map(inds(1),inds(2)) = exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).p_val;
+                    exp_shuffle_stats_map_est7_intersect(this_exp).input_map(inds(1),inds(2)) = exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).p_val;
                 end
                 if i == 100000
                     break
                 end
             end
 
-            figure;
-            imagesc(exp_shuffle_stats_map_est4_intersect(this_exp).input_map)
-            title(['Experiment: ' num2str(this_exp)])
+%             figure;
+%             imagesc(exp_shuffle_stats_map_est7_intersect(this_exp).input_map)
+%             title(['Experiment: ' num2str(this_exp)])
 
         else
     %         common_input_score_norm_intersect(this_exp) = 0;
-            exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).null_dist = [];
-            exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).loc_ind = [];
-            exp_shuffle_stats_map_est4_intersect(this_exp).locs(i).zero_lag_corr = 0;
-            exp_shuffle_stats_map_est4_intersect(this_exp).input_map = zeros(21,21);
+            exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).null_dist = [];
+            exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).loc_ind = [];
+            exp_shuffle_stats_map_est7_intersect(this_exp).locs(i).zero_lag_corr = 0;
+            exp_shuffle_stats_map_est7_intersect(this_exp).input_map = zeros(21,21);
         end
 %     catch e
 %         disp([num2str(this_exp) ' fail'])
@@ -217,4 +216,4 @@ for ii = 1:length(exps_to_run)
     
 end
 
-delete(this_pool)
+% delete(this_pool)

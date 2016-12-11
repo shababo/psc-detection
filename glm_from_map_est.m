@@ -57,7 +57,7 @@ for i = 1:num_experiments
 %     ch1(length(time_windows)) = glm_dummy;
     [~, baseline_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch1,baseline_window,1);
     bg_data = sort(baseline_map(:));
-    rate = mean(bg_data(1:ceil(length(bg_data)*.5)));
+    rate = mean(bg_data(1:ceil(length(bg_data))));
     for j = 1:length(time_windows)
         disp('j in for each time window:')
         disp(num2str(j))
@@ -67,9 +67,12 @@ for i = 1:num_experiments
 %             truncate_samples(y,sweeps_window,time_windows{j},amps_window),x(trials_detection{i})),...
 %             results_grid_ch1,'UniformOutput',0);
         [~, resp_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch1,time_windows{j},1);
-        ch1(j).resp_map = resp_map;
+        
+        
         num_trials = length(this_exp_map_ch1{1,1});
-        ch1(j).p_val = poisspdf(ch1(j).resp_map*num_trials,rate*num_trials);
+        ch1(j).num_trials = num_trials;
+        ch1(j).resp_map = resp_map;
+        ch1(j).p_val = 1- poisscdf(ch1(j).resp_map - 1,rate);
         ch1(j).rate = rate;
         ch1(j).baseline_map = baseline_map;
     end
@@ -107,7 +110,7 @@ for i = 1:num_experiments
 %     ch1(length(time_windows)) = glm_dummy;
     [~, baseline_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch2,baseline_window,1);
     bg_data = sort(baseline_map(:));
-    rate = mean(bg_data(1:ceil(length(bg_data)*.5)));
+    rate = mean(bg_data(1:ceil(length(bg_data))));
     for j = 1:length(time_windows)
         disp('j in for each time window:')
         disp(num2str(j))
@@ -118,8 +121,9 @@ for i = 1:num_experiments
 %             results_grid_ch1,'UniformOutput',0);
         [~, resp_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch2,time_windows{j},1);
         num_trials = length(this_exp_map_ch2{1,1});
+        ch2(j).num_trials = num_trials;
         ch2(j).resp_map = resp_map;
-        ch2(j).p_val = poisspdf(ch2(j).resp_map*num_trials,rate*num_trials);
+        ch2(j).p_val = 1 - poisscdf(ch2(j).resp_map-1,rate);
         ch2(j).rate = rate;
         ch2(j).baseline_map = baseline_map;
     end

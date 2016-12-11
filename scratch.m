@@ -1521,12 +1521,12 @@ exps_to_run = [1:12 14:30];
 for i = 1:length(exps_to_run)
     this_exp = exps_to_run(i)
 %     try
-...%     [poisson_prob_maps{this_exp}] = ...
-         [glm_out_vb_good_onetimebin3{this_exp}] = ...
+     [poisson_prob_maps{this_exp}] = ...
+...%         [glm_out_vb_good_onetimebin3{this_exp}] = ...
 ...%            glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
 ...%            cell_nums(this_exp),tags(this_exp),trials_detection(this_exp),glm_dummy);
-...%             glm_from_map_est(map_estimates_full(this_exp),glm_dummy);
-                ROI_VB_som_data(map_estimates(this_exp),[1 pair_id(this_exp)]);
+            glm_from_map_est(map_estimates_full(this_exp),glm_dummy);
+...                ROI_VB_som_data(map_estimates(this_exp),[1 pair_id(this_exp)]);
 %     catch e
 %         disp([num2str(this_exp) ' fail'])
 %     end
@@ -1537,7 +1537,7 @@ end
 
 % exps_to_run = [1:5 7:12 14:17 19:25 27:29];
 % exps_to_run = [16:23];
-exps_to_run = [1 3 6 16 20];
+exps_to_run = [22];
 % close all
 
 glm_to_plot = glm_out_vb_good_onetimebin3;
@@ -1659,27 +1659,27 @@ for ii = 1:length(exps_to_run)
 %         ch2_glm_map = reshape(...
 %             glm_to_plot{this_exp}.ch2(j).glmnet_fit.beta(2:end,lambda_ind),21,21)';
 %         ch2_glm_map(ch2_glm_map < .25) = 0;
-
-        figure;
-        subplot(121)
-        imagesc(ch1_glm_map >= .1); colormap gray
-        title(['Experiment ' num2str(this_exp) ': CH1'])
-        axis off
-        subplot(122)
-        imagesc(ch2_glm_map >= .1); colormap gray
-        title(['Experiment ' num2str(this_exp) ': CH2'])
-        axis off
-        
+% 
+%         figure;
+%         subplot(121)
+%         imagesc(ch1_glm_map >= .1); colormap gray
+%         title(['Experiment ' num2str(this_exp) ': CH1'])
+%         axis off
+%         subplot(122)
+%         imagesc(ch2_glm_map >= .1); colormap gray
+%         title(['Experiment ' num2str(this_exp) ': CH2'])
+%         axis off
 %         
-
-        figure
-        subplot(121)
-        imagesc(poisson_prob_maps{this_exp}.ch1.resp_map >= find(poisscdf(1:50,poisson_prob_maps{this_exp}.ch1.rate) > (1 - .05),1,'first'))
-        caxis([0 1])
-        subplot(122)
-        imagesc(poisson_prob_maps{this_exp}.ch2.resp_map >= find(poisscdf(1:50,poisson_prob_maps{this_exp}.ch2.rate) > (1 - .05),1,'first'))
-        caxis([0 1])
-        title(['Experiment: ' num2str(this_exp)])
+% %         
+% 
+%         figure
+%         subplot(121)
+%         imagesc(poisson_prob_maps{this_exp}.ch1.resp_map >= find(poisscdf(1:50,poisson_prob_maps{this_exp}.ch1.rate) > (1 - .0000005),1,'first'))
+%         caxis([0 1])
+%         subplot(122)
+%         imagesc(poisson_prob_maps{this_exp}.ch2.resp_map >= find(poisscdf(1:50,poisson_prob_maps{this_exp}.ch2.rate) > (1 - .0000005),1,'first'))
+%         caxis([0 1])
+%         title(['Experiment: ' num2str(this_exp)])
 
 
 %         figure
@@ -1690,8 +1690,8 @@ for ii = 1:length(exps_to_run)
 %         imagesc((poisson_prob_maps{this_exp}.ch2.resp_map >= find(poisscdf(1:50,poisson_prob_maps{this_exp}.ch2.rate) > (1 - .05),1,'first')) - (ch2_glm_map >= .1))
 %         caxis([0 1])
 
-        input_maps(this_exp).ch1 = ch1_glm_map;
-        input_maps(this_exp).ch2 = ch2_glm_map;
+        input_maps_vb(this_exp).ch1 = ch1_glm_map;
+        input_maps_vb(this_exp).ch2 = ch2_glm_map;
 
         
         
@@ -1705,12 +1705,13 @@ for ii = 1:length(exps_to_run)
 %         title(['Experiment ' num2str(this_exp) ': CH1'])
 %         axis off
 % 
-%      data_file = ...
-%         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
-%         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
-%     load(data_file)
-%     [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
-%     title(['Experiment ' num2str(this_exp)])
+    this_exp = 20; 
+    data_file = ...
+        [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
+    load(data_file)
+    [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
+    title(['Experiment ' num2str(this_exp)])
 %     
 %     figure
 %     imagesc(exp_shuffle_stats_map_est2_intersect(this_exp).input_map)
@@ -1748,6 +1749,180 @@ for ii = 1:length(exps_to_run)
     
 end
 
+%%
+%FDR
+close all
+
+exps_to_run = 2;
+for ii = 1:length(exps_to_run)
+    
+    this_exp = exps_to_run(ii);
+
+    
+%     poiss_cdf_map_ch1{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch1.resp_map,mean(poisson_prob_maps{this_exp}.ch1.baseline_map(:)));
+%     poiss_cdf_map_ch2{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch2.resp_map,mean(poisson_prob_maps{this_exp}.ch2.baseline_map(:)));
+
+    fdr_rate = 1/20;
+    test_vec = (1:441)/441 * fdr_rate;
+    
+    ch1_pvals = poisson_prob_maps{this_exp}.ch1.p_val;
+    pvals_vec = ch1_pvals(:);
+    [pvals_vec,inds] = sort(pvals_vec);
+    
+    thresh_ind = find(pvals_vec' <= test_vec,1,'last');
+    detected_inds = inds(1:thresh_ind);
+    [is,js] = ind2sub([21 21],detected_inds);
+    input_maps(this_exp).ch1 = zeros(21,21);
+    for i = 1:length(is)
+        input_maps(this_exp).ch1(is(i),js(i)) = 1;
+    end
+
+    ch2_pvals = poisson_prob_maps{this_exp}.ch2.p_val;
+    pvals_vec = ch2_pvals(:);
+    [pvals_vec,inds] = sort(pvals_vec);
+    
+    thresh_ind = find(pvals_vec' <= test_vec,1,'last');
+    detected_inds = inds(1:thresh_ind);
+    [is,js] = ind2sub([21 21],detected_inds);
+    input_maps(this_exp).ch2 = zeros(21,21);
+    for i = 1:length(is)
+        input_maps(this_exp).ch2(is(i),js(i)) = 1;
+    end
+
+    alpha_thresh = .25;    
+    
+    figure
+    subplot(241)
+    imagesc(poisson_prob_maps{this_exp}.ch1.baseline_map)
+    caxis([0 12])
+    axis off
+    colormap hot
+    title(sprintf(['Experiment ' num2str(this_exp) '\nCell 1\nBG Map w/ Est Null Rate: ' num2str(poisson_prob_maps{this_exp}.ch1.rate)]))
+    subplot(245)
+    imagesc(poisson_prob_maps{this_exp}.ch2.baseline_map)
+    caxis([0 12])
+    axis off
+    colormap hot
+    title(sprintf(['Cell 2\nBG Map w/ Est Null Rate: ' num2str(poisson_prob_maps{this_exp}.ch2.rate)]))
+    subplot(242)
+    imagesc(poisson_prob_maps{this_exp}.ch1.resp_map)
+    caxis([0 12])
+    axis off
+    colormap hot
+    title('Response Map')
+    subplot(246)
+    imagesc(poisson_prob_maps{this_exp}.ch2.resp_map)
+    caxis([0 12])
+    axis off
+    title('Response Map')
+    subplot(243)
+    colormap hot
+    
+    imagesc(input_maps(this_exp).ch1)
+    axis off
+    caxis([0 1])
+    title(['FDR Detection, FDR Rate (q) = ' num2str(fdr_rate)])
+    colormap gray
+    subplot(247)
+    imagesc(input_maps(this_exp).ch2)
+    axis off
+    colormap gray
+    caxis([0 1])
+     title(['FDR Detection, FDR Rate (q) = ' num2str(fdr_rate)])
+    subplot(244)
+    imagesc(input_maps_vb(this_exp).ch1 > alpha_thresh)
+    axis off
+    colormap gray
+    caxis([0 1])
+    title(['VB Detection, Connection Prob (alpha) > ' num2str(alpha_thresh)])
+    subplot(248)
+    imagesc(input_maps_vb(this_exp).ch2 > alpha_thresh)
+    axis off
+    colormap gray
+    caxis([0 1])
+    title(['VB Detection, Connection Prob (alpha) > ' num2str(alpha_thresh)])
+    
+    
+%     data_file = ...
+%         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+%         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
+%     load(data_file)
+%     [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
+%     title(['Experiment ' num2str(this_exp)])
+end
+%%
+exps_to_run = [1:12 14:30];
+exps_to_run = [2];
+for ii = 1:length(exps_to_run)
+    
+    this_exp = exps_to_run(ii);
+
+    
+%     poiss_cdf_map_ch1{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch1.resp_map,mean(poisson_prob_maps{this_exp}.ch1.baseline_map(:)));
+%     poiss_cdf_map_ch2{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch2.resp_map,mean(poisson_prob_maps{this_exp}.ch2.baseline_map(:)));
+
+    fdr_rate = .02;
+    test_vec = (1:441)/441 * fdr_rate;
+    
+    ch1_pvals = poisson_prob_maps{this_exp}.ch1.p_val;
+    pvals_vec = ch1_pvals(:);
+    [pvals_vec,inds] = sort(pvals_vec);
+    
+    thresh_ind = find(pvals_vec' <= test_vec,1,'last');
+    detected_inds = inds(1:thresh_ind);
+    [is,js] = ind2sub([21 21],detected_inds);
+    input_maps(this_exp).ch1 = zeros(21,21);
+    for i = 1:length(is)
+        input_maps(this_exp).ch1(is(i),js(i)) = 1;
+    end
+
+    ch2_pvals = poisson_prob_maps{this_exp}.ch2.p_val;
+    pvals_vec = ch2_pvals(:);
+    [pvals_vec,inds] = sort(pvals_vec);
+    
+    thresh_ind = find(pvals_vec' <= test_vec,1,'last');
+    detected_inds = inds(1:thresh_ind);
+    [is,js] = ind2sub([21 21],detected_inds);
+    input_maps(this_exp).ch2 = zeros(21,21);
+    for i = 1:length(is)
+        input_maps(this_exp).ch2(is(i),js(i)) = 1;
+    end
+
+%     alpha_thresh = .25;    
+%     
+    figure
+    subplot(121)
+    imagesc(input_maps(this_exp).ch1)
+    caxis([0 1])
+    axis off
+    axis image
+%     title('Input Map Ch 1')
+    subplot(122)
+    imagesc(input_maps(this_exp).ch2)
+    caxis([0 1])
+    colormap gray
+    axis off
+    axis image
+%     title('Input Map Ch 2')
+    set(gcf,'position',maxwinsize);
+    
+    saveas(gcf,['input_map_q0_exp' num2str(this_exp) '.jpg'])
+    close all
+% %     
+%     data_file = ...
+%         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+%         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
+%     load(data_file)
+%     [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
+%     title(['Experiment ' num2str(this_exp)])
+end
+
+%% load data file
+this_exp = 22;
+    data_file = ...
+        [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
+    load(data_file)
 %%
 
 figure;
@@ -2564,7 +2739,8 @@ centers(17,:) = [4 3];
 centers(13:14,:) = [5 6; 5 6];
 spike_counts = zeros(11,11,length(dates));
 first_spike_time = nan(11,11,length(dates));
-
+first_spike_time_trials = cell(11,11,length(dates));
+jitters = nan(11,11,length(dates));
 for ii = 1:length(exps_to_run)
 %     ii = 1
     this_exp = exps_to_run(ii)
@@ -2596,6 +2772,9 @@ for ii = 1:length(exps_to_run)
                     if ~isempty(time)
                         if count == 1
                             first_spike_time(main_i,main_j,this_exp) = 0;
+                            first_spike_time_trials{main_i,main_j,this_exp} = time;
+                        else
+                            first_spike_time_trials{main_i,main_j,this_exp} = [first_spike_time_trials{main_i,main_j,this_exp} time];
                         end
                         first_spike_time(main_i,main_j,this_exp) = ...
                             first_spike_time(main_i,main_j,this_exp) + time;
@@ -2604,6 +2783,13 @@ for ii = 1:length(exps_to_run)
                 end
                 first_spike_time(main_i,main_j,this_exp) = ...
                     first_spike_time(main_i,main_j,this_exp)/count;
+                if length(first_spike_time_trials{main_i,main_j,this_exp}) > 4
+%                     jitters(main_i,main_j,this_exp) = 2*sqrt(2*log(2))*std(first_spike_time_trials{main_i,main_j,this_exp});
+                      jitters(main_i,main_j,this_exp) = max(first_spike_time_trials{main_i,main_j,this_exp}) - min(first_spike_time_trials{main_i,main_j,this_exp}) ;
+%                     if jitters(main_i,main_j,this_exp) < 10
+%                         return
+%                     end
+                end
             end
             
         end
@@ -2611,6 +2797,15 @@ for ii = 1:length(exps_to_run)
     
 
 end
+
+%%
+figure;
+
+jitters_red = squeeze(jitters([5 7],[5 7],:));
+jitters_red = jitters_red(~isnan(jitters_red));
+ecdf(jitters_red(:))
+
+
 
 %%
 
@@ -2623,21 +2818,42 @@ for ii = 1:length(exps_to_run)
 end
     
 %%
-exclude = [13 3 2 10 9 25 28];
+exclude = [13 4 2 10 9 24 27 7 15 17 1];
 l4_pairs = setdiff(find(pair_id == 0),exclude);%[1 4 5 9 17 18 19 21 22 23 30];
 l5_pairs = setdiff(find(pair_id == 1),exclude);%[11 12 14 15 20 26 28];
 exps = union(l4_pairs,l5_pairs);
 num_locs_exps = sum(num_locs(exps));
 
-p_val_thresh = .05;
+p_val_thresh = .05/num_locs_exps;
 
+fdr_rate = .05;
+all_p_vals_l4 = [];
+all_p_vals_l5 = [];
 for i = exps
     
     
-    if num_locs_union(i) > 0 && num_locs(i) > 0
-        ci_score(i) = sum(sum(exp_shuffle_stats_map_est4_intersect(i).input_map < p_val_thresh))/num_locs_union(i);
+    if num_locs_union_full(i) > 0 && num_locs_full(i) > 0
+        num_tests = num_locs_full(i);
+        [pvals_vec,inds] = sort([exp_shuffle_stats_map_est7_intersect(i).locs(1:num_locs_full(i)).p_val]);
+        test_vec = (1:num_tests)/num_tests * fdr_rate;
+        thresh_ind = find(pvals_vec <= test_vec,1,'last');
+        detected_inds = inds(1:thresh_ind);
+        if thresh_ind > 0
+            ci_score(i) = thresh_ind/num_locs_union_full(i);
+            
+        else
+            ci_score(i) = 0;
+        end
+        ci_score2(i) = num_locs_full(i)/num_locs_union_full(i);
+        if any(l4_pairs == i)
+            all_p_vals_l4 = [all_p_vals_l4 pvals_vec];
+        else
+            all_p_vals_l5 = [all_p_vals_l5 pvals_vec];
+        end
+%         ci_score(i) = sum(sum(exp_shuffle_stats_map_est6_intersect(i).input_map < p_val_thresh))/num_locs_union(i);
     else
         ci_score(i) = 0;
+        ci_score2(i) = 0;
     end
     
 end
@@ -2649,13 +2865,20 @@ cis_tmp = ci_score;
 % pair_id_tmp = logical(pair_id_tmp);
 figure
 
-scatter(1.0*ones(length(l4_pairs),1),cis_tmp(l4_pairs),'k' ,'jitter','on', 'jitterAmount',0.25);
+scatter(2.75*ones(length(cis_tmp(l4_pairs)),1),cis_tmp(l4_pairs),'k','jitter','on', 'jitterAmount',0.05)%,'k' ,'jitter','on', 'jitterAmount',0.25);
 hold on
-scatter(1.25,mean(cis_tmp(l4_pairs)),100,[0 0 0],'filled')
+scatter(1.25*ones(length(ci_score2(l4_pairs)),1),ci_score2(l4_pairs),'k')%,'k' ,'jitter','on', 'jitterAmount',0.25);
 hold on
-plot(1.25*[1 1],mean(cis_tmp(l4_pairs)) + std(cis_tmp(l4_pairs))/sqrt(length(cis_tmp(l4_pairs)))*[-1 1],'k','Linewidth',2)
+% plot([1.75;1.25],[cis_tmp(l4_pairs);ci_score2(l4_pairs)],'k')
 hold on
-
+scatter(2.5,mean(cis_tmp(l4_pairs)),100,[0 0 0],'filled')
+hold on
+plot(2.5*[1 1],mean(cis_tmp(l4_pairs)) + std(cis_tmp(l4_pairs))/sqrt(length(cis_tmp(l4_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
+scatter(1.0,mean(ci_score2(l4_pairs)),100,[0 0 0],'filled')
+hold on
+plot(1.0*[1 1],mean(ci_score2(l4_pairs)) + std(ci_score2(l4_pairs))/sqrt(length(ci_score2(l4_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
 % scatter(3*ones(length(l4_pairs),1),cis_tmp_null(pair_id_tmp),'k');
 % hold on
 % scatter(3,mean(cis_tmp_null(pair_id_tmp)),100,[0 0 0],'filled')
@@ -2665,13 +2888,21 @@ hold on
 
 
 
-scatter(2.5*ones(length(l5_pairs),1),cis_tmp(l5_pairs),'k' ,'jitter','on', 'jitterAmount',0.25);
+scatter(3.25*ones(length(cis_tmp(l5_pairs)),1),cis_tmp(l5_pairs),'k','jitter','on', 'jitterAmount',0.05)% ,'jitter','on', 'jitterAmount',0.25);
 hold on
-scatter(2.75,mean(cis_tmp(l5_pairs)),100,[0 0 0],'filled')
+scatter(1.75*ones(length(ci_score2(l5_pairs)),1),ci_score2(l5_pairs),'k')%,'k' ,'jitter','on', 'jitterAmount',0.25);
 hold on
-plot(2.75*[1 1],mean(cis_tmp(l5_pairs)) + std(cis_tmp(l5_pairs))/sqrt(length(cis_tmp(l5_pairs)))*[-1 1],'k','Linewidth',2)
+% plot([3.25;2.75],[cis_tmp(l5_pairs);ci_score2(l5_pairs)],'k')
 hold on
+scatter(3.5,mean(cis_tmp(l5_pairs)),100,[0 0 0],'filled')
+hold on
+plot(3.5*[1 1],mean(cis_tmp(l5_pairs)) + std(cis_tmp(l5_pairs))/sqrt(length(cis_tmp(l5_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
+scatter(2.0,mean(ci_score2(l5_pairs)),100,[0 0 0],'filled')
+hold on
+plot(2.0*[1 1],mean(ci_score2(l5_pairs)) + std(ci_score2(l5_pairs))/sqrt(length(ci_score2(l5_pairs)))*[-1 1],'k','Linewidth',2)
 
+%  set(gca,'yscale','log');
 % scatter(1.5*ones(sum(~pair_id_tmp),1),cis_tmp_null(~pair_id_tmp),'k');
 % hold on
 % scatter(1.5,mean(cis_tmp_null(~pair_id_tmp)),100,[0 0 0],'filled')
@@ -2679,12 +2910,130 @@ hold on
 % plot([1.5 1.5],mean(cis_tmp_null(~pair_id_tmp)) + std(cis_tmp_null(~pair_id_tmp))/sqrt(length(cis_tmp_null(~pair_id_tmp)))*[-1 1],'k','Linewidth',2)
 % hold on
 
-xlim([0 4])
-set(gca,'Xtick',[1 2.5])
-set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(length(l4_pairs)) ')'],['L5-L5 Pairs (N = ' num2str(length(l5_pairs)) ')']})
-ylabel('Common Input Probability')
+xlim([.5 4])
+set(gca,'Xtick',[])
+% set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(length(l4_pairs)) ')'],['L5-L5 Pairs (N = ' num2str(length(l5_pairs)) ')']})
+ylabel('Coincidence Probability')
 
 [p,h] = ranksum(cis_tmp(l4_pairs),cis_tmp(l5_pairs),'tail','left');
 title(['p = ' num2str(p)])
 
+figure;
+edges = logspace(-5,0,20);
+histogram(all_p_vals_l5,edges,'Normalization','probability');
+hold on
+histogram(all_p_vals_l4,edges,'Normalization','probability');
+set(gca,'xscale','log')
 %%
+close all
+for ii = 1:length(z_spike_traces)
+    
+    map_ch = z_spike_traces{ii};
+    
+    for i = 1:length(map_ch)
+       
+        z_detection_results_tmp{i} = detect_peaks(...
+                -1.0*bsxfun(@minus,map_ch{i},map_ch{i}(:,1)),20,80,1,1,0,0,1)*70;
+
+    end
+    
+    z_detection{ii} = z_detection_results_tmp';
+    clear z_detection_results_tmp
+    figure
+    subplot(121)
+    plot_trace_stack_grid(map_ch,Inf,1,0);
+    subplot(122)
+    plot_trace_stack_grid(z_detection{ii},Inf,1,0);
+end
+
+
+
+%%
+
+centers = [9 11 10 11];
+% spike_counts = zeros(15,1,4);
+% first_spike_time = nan(15,1,4);
+% first_spike_time_trials = cell(15,1,4);
+% jitters = nan(15,1,4);
+z_spike_counts = zeros(13,4);
+z_spike_trials = zeros(13,4);
+for ii = 1:length(z_detection)
+
+    
+    for i = 1:length(z_detection{ii})
+            
+        offset_position = abs(i - centers(ii)) + 1;
+
+        z_spike_counts(offset_position,ii) = z_spike_counts(offset_position,ii) + ...
+            sum(sum(z_detection{ii}{i}(:,100:end)/70,2));
+        z_spike_trials(offset_position,ii) = z_spike_trials(offset_position,ii) + size(z_detection{ii}{i},1);
+%             first_spike_time(main_i,main_j,this_exp) = ...
+%                 arrayfun(@(x) find(x,1,'first'),detection_grids{this_exp}{i,j}(:,100:end));
+        if z_spike_counts(offset_position,ii) > 0
+%             count = 1;
+            for k = 1:size(z_detection{ii}{i},1)
+                time = find(z_detection{ii}{i}(k,100:end),1,'first');
+                if ~isempty(time)
+%                     if count == 1
+                    if isempty(z_first_spike_time_trials{offset_position,ii})
+%                         z_first_spike_time(offset_position,ii) = 0;
+                        z_first_spike_time_trials{offset_position,ii} = time;
+                    else
+                        z_first_spike_time_trials{offset_position,ii} = [z_first_spike_time_trials{offset_position,ii} time];
+                    end
+%                     z_first_spike_time(offset_position,ii) = ...
+%                         z_first_spike_time(offset_position,ii) + time;
+                end
+%                     count = count + 1;
+            end
+%             z_first_spike_time(offset_position,ii) = ...
+%                 z_first_spike_time(offset_position,ii)/count;
+%             if length(z_first_spike_time_trials{offset_position,ii}) > 4
+% %                     jitters(main_i,main_j,this_exp) = 2*sqrt(2*log(2))*std(first_spike_time_trials{main_i,main_j,this_exp});
+%                   z_jitters(offset_position,ii) = max(z_first_spike_time_trials{offset_position,ii}) - min(z_first_spike_time_trials{offset_position,ii}) ;
+% %                     if jitters(main_i,main_j,this_exp) < 10
+% %                         return
+% %                     end
+%             end
+        end
+
+    end
+    
+
+end
+z_spike_counts_mean = z_spike_counts./z_spike_trials;
+z_spike_counts_mean(isnan(z_spike_counts_mean)) = 0;
+
+z_first_spike_time = cellfun(@(x) mean(x),z_first_spike_time_trials);
+
+z_jitters = cellfun(@(x) 2*sqrt(2*log(2))*(sqrt(var(x)+25^2)),z_first_spike_time_trials);
+
+%%
+z_spike_counts_thresh = z_spike_counts_mean;
+z_spike_counts_thresh(z_spike_counts_thresh > 1) = 1;
+
+% figure; plot(0:10:140,mean(z_spike_counts_thresh,2))
+% 
+% figure; plot(0:10:120,nanmean(z_first_spike_time(:,[2 3 4]),2))
+
+test_jitters = z_jitters(2:10,:);
+test_jitters = test_jitters(:);
+spike_counts_mean = z_spike_counts_mean(2:10,:);
+spike_counts_mean = spike_counts_mean(:);
+test_jitters(spike_counts_mean < .5) = NaN;
+test_jitters = test_jitters(~isnan(test_jitters));
+jitters_red = squeeze(jitters(:));
+jitters_red = jitters_red(~isnan(jitters_red));
+all_jitters = [jitters_red];
+figure; ecdf(test_jitters(:)/20)
+spike_times_tmp = z_first_spike_time(2:10,2:4);
+spike_counts_mean = z_spike_counts_mean(2:10,2:4);
+spike_times_tmp = spike_times_tmp(spike_counts_mean < .5)
+spike_times_tmp = spike_times_tmp(~isnan(spike_times_tmp));
+spike_times_tmp = spike_times_tmp(:);
+hold on; ecdf(spike_times_tmp(:)/20)
+hold on; plot([5 5],[0 1],'k--')
+
+
+
+
