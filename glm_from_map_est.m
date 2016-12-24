@@ -13,7 +13,8 @@ time_window = [150 800];
 amps_window = [10 Inf];
 
 time_windows = {[100 800]};
-baseline_window = [1500 1990];
+baseline_window = [1500 1999];
+bg_trunc = 4/3;
 
 for i = 1:num_experiments
     
@@ -56,8 +57,9 @@ for i = 1:num_experiments
     disp('ch1')
 %     ch1(length(time_windows)) = glm_dummy;
     [~, baseline_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch1,baseline_window,1);
+    baseline_map = baseline_map/(diff(baseline_window)/20000);
     bg_data = sort(baseline_map(:));
-    rate = mean(bg_data(1:ceil(length(bg_data))));
+    rate = mean(bg_data(1:ceil(length(bg_data)/bg_trunc)));
     for j = 1:length(time_windows)
         disp('j in for each time window:')
         disp(num2str(j))
@@ -72,9 +74,9 @@ for i = 1:num_experiments
         num_trials = length(this_exp_map_ch1{1,1});
         ch1(j).num_trials = num_trials;
         ch1(j).resp_map = resp_map;
-        ch1(j).p_val = 1- poisscdf(ch1(j).resp_map - 1,rate);
-        ch1(j).rate = rate;
-        ch1(j).baseline_map = baseline_map;
+        ch1(j).p_val = 1- poisscdf(ch1(j).resp_map - 1,rate*(diff(time_windows{j})/20000));
+        ch1(j).rate = rate*(diff(time_windows{j})/20000);
+        ch1(j).baseline_map = baseline_map*(diff(time_windows{j})/20000);
     end
     glm_out(i).ch1 = ch1;
     
@@ -109,8 +111,9 @@ for i = 1:num_experiments
     disp('ch2')
 %     ch1(length(time_windows)) = glm_dummy;
     [~, baseline_map] = run_glm_num_events_spatial_mapest(this_exp_map_ch2,baseline_window,1);
+    baseline_map = baseline_map/(diff(baseline_window)/20000);
     bg_data = sort(baseline_map(:));
-    rate = mean(bg_data(1:ceil(length(bg_data))));
+    rate = mean(bg_data(1:ceil(length(bg_data)/bg_trunc)));
     for j = 1:length(time_windows)
         disp('j in for each time window:')
         disp(num2str(j))
@@ -123,9 +126,9 @@ for i = 1:num_experiments
         num_trials = length(this_exp_map_ch2{1,1});
         ch2(j).num_trials = num_trials;
         ch2(j).resp_map = resp_map;
-        ch2(j).p_val = 1 - poisscdf(ch2(j).resp_map-1,rate);
-        ch2(j).rate = rate;
-        ch2(j).baseline_map = baseline_map;
+        ch2(j).p_val = 1 - poisscdf(ch2(j).resp_map-1,rate*(diff(time_windows{j})/20000));
+        ch2(j).rate = rate*(diff(time_windows{j})/20000);
+        ch2(j).baseline_map = baseline_map*(diff(time_windows{j})/20000);
     end
     glm_out(i).ch2 = ch2;
 %     glm_out(i).ch2 = run_glm_rate_spatial(results_grid_trunc_ch2);
