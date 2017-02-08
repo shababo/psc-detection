@@ -12,9 +12,11 @@ sweeps_window = [3000 5000];
 time_window = [150 800];
 amps_window = [10 Inf];
 
-time_windows = {[100 800]};
-baseline_window = [1500 1999];
-bg_trunc = 4/3;
+time_windows = {[100 800]/10};
+baseline_window = ceil([1500 1999]/10);
+time_windows = {ceil([200 800]/20)};
+baseline_window = ceil([1500 1999]/20);
+bg_trunc = 1;
 
 for i = 1:num_experiments
     
@@ -25,7 +27,7 @@ for i = 1:num_experiments
 %     
 %     matchstr =  [dates{i} '_slice' num2str(slice_nums(i)) '_cell' ...
 %         num2str(cell_nums(i)) tags{i} '_ch1']
-%     rebuildmap_file = ...
+%     rebuildmap_file = ...25/30
 %         ['old-data/' dates{i} '_slice' num2str(slice_nums(i)) '_cell' ...
 %         num2str(cell_nums(i)) tags{i} '_ch1_trace_grid-rebuildmap.mat'];
 %     

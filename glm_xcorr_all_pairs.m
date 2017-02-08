@@ -1,4 +1,4 @@
-function [glm_out,xcorr_images,samples_psths] = glm_xcorr_all_pairs(resultsdir,dates,slice_nums,cell_nums,tags, trials_detection,glm_dummy)
+function [glm_out,xcorr_images,samples_psths,new_map_ests] = glm_xcorr_all_pairs(resultsdir,dates,slice_nums,cell_nums,tags, trials_detection,glm_dummy)
 xcorr_images = 1;
 samples_psths = 1;
 glm_out = 1;
@@ -10,7 +10,7 @@ samples_psths = cell(num_experiments,1);
 
 sweeps_window = [3000 5000];
 time_window = [0 Inf];
-amps_window = [0 Inf];
+amps_window = [10 Inf];
 
 time_windows = {[1 2000]};
 
@@ -32,23 +32,32 @@ for i = 1:num_experiments
 %     trials_detection{i}
     results_grid_trunc_ch1 = ...
     cellfun(@(x) arrayfun(@(y) ...
-    truncate_samples(y,sweeps_window,time_window,amps_window),x(trials_detection{i})),...
+    truncate_samples(y,sweeps_window,time_window,amps_window),x),...
     results_grid_ch1,'UniformOutput',0);
 % %     
 % 
-%     samples_psths_ch1 = cellfun(@(x) arrayfun(@get_map_sample,x,'UniformOutput',0),...
-%         results_grid_trunc_ch1,'UniformOutput',0);
+    new_map_ests_ch1 = cellfun(@(x) arrayfun(@(y) get_map_sample(y),x(trials_detection{i}),'UniformOutput',0),...
+        results_grid_trunc_ch1,'UniformOutput',0);
 
 
     samples_trials_combo_ch1 = cellfun(@(y) arrayfun(@(x) [x.times],y(trials_detection{i}),...
         'UniformOutput',0),results_grid_trunc_ch1,'UniformOutput',0);
     samples_psths_ch1 = ...
-        cellfun(@(y) cellfun(@(x) histcounts(x,1:10:2001)',y,'UniformOutput',0),...
+        cellfun(@(y) cellfun(@(x) histcounts(x,1:20:2001)',y,'UniformOutput',0),...
         samples_trials_combo_ch1,'UniformOutput',0); 
-%     samples_psths_ch1 = cellfun(@(x) cell2mat(x)',...
-%         samples_psths_ch1,'UniformOutput',0);
-    samples_psths_ch1 = cellfun(@(x) smoothts(cell2mat(x)','g',100,20),...
+    samples_psths_ch1 = cellfun(@(x) cell2mat(x)',...
         samples_psths_ch1,'UniformOutput',0);
+%     samples_psths_ch1 = cellfun(@(x) smoothts(cell2mat(x)','g',100,20),...
+%         samples_psths_ch1,'UniformOutput',0);
+    new_times = cellfun(@(x) detect_peaks(x,150,5,0,1,0,0,0)',...
+        samples_psths_ch1,'UniformOutput',0);
+%     assignin('base','new_times',new_times)
+%     return
+    for j = 1:numel(new_map_ests_ch1)
+        for k = 1:length(new_map_ests_ch1{j})
+            new_map_ests_ch1{j}{k}.times = new_times{j}{k};
+        end
+    end
 %     
 %     num_event_array_grid = cellfun(@(y) cell2mat(arrayfun(@(x) mean([x.num_events]),y(trials_detection{i}),...
 %         'UniformOutput',0)),results_grid_ch1,'UniformOutput',0);
@@ -80,22 +89,30 @@ for i = 1:num_experiments
     
     results_grid_trunc_ch2 = ...
     cellfun(@(x) arrayfun(@(y) ...
-    truncate_samples(y,sweeps_window,time_window,amps_window),x(trials_detection{i})),...
+    truncate_samples(y,sweeps_window,time_window,amps_window),x),...
     results_grid_ch2,'UniformOutput',0);
-% 
-%     samples_psths_ch2 = cellfun(@(x) arrayfun(@get_map_sample,x,'UniformOutput',0),...
-%         results_grid_trunc_ch2,'UniformOutput',0);
+
+    new_map_ests_ch2 = cellfun(@(x) arrayfun(@(y) get_map_sample(y),x(trials_detection{i}),'UniformOutput',0),...
+        results_grid_trunc_ch2,'UniformOutput',0);
 
     samples_trials_combo_ch2 = cellfun(@(y) arrayfun(@(x) [x.times],y(trials_detection{i}),...
         'UniformOutput',0),results_grid_trunc_ch2,'UniformOutput',0);
     samples_psths_ch2 = ...
-        cellfun(@(y) cellfun(@(x) histcounts(x,1:10:2001)',y,'UniformOutput',0),...
+        cellfun(@(y) cellfun(@(x) histcounts(x,1:20:2001)',y,'UniformOutput',0),...
         samples_trials_combo_ch2,'UniformOutput',0); 
-%     samples_psths_ch2 = cellfun(@(x) cell2mat(x)',...
-%         samples_psths_ch2,'UniformOutput',0);
-    samples_psths_ch2 = cellfun(@(x) smoothts(cell2mat(x)','g',100,20),...
+    samples_psths_ch2 = cellfun(@(x) cell2mat(x)',...
         samples_psths_ch2,'UniformOutput',0);
+%     samples_psths_ch2 = cellfun(@(x) smoothts(cell2mat(x)','g',100,20),...
+%         samples_psths_ch2,'UniformOutput',0);
+    new_times = cellfun(@(x) detect_peaks(x,150,5,0,1,0,0,0)',...
+        samples_psths_ch2,'UniformOutput',0);
+    for j = 1:numel(new_map_ests_ch2)
+        for k = 1:length(new_map_ests_ch2{j})
+            new_map_ests_ch2{j}{k}.times = new_times{j}{k};
+        end
+    end
     disp('ch2')
+%     new_map_ests_ch2 = [];
 %     assignin('base','samples_psths_ch2',samples_psths_ch2)
 %     ch2(length(time_windows)) = glm_dummy;
 %     parfor j = 1:length(time_windows)
@@ -117,6 +134,10 @@ for i = 1:num_experiments
     samples_psths{i} = cell(2,1);
     samples_psths{i}{1} = samples_psths_ch1;
     samples_psths{i}{2} = samples_psths_ch2;
+    
+    new_map_ests{i} = cell(2,1);
+    new_map_ests{i}{1} = new_map_ests_ch1;
+    new_map_ests{i}{2} = new_map_ests_ch2;
 
 end
 end

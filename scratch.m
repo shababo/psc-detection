@@ -1481,27 +1481,27 @@ paramdir = '/media/shababo/Layover/projects/mapping/data/som-mapping-st/som-big-
 
 dates = {'10_8', '10_8', '10_12', '10_12', '10_12', '10_8', '10_7', '10_7', '10_7', '10_7',...
     '10_31','10_31','10_31','10_31','10_31','11_1','11_1','11_1','11_1','11_1','11_1','11_1','11_1',...
-    '11_2','11_2','11_2','11_2','11_2','11_2','10_12'}; %,'10_7','10_7','10_7','10_8','10_8','10_8' , '10_8' , '10_12'}; %
+    '11_2','11_2','11_2','11_2','11_2','11_2','10_12','10_12'}; %,'10_7','10_7','10_7','10_8','10_8','10_8' , '10_8' , '10_12'}; %
 
 slice_nums = [5 3 4 4 2 3 1 3 3 3 ...
-    4 5 5 6 7 1 1 3 4 5 6 7 8 1 1 2 3 3 4 3]; %3 3 3 3 3 5 3 2];
+    4 5 5 6 7 1 1 3 4 5 6 7 8 1 1 2 3 3 4 3 5]; %3 3 3 3 3 5 3 2];
 
 cell_nums = [1 1 1 1 1 1 1 1 1 1 ...
-    1 1 2 1 1 1 2 1 1 2 1 1 1 2 2 1 1 1 1 1]; % 1 1 1 1 1 1 1 1]; 
+    1 1 2 1 1 1 2 1 1 2 1 1 1 2 2 1 1 1 1 1 1]; % 1 1 1 1 1 1 1 1]; 
 
 tags = {'', '', '', '', '', 'cont', '', '', '', '',...
-    '','','','','','','','','','','','','','','','','next','next','', ''}; %, '', '', 'cont', 'cont', '', '', ''};% 
+    '','','','','','','','','','','','','','','','','next','next','', '',''}; %, '', '', 'cont', 'cont', '', '', ''};% 
 
 trials = {[1 2 3],[4 5],[1 2],[3 4],[1 2],[4 5 6],[6],[3 4],[5 6],[7 8],...
     [15 16],[9 10],[1 2 3],[6 7 8],[6 7],[6 7],[5 6],[9 10 11],[7 8],[5 6],[5 6],[5 6],[5 6],...
-    [5 6],[ 7 8],[5 6],[5 6],[ 7 8],[9 10],[1 2]}; %,[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
+    [5 6],[ 7 8],[5 6],[5 6],[ 7 8],[9 10],[1 2],[1 2]}; %,[1 4 5 6],[1 2 3],[4 5] ,[1 2]};% third from last
 trials_detection = {[1:9],[1:6],[1:6],[7:12],1:6,4:12,1:3,1:6,7:12,13:18,...
     1:6,1:6,1:9,1:9,1:6,1:6,1:6,1:9,1:6,1:6,1:6,1:6,1:6,...
-    1:6,7:12,1:6,1:6,7:12,1:6,1:6}; %,[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
+    1:6,7:12,1:6,1:6,7:12,1:6,1:6,1:6}; %,[1:6], [7:12], [12:18],[1:3], [4:12],[1:9],[1:6] ,[1:6]};
 
-pair_id = logical([0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 1 0]);
+pair_id = logical([0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 1 0 1]);
 
-map_index_id = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1];
+map_index_id = [1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 1 1];
 
 id_names = {'L4-L5','L5-L5'};
 
@@ -1513,24 +1513,41 @@ exps_to_run = setdiff(1:length(pair_id),skip_exps); %  13 26
 
 %%
 
-exps_to_run = [20];
-% exps_to_run = 12;
+exps_to_run = [1:31];
+% exps_to_run = [20 28];
 % delete(gcp('nocreate'))
 % pool = parpool(3);
 % poisson_prob_maps = [];
-for i = 1:length(exps_to_run)
-    this_exp = exps_to_run(i)
+
+
+% for i = 1:length(exps_to_run)
+%     this_exp = exps_to_run(i)
 %     try
-     [~,~,time_posteriors{this_exp}] = ...
-...%         [glm_out_vb_good_onetimebin3{this_exp}] = ...
-           glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
-           cell_nums(this_exp),tags(this_exp),trials_detection(this_exp),glm_dummy);
-...%             glm_from_map_est(map_estimates_full(this_exp),glm_dummy);
-...                ROI_VB_som_data(map_estimates(this_exp),[1 pair_id(this_exp)]);
+%      [~,~,time_posteriors_2017{this_exp},new_event_detection_2017{this_exp}] = ...
+% ...%         [glm_out_vb_good_onetimebin3{this_exp}] = ...
+%            glm_xcorr_all_pairs('/media/shababo/data/new-data',dates(this_exp),slice_nums(this_exp),...
+%            cell_nums(this_exp),tags(this_exp),trials_detection(this_exp),glm_dummy);
+% ...%             glm_from_map_est(map_estimates_full(this_exp),glm_dummy);
+% ...                ROI_VB_som_data(map_estimates(this_exp),[1 pair_id(this_exp)]);
 %     catch e
 %         disp([num2str(this_exp) ' fail'])
 %     end
+% end
+
+for i = 1:length(exps_to_run)
+    this_exp = exps_to_run(i)
+    try
+%      [~,~,time_posteriors{this_exp},new_event_detection{this_exp}] = ...
+         [poisson_prob_maps_new_detection_2017_wider_window{this_exp}] = ...
+...%            glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
+...%            cell_nums(this_exp),tags(this_exp),trials_detection(this_exp),glm_dummy);
+             glm_from_map_est(new_event_detection_2017(this_exp),glm_dummy);
+...                ROI_VB_som_data(map_estimates(this_exp),[1 pair_id(this_exp)]);
+    catch e
+        disp([num2str(this_exp) ' fail'])
+    end
 end
+
 % delete(pool);
 
 %%
@@ -1705,9 +1722,9 @@ for ii = 1:length(exps_to_run)
 %         title(['Experiment ' num2str(this_exp) ': CH1'])
 %         axis off
 % 
-    this_exp = 30; 
+    this_exp = 8; 
     data_file = ...
-        [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
     load(data_file)
     [map_ch1,map_ch2] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
@@ -1752,8 +1769,9 @@ end
 %%
 %FDR
 % close all
-input_maps_fixiest = struct();
-exps_to_run = [2 20 30];
+input_maps_2017_ww_q10 = struct();
+exps_to_run = 1:31;
+% exps_to_run = [1 3 20 28];
 for ii = 1:length(exps_to_run)
     
     this_exp = exps_to_run(ii);
@@ -1762,92 +1780,92 @@ for ii = 1:length(exps_to_run)
 %     poiss_cdf_map_ch1{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch1.resp_map,mean(poisson_prob_maps{this_exp}.ch1.baseline_map(:)));
 %     poiss_cdf_map_ch2{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch2.resp_map,mean(poisson_prob_maps{this_exp}.ch2.baseline_map(:)));
 
-    fdr_rate = 1/20;
+    fdr_rate = 1/10;
     test_vec = (1:441)/441 * fdr_rate;
-    tect_vec = .05*ones(size(test_vec));
+%     tect_vec = .05*ones(size(test_vec));
     
-    ch1_pvals = poisson_prob_maps_better_map{this_exp}.ch1.p_val;
+    ch1_pvals = poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch1.p_val;
     pvals_vec = ch1_pvals(:);
     [pvals_vec,inds] = sort(pvals_vec);
     
     thresh_ind = find(pvals_vec' <= test_vec,1,'last');
     detected_inds = inds(1:thresh_ind);
     [is,js] = ind2sub([21 21],detected_inds);
-    input_maps_fixiest(this_exp).ch1 = zeros(21,21);
+    input_maps_2017_ww_q10(this_exp).ch1 = zeros(21,21);
     for i = 1:length(is)
-        input_maps_fixiest(this_exp).ch1(is(i),js(i)) = 1;
+        input_maps_2017_ww_q10(this_exp).ch1(is(i),js(i)) = 1;
     end
 
-    ch2_pvals = poisson_prob_maps_better_map{this_exp}.ch2.p_val;
+    ch2_pvals = poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch2.p_val;
     pvals_vec = ch2_pvals(:);
     [pvals_vec,inds] = sort(pvals_vec);
     
     thresh_ind = find(pvals_vec' <= test_vec,1,'last');
     detected_inds = inds(1:thresh_ind);
     [is,js] = ind2sub([21 21],detected_inds);
-    input_maps_fixiest(this_exp).ch2 = zeros(21,21);
+    input_maps_2017_ww_q10(this_exp).ch2 = zeros(21,21);
     for i = 1:length(is)
-        input_maps_fixiest(this_exp).ch2(is(i),js(i)) = 1;
+        input_maps_2017_ww_q10(this_exp).ch2(is(i),js(i)) = 1;
     end
 
 %     alpha_thresh = .25;    
     
-    figure
-    colormap parula
+%     figure
+%     colormap parula
+%     
+%     subplot(241)
+%     imagesc(poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch1.baseline_map)
+% %     caxis([0 12])
+%     axis off
+%     colormap parula
+%     title(sprintf(['Experiment ' num2str(this_exp) '\nCell 1\nBG Map w/ Est Null Rate: ' num2str(poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch1.rate)]))
+%     subplot(245)
+%     imagesc(poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch2.baseline_map)
+% %     caxis([0 12])
+%     axis off
+% %     colormap hot
+%     title(sprintf(['Cell 2\nBG Map w/ Est Null Rate: ' num2str(poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch2.rate)]))
+%     subplot(242)
+%     imagesc(poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch1.resp_map)
+% %     caxis([0 12])
+%     axis off
+% %     colormap hot
+%     title('Response Map')
+%     subplot(246)
+%     imagesc(poisson_prob_maps_new_detection_2017_wider_window{this_exp}.ch2.resp_map)
+% %     caxis([0 12])
+%     axis off
+%     title('Response Map')
+%     subplot(243)
+% %     colormap hot
+%     
+%     imagesc(input_maps_2017_wider_window_q10(this_exp).ch1)
+%     axis off
+%     caxis([0 1])
+%     title(sprintf(['FDR Detection\nFDR Rate (q) = ' num2str(fdr_rate)]))
+% %     colormap gray
+%     subplot(247)
+%     imagesc(input_maps_2017_wider_window_q10(this_exp).ch2)
+%     axis off
+% %     colormap gray
+%     caxis([0 1])
+%     title(sprintf(['FDR Detection\nFDR Rate (q) = ' num2str(fdr_rate)]))
+%     subplot(244)
+% %     imagesc(input_maps_vb(this_exp).ch1 > alpha_thresh)
+%     imagesc(input_maps_2017(this_exp).ch1)
+%     axis off
+% %     colormap gray
+%     caxis([0 1])
+%     title(sprintf(['Previous Detection']))
+%     subplot(248)
+% %     imagesc(input_maps_vb(this_exp).ch2 > alpha_thresh)
+%     imagesc(input_maps_2017(this_exp).ch2)
+%     axis off
+% %     colormap gray
+%     caxis([0 1])
+%     title(sprintf(['Previous Detection']))
     
-    subplot(241)
-    imagesc(poisson_prob_maps_better_map{this_exp}.ch1.baseline_map)
-%     caxis([0 12])
-    axis off
-    colormap parula
-    title(sprintf(['Experiment ' num2str(this_exp) '\nCell 1\nBG Map w/ Est Null Rate: ' num2str(poisson_prob_maps_better_map{this_exp}.ch1.rate)]))
-    subplot(245)
-    imagesc(poisson_prob_maps_better_map{this_exp}.ch2.baseline_map)
-%     caxis([0 12])
-    axis off
-%     colormap hot
-    title(sprintf(['Cell 2\nBG Map w/ Est Null Rate: ' num2str(poisson_prob_maps_better_map{this_exp}.ch2.rate)]))
-    subplot(242)
-    imagesc(poisson_prob_maps_better_map{this_exp}.ch1.resp_map)
-%     caxis([0 12])
-    axis off
-%     colormap hot
-    title('Response Map')
-    subplot(246)
-    imagesc(poisson_prob_maps_better_map{this_exp}.ch2.resp_map)
-%     caxis([0 12])
-    axis off
-    title('Response Map')
-    subplot(243)
-%     colormap hot
-    
-    imagesc(input_maps_fixiest(this_exp).ch1)
-    axis off
-    caxis([0 1])
-    title(sprintf(['FDR Detection\nFDR Rate (q) = ' num2str(fdr_rate)]))
-%     colormap gray
-    subplot(247)
-    imagesc(input_maps_fixiest(this_exp).ch2)
-    axis off
-%     colormap gray
-    caxis([0 1])
-    title(sprintf(['FDR Detection\nFDR Rate (q) = ' num2str(fdr_rate)]))
-    subplot(244)
-%     imagesc(input_maps_vb(this_exp).ch1 > alpha_thresh)
-    imagesc(input_maps(this_exp).ch1)
-    axis off
-%     colormap gray
-    caxis([0 1])
-    title(sprintf(['Previous Detection']))
-    subplot(248)
-%     imagesc(input_maps_vb(this_exp).ch2 > alpha_thresh)
-    imagesc(input_maps(this_exp).ch2)
-    axis off
-%     colormap gray
-    caxis([0 1])
-    title(sprintf(['Previous Detection']))
-    
-    set(gcf,'position',maxwinsize);
+%     set(gcf,'position',maxwinsize);
     
 %     export_fig supplemntal-rate-maps.pdf -painters
 %     close all
@@ -1859,8 +1877,100 @@ for ii = 1:length(exps_to_run)
 %     title(['Experiment ' num2str(this_exp)])
 end
 %%
-% exps_to_run = [1:12 14:30];
-exps_to_run = [20];
+exp = 21;
+figure
+l4_resp_map = poisson_prob_maps_new_detection_2017{exp}.ch2.resp_map;
+l4_input_map = input_maps_2017_ww_q10(exp).ch2;
+l5_resp_map = poisson_prob_maps_new_detection_2017{exp}.ch1.resp_map;
+l5_input_map = input_maps_2017_ww_q10(exp).ch1;
+l5_resp_map(l5_input_map == 0) = 0; %only sites that exceed 'background rate'
+l4_resp_map(l4_input_map == 0) = 0;
+[Acol Arow]=ind2sub([21 21],find(l4_resp_map));%);
+[Bcol Brow]=ind2sub([21 21],find(l5_resp_map));%;
+% subplot(121)
+% hold on
+numbers = repmat(1:21,21,1);
+numbers_t = numbers';
+
+scatter(numbers(:),numbers_t(:),10,[0 0 0],'.')
+hold on
+hs = scatter(Arow,21 - Acol + 1,200*l4_resp_map(find(l4_resp_map)),[247 158 29]/255,'.','LineWidth',2);%find(l4_resp_map)
+% alpha(hs,.5)
+xlim([1 21])
+ylim([1 21])
+axis off
+% subplot(122)
+scatter(numbers(:),numbers_t(:),10,[0 0 0],'.')
+hold on
+hs = scatter(Brow,21 - Bcol + 1,l5_resp_map(find(l5_resp_map))*20,[39 170 225]/255,'o','LineWidth',2);
+% alpha(hs,.5)
+xlim([1 21])
+ylim([1 21])
+axis off
+axis image
+
+
+%%
+exps_to_run = 2
+;setdiff(1:31,exclude);
+for i = 1:length(exps_to_run)
+    exp = exps_to_run(i);
+%     exp = 21;
+    figure
+    l4_resp_map = poisson_prob_maps_new_detection_2017{exp}.ch2.resp_map;
+    l4_input_map = input_maps_2017_ww_q10(exp).ch2;
+    l5_resp_map = poisson_prob_maps_new_detection_2017{exp}.ch1.resp_map;
+    l5_input_map = input_maps_2017_ww_q10(exp).ch1;
+    l5_resp_map(l5_input_map == 0) = 0; %only sites that exceed 'background rate'
+    l4_resp_map(l4_input_map == 0) = 0;
+    [Acol Arow]=ind2sub([21 21],find(l4_resp_map));%);
+    [Bcol Brow]=ind2sub([21 21],find(l5_resp_map));%;
+    subplot(121)
+    % hold on
+    numbers = repmat(1:21,21,1);
+    numbers_t = numbers';
+
+    scatter(numbers(:),numbers_t(:),10,[0 0 0],'.')
+    hold on
+    if any(exp == l4_pairs)
+        color = [247 158 29]/255;
+    else
+        color = [39 170 225]/255;
+    end
+    hs = scatter(Arow,21 - Acol + 1,200*l4_input_map(find(l4_resp_map))*6*4,color,'.','LineWidth',2);%find(l4_resp_map)
+    % alpha(hs,.5)
+    xlim([1 21])
+    ylim([1 21])
+    axis off
+    axis image
+    subplot(122)
+    scatter(numbers(:),numbers_t(:),10,[0 0 0],'.')
+    hold on
+    
+    hs = scatter(Brow,21 - Bcol + 1,l5_input_map(find(l5_resp_map))*6*4*200,[39 170 225]/255,'.','LineWidth',2);
+    % alpha(hs,.5)
+    xlim([1 21])
+    ylim([1 21])
+    axis off
+    axis image
+    set(gcf,'position',maxwinsize);
+    export_fig(['input_map_scatter_2017_ww_q10_exp' num2str(exp) '.eps'])
+%     saveas(gcf,['input_map_scatter_2017_ww_q10_exp' num2str(exp) '.eps'])
+%     close(gcf)
+end
+
+%%
+clc
+exps_to_run = l5_pairs;
+
+for i = 1:length(exps_to_run)
+    this_exp = exps_to_run(i)
+    [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
+        num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
+end
+%%
+exps_to_run = setdiff(1:31,exclude);
+% exps_to_run = [20];
 for ii = 1:length(exps_to_run)
     
     this_exp = exps_to_run(ii);
@@ -1869,55 +1979,55 @@ for ii = 1:length(exps_to_run)
 %     poiss_cdf_map_ch1{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch1.resp_map,mean(poisson_prob_maps{this_exp}.ch1.baseline_map(:)));
 %     poiss_cdf_map_ch2{this_exp} =  poisscdf(poisson_prob_maps{this_exp}.ch2.resp_map,mean(poisson_prob_maps{this_exp}.ch2.baseline_map(:)));
 
-    fdr_rate = .02;
-    test_vec = (1:441)/441 * fdr_rate;
-    
-    ch1_pvals = poisson_prob_maps_fix_check{this_exp}.ch1.p_val;
-    pvals_vec = ch1_pvals(:);
-    [pvals_vec,inds] = sort(pvals_vec);
-    
-    thresh_ind = find(pvals_vec' <= test_vec,1,'last');
-    detected_inds = inds(1:thresh_ind);
-    [is,js] = ind2sub([21 21],detected_inds);
-    input_maps_fix(this_exp).ch1 = zeros(21,21);
-    for i = 1:length(is)
-        input_maps_fix(this_exp).ch1(is(i),js(i)) = 1;
-    end
-
-    ch2_pvals = poisson_prob_maps_fix_check{this_exp}.ch2.p_val;
-    pvals_vec = ch2_pvals(:);
-    [pvals_vec,inds] = sort(pvals_vec);
-    
-    thresh_ind = find(pvals_vec' <= test_vec,1,'last');
-    detected_inds = inds(1:thresh_ind);
-    [is,js] = ind2sub([21 21],detected_inds);
-    input_maps_fix(this_exp).ch2 = zeros(21,21);
-    for i = 1:length(is)
-        input_maps_fix(this_exp).ch2(is(i),js(i)) = 1;
-    end
+%     fdr_rate = .1;
+%     test_vec = (1:441)/441 * fdr_rate;
+%     
+%     ch1_pvals = poisson_prob_maps_fix_check{this_exp}.ch1.p_val;
+%     pvals_vec = ch1_pvals(:);
+%     [pvals_vec,inds] = sort(pvals_vec);
+%     
+%     thresh_ind = find(pvals_vec' <= test_vec,1,'last');
+%     detected_inds = inds(1:thresh_ind);
+%     [is,js] = ind2sub([21 21],detected_inds);
+%     input_maps_fix(this_exp).ch1 = zeros(21,21);
+%     for i = 1:length(is)
+%         input_maps_fix(this_exp).ch1(is(i),js(i)) = 1;
+%     end
+% 
+%     ch2_pvals = poisson_prob_maps_fix_check{this_exp}.ch2.p_val;
+%     pvals_vec = ch2_pvals(:);
+%     [pvals_vec,inds] = sort(pvals_vec);
+%     
+%     thresh_ind = find(pvals_vec' <= test_vec,1,'last');
+%     detected_inds = inds(1:thresh_ind);
+%     [is,js] = ind2sub([21 21],detected_inds);
+%     input_maps_fix(this_exp).ch2 = zeros(21,21);
+%     for i = 1:length(is)
+%         input_maps_fix(this_exp).ch2(is(i),js(i)) = 1;
+%     end
 
 %     alpha_thresh = .25;    
 %     
     figure
     subplot(121)
-    imagesc(poisson_prob_maps_fix_check{this_exp}.ch1.resp_map)
-%     caxis([0 1])
-    caxis([0 12])
+    imagesc(input_maps_2017_ww_q10(this_exp).ch1)
+    caxis([0 1])
+%     caxis([0 12])
     axis off
     axis image
 %     title('Input Map Ch 1')
     subplot(122)
-    imagesc(poisson_prob_maps_fix_check{this_exp}.ch2.resp_map)
-%     caxis([0 1])
-    caxis([0 12])
+    imagesc(input_maps_2017_ww_q10(this_exp).ch2)
+    caxis([0 1])
+%     caxis([0 12])
     colormap gray
     axis off
     axis image
 %     title('Input Map Ch 2')
     set(gcf,'position',maxwinsize);
-    colormap parula
-    export_fig supplemntal-rate-maps.pdf -painters
-%     saveas(gcf,['input_map_fix_q05check2_exp' num2str(this_exp) '.jpg'])
+%     colormap grey
+%     export_fig supplemntal-rate-maps.pdf -painters
+    saveas(gcf,['input_map_207_ww_q10_exp' num2str(this_exp) '.jpg'])
     
 %     close all
 % %     
@@ -1930,11 +2040,13 @@ for ii = 1:length(exps_to_run)
 end
 
 %% load data file
-this_exp = 22;
+this_exp = 6;
     data_file = ...
         [dates{this_exp} '_slice' num2str(slice_nums(this_exp)) '_cell' ...
         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat']
-    load(data_file)
+    [map_ch1,~] = see_grid(data,trials{this_exp},map_indices{map_index_id(this_exp)},1,1323);
+figure
+    plot_trace_stack_grid(map_ch1,6,5,0);
 %%
 
 figure;
@@ -2700,16 +2812,16 @@ skip_exps = [1 10 15];
 exps_to_run = 1:length(dates); %  13 26
 exps_to_run = setdiff(exps_to_run,skip_exps)
 %%
-close all
+% close all
 %issues 13,19,20 7 14 15
 % 16 too low
 % exps_to_run = [1:length(dates)];
-exps_to_run = 23
+
 % detection_grids = cell(1,length(dates));
 
 thresholds = [40 50 0 450 0 10 7.5 15 15 30 0 30 5 6 6 8 10 ...
     10 15 15 15 15 20 20 15 15 15 15];
-exps_to_run = [8 24 13];
+exps_to_run = [19];
 figure
 for ii = 1:length(exps_to_run)
     
@@ -2719,9 +2831,9 @@ for ii = 1:length(exps_to_run)
         num2str(cell_nums(this_exp)) '' tags{this_exp} '.mat'];
     load(data_file)
 %    figure
-     subplot(1,3,ii)
+     subplot(1,1,ii)
     [map_ch1,~] = see_grid(data,trials{this_exp},map_index_spikes,0,363);
-    plot_trace_stack_grid(map_ch1,Inf,10,0);
+    plot_trace_stack_grid(map_ch1,3,10,0);
  %   title(['Experiment ' num2str(this_exp)])
 %     
 %      this_row_i = row_inds{this_exp};
@@ -2821,8 +2933,8 @@ end
 
 %%
 
-for ii = 1:length(exps_to_run) 
-    this_exp = exps_to_run(ii);
+for ii = 1:length(high_power_inds) 
+    this_exp = high_power_inds(ii);
     prob_spike(:,:,this_exp) = cellfun(@(x) length(x),squeeze(first_spike_time_trials(:,:,this_exp)))/spike_counts_trials(this_exp);
 end
 
@@ -2837,8 +2949,8 @@ end
 
 figure
 x = (1:11)';
-mean_vec = squeeze(mean(spike_count_means(:,6,high_power_inds),3));
-error = squeeze(std(spike_count_means(:,6,high_power_inds),[],3))/sqrt(length(high_power_inds));  
+mean_vec = squeeze(mean(spike_count_means(:,6,high_pow_exps),3));
+error = squeeze(std(spike_count_means(:,6,high_pow_exps),[],3))/sqrt(length(high_pow_exps));  
 fill([x;flipud(x)],[(mean_vec-error);flipud(mean_vec+error)],[1 1 1]*.75,'linestyle','none');
 hold on
 plot(x,mean_vec,'Color',[0 0 0]/255)
@@ -2870,8 +2982,8 @@ hold on
 plot(x,mean_vec,'Color',[0 0 0]/255)
 
 %%
-for ii = 1:length(exps_to_run)
-    this_exp = exps_to_run(ii);
+for ii = 1:length(high_power_inds)
+    this_exp = high_power_inds(ii);
     num_spike_locations(this_exp) = sum(sum(squeeze(prob_spike(:,:,this_exp) >= .75)));
 end
 
@@ -2907,48 +3019,50 @@ for ii = 1:length(exps_to_run)
 end
     
 %%
-exclude = [13 4 2 9 10 24 27 7 15 17 1];
+exclude = [4 2 9 10 24 27 7 15 17 1 31]; % added 6 for now
 l4_pairs = setdiff(find(pair_id == 0),exclude);%[1 4 5 9 17 18 19 21 22 23 30];
 l5_pairs = setdiff(find(pair_id == 1),exclude);%[11 12 14 15 20 26 28];
 exps = union(l4_pairs,l5_pairs);
-num_locs_exps = sum(num_locs(exps));
+% num_locs_exps = sum(num_locs(exps));
+% 
+% p_val_thresh = .05/num_locs_exps;
 
-p_val_thresh = .05/num_locs_exps;
-
-fdr_rate = .15;
+fdr_rate = .05;
 all_p_vals_l4 = [];
 all_p_vals_l5 = [];
+% exps = 13
 for i = exps
     
     
-    if num_locs_union_full(i) > 0 && num_locs_full(i) > 0
-        num_tests = num_locs_full(i);
-        [pvals_vec,inds] = sort([exp_shuffle_stats_map_est7_intersect(i).locs(1:num_locs_full(i)).p_val]);
+    
+    if num_locs_union_full_ww_q10(i) > 0 && num_locs_full_ww_q10(i) > 0
+        num_tests = num_locs_full_ww_q10(i);
+        [pvals_vec,inds] = sort([exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(1:num_locs_full_ww_q10(i)).p_val]);
         test_vec = (1:num_tests)/num_tests * fdr_rate;
 %         test_vec = .05*ones(size(test_vec));
         thresh_ind = find(pvals_vec <= test_vec,1,'last');
-        detected_inds = inds(1:thresh_ind);
-        for j = 1:length(detected_inds)
-            exp_shuffle_stats_map_est7_intersect(i).locs(detected_inds(j)).detection = 1;
-        end
-        for j = setdiff(1:length(exp_shuffle_stats_map_est7_intersect(i).locs),detected_inds)
-            exp_shuffle_stats_map_est7_intersect(i).locs(j).detection = 0;
-        end
-        if thresh_ind > 0
-            ci_score(i) = thresh_ind/num_locs_union_full(i);
-            
-        else
-            ci_score(i) = 0;
-        end
-        ci_score2(i) = num_locs_full(i)/num_locs_union_full(i);
-        if any(l4_pairs == i)
-            all_p_vals_l4 = [all_p_vals_l4 pvals_vec];
-        else
-            all_p_vals_l5 = [all_p_vals_l5 pvals_vec];
-        end
+%         detected_inds = inds(1:thresh_ind);
+%         for j = 1:length(detected_inds)
+%             exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(detected_inds(j)).detection = 1;
+%         end
+%         for j = setdiff(1:length(exp_shuffle_stats_event_detection_2017_ww_q10(i).locs),detected_inds)
+%             exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(j).detection = 0;
+%         end
+%         if thresh_ind > 0
+%             ci_score(i) = thresh_ind/num_locs_union_full_ww_q10(i);
+%             
+%         else
+%             ci_score(i) = 0;
+%         end
+        ci_score2(i) = num_locs_full_ww_q10(i)/num_locs_union_full_ww_q10(i);
+%         if any(l4_pairs == i)
+%             all_p_vals_l4 = [all_p_vals_l4 pvals_vec];
+%         else
+%             all_p_vals_l5 = [all_p_vals_l5 pvals_vec];
+%         end
 %         ci_score(i) = sum(sum(exp_shuffle_stats_map_est6_intersect(i).input_map < p_val_thresh))/num_locs_union(i);
     else
-        ci_score(i) = 0;
+%         ci_score(i) = 0;
         ci_score2(i) = 0;
     end
     
@@ -2963,18 +3077,18 @@ figure
 
 scatter(2.75*ones(length(cis_tmp(l4_pairs)),1),cis_tmp(l4_pairs),'k','jitter','on', 'jitterAmount',0.05)%,'k' ,'jitter','on', 'jitterAmount',0.25);
 hold on
-scatter(1.25*ones(length(ci_score2(l4_pairs)),1),ci_score2(l4_pairs),'k' ,'jitter','on', 'jitterAmount',0.1);
-hold on
+% scatter(1.25*ones(length(ci_score2(l4_pairs)),1),ci_score2(l4_pairs),'k' ,'jitter','on', 'jitterAmount',0.1);
+% hold on
 % plot([1.75;1.25],[cis_tmp(l4_pairs);ci_score2(l4_pairs)],'k')
 hold on
 scatter(2.5,mean(cis_tmp(l4_pairs)),100,[0 0 0],'filled')
 hold on
 plot(2.5*[1 1],mean(cis_tmp(l4_pairs)) + std(cis_tmp(l4_pairs))/sqrt(length(cis_tmp(l4_pairs)))*[-1 1],'k','Linewidth',2)
 hold on
-scatter(1.0,mean(ci_score2(l4_pairs)),100,[0 0 0],'filled')
-hold on
-plot(1.0*[1 1],mean(ci_score2(l4_pairs)) + std(ci_score2(l4_pairs))/sqrt(length(ci_score2(l4_pairs)))*[-1 1],'k','Linewidth',2)
-hold on
+% scatter(1.0,mean(ci_score2(l4_pairs)),100,[0 0 0],'filled')
+% hold on
+% plot(1.0*[1 1],mean(ci_score2(l4_pairs)) + std(ci_score2(l4_pairs))/sqrt(length(ci_score2(l4_pairs)))*[-1 1],'k','Linewidth',2)
+% hold on
 % scatter(3*ones(length(l4_pairs),1),cis_tmp_null(pair_id_tmp),'k');
 % hold on
 % scatter(3,mean(cis_tmp_null(pair_id_tmp)),100,[0 0 0],'filled')
@@ -2986,17 +3100,17 @@ hold on
 
 scatter(3.5*ones(length(cis_tmp(l5_pairs)),1),cis_tmp(l5_pairs),'k','jitter','on', 'jitterAmount',0.05)% ,'jitter','on', 'jitterAmount',0.25);
 hold on
-scatter(2.0*ones(length(ci_score2(l5_pairs)),1),ci_score2(l5_pairs),'k' ,'jitter','on', 'jitterAmount',0.05);
-hold on
+% scatter(2.0*ones(length(ci_score2(l5_pairs)),1),ci_score2(l5_pairs),'k' ,'jitter','on', 'jitterAmount',0.05);
+% hold on
 % plot([3.25;2.75],[cis_tmp(l5_pairs);ci_score2(l5_pairs)],'k')
 hold on
 scatter(3.25,mean(cis_tmp(l5_pairs)),100,[0 0 0],'filled')
 hold on
 plot(3.25*[1 1],mean(cis_tmp(l5_pairs)) + std(cis_tmp(l5_pairs))/sqrt(length(cis_tmp(l5_pairs)))*[-1 1],'k','Linewidth',2)
-hold on
-scatter(1.75,mean(ci_score2(l5_pairs)),100,[0 0 0],'filled')
-hold on
-plot(1.75*[1 1],mean(ci_score2(l5_pairs)) + std(ci_score2(l5_pairs))/sqrt(length(ci_score2(l5_pairs)))*[-1 1],'k','Linewidth',2)
+% hold on
+% scatter(1.75,mean(ci_score2(l5_pairs)),100,[0 0 0],'filled')
+% hold on
+% plot(1.75*[1 1],mean(ci_score2(l5_pairs)) + std(ci_score2(l5_pairs))/sqrt(length(ci_score2(l5_pairs)))*[-1 1],'k','Linewidth',2)
 
 %  set(gca,'yscale','log');
 % scatter(1.5*ones(sum(~pair_id_tmp),1),cis_tmp_null(~pair_id_tmp),'k');
@@ -3006,7 +3120,149 @@ plot(1.75*[1 1],mean(ci_score2(l5_pairs)) + std(ci_score2(l5_pairs))/sqrt(length
 % plot([1.5 1.5],mean(cis_tmp_null(~pair_id_tmp)) + std(cis_tmp_null(~pair_id_tmp))/sqrt(length(cis_tmp_null(~pair_id_tmp)))*[-1 1],'k','Linewidth',2)
 % hold on
 
-xlim([.75 2.25])
+xlim([2.25 4])
+set(gca,'Xtick',[])
+% set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(length(l4_pairs)) ')'],['L5-L5 Pairs (N = ' num2str(length(l5_pairs)) ')']})
+ylabel('Coincidence Probability')
+
+[p,h] = ranksum(cis_tmp(l4_pairs),cis_tmp(l5_pairs),'tail','left');
+title(['p = ' num2str(p)])
+
+% figure;
+% edges = logspace(-5,0,20);
+% histogram(all_p_vals_l5,edges,'Normalization','probability');
+% hold on
+% histogram(all_p_vals_l4,edges,'Normalization','probability');
+% set(gca,'xscale','log')
+
+%% do FDR across all p-vals
+
+l4_pairs = setdiff(find(pair_id == 0),exclude);%[1 4 5 9 17 18 19 21 22 23 30];
+l5_pairs = setdiff(find(pair_id == 1),exclude);%[11 12 14 15 20 26 28];
+exps = union(l4_pairs,l5_pairs);
+% num_locs_exps = sum(num_locs_ww_q10(exps));
+
+% p_val_thresh = .05/num_locs_exps;
+
+fdr_rate = .05;
+all_p_vals_l4 = [];
+all_p_vals_l5 = [];
+% exps = 13
+all_pvals = [];
+for i = exps
+    
+    
+    
+    if num_locs_union_full_ww_q10(i) > 0 && num_locs_full_ww_q10(i) > 0
+        num_tests = num_locs_full_ww_q10(i);
+        pvals_vec = [exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(1:num_locs_full_ww_q10(i)).p_val];
+        pval_inds{i} = (1:length(pvals_vec)) + length(all_pvals);
+        
+        all_pvals = [all_pvals pvals_vec];
+        
+        if any(l4_pairs == i)
+            all_p_vals_l4 = [all_p_vals_l4 pvals_vec];
+        else
+            all_p_vals_l5 = [all_p_vals_l5 pvals_vec];
+        end
+        
+    end
+end
+[all_pvals,inds] = sort(all_pvals);
+
+test_vec = (1:length(all_pvals))/length(all_pvals) * fdr_rate;
+
+
+thresh_ind = find(all_pvals <= test_vec,1,'last');
+detected_inds = inds(1:thresh_ind);
+
+
+for i = exps
+    
+    if num_locs_union_full_ww_q10(i) > 0 && num_locs_full_ww_q10(i) > 0
+        detect_count(i) = 0;
+        for j = 1:length(pval_inds{i})
+            this_ind = pval_inds{i}(j) - min(pval_inds{i}) + 1;
+            if any(pval_inds{i}(j) == detected_inds)
+                exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(this_ind).detection = 1;
+                detect_count(i) = detect_count(i) + 1;
+            else
+                exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(this_ind).detection = 0;
+                
+            end
+        end
+        
+
+
+        if thresh_ind > 0
+            ci_score(i) = detect_count(i)/num_locs_union_full_ww_q10(i);
+            
+        else
+            ci_score(i) = 0;
+        end
+       
+    else
+        ci_score(i) = 0;
+
+    end
+    
+    
+    
+end
+
+cis_tmp = ci_score;
+% cis_tmp(29:30) = 0;
+% pair_id_tmp = zeros(1,30);
+% pair_id_tmp(exps) = 1;
+% pair_id_tmp = logical(pair_id_tmp);
+figure
+
+scatter(2.75*ones(length(cis_tmp(l4_pairs)),1),cis_tmp(l4_pairs),100,'k','jitter','on', 'jitterAmount',0.2)%,'k' ,'jitter','on', 'jitterAmount',0.25);
+hold on
+% scatter(1.25*ones(length(ci_score2(l4_pairs)),1),ci_score2(l4_pairs),100,'k' ,'jitter','on', 'jitterAmount',2.0);
+% hold on
+% plot([1.75;1.25],[cis_tmp(l4_pairs);ci_score2(l4_pairs)],'k')
+hold on
+scatter(2.5,mean(cis_tmp(l4_pairs)),100,[0 0 0],'filled')
+hold on
+plot(2.5*[1 1],mean(cis_tmp(l4_pairs)) + std(cis_tmp(l4_pairs))/sqrt(length(cis_tmp(l4_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
+% scatter(1.0,mean(ci_score2(l4_pairs)),100,[0 0 0],'filled')
+% hold on
+% plot(1.0*[1 1],mean(ci_score2(l4_pairs)) + std(ci_score2(l4_pairs))/sqrt(length(ci_score2(l4_pairs)))*[-1 1],'k','Linewidth',2)
+% hold on
+% scatter(3*ones(length(l4_pairs),1),cis_tmp_null(pair_id_tmp),'k');
+% hold on
+% scatter(3,mean(cis_tmp_null(pair_id_tmp)),100,[0 0 0],'filled')
+% hold on
+% plot([3 3],mean(cis_tmp_null(pair_id_tmp)) + std(cis_tmp_null(pair_id_tmp))/sqrt(length(cis_tmp_null(pair_id_tmp)))*[-1 1],'k','Linewidth',2)
+% hold on
+
+
+
+scatter(3.5*ones(length(cis_tmp(l5_pairs)),1),cis_tmp(l5_pairs),100,'k','jitter','on', 'jitterAmount',0.05)% ,'jitter','on', 'jitterAmount',0.25);
+hold on
+% scatter(2.0*ones(length(ci_score2(l5_pairs)),1),ci_score2(l5_pairs),'k' ,'jitter','on', 'jitterAmount',0.05);
+% hold on
+% plot([3.25;2.75],[cis_tmp(l5_pairs);ci_score2(l5_pairs)],'k')
+hold on
+scatter(3.25,mean(cis_tmp(l5_pairs)),100,[0 0 0],'filled')
+hold on
+plot(3.25*[1 1],mean(cis_tmp(l5_pairs)) + std(cis_tmp(l5_pairs))/sqrt(length(cis_tmp(l5_pairs)))*[-1 1],'k','Linewidth',2)
+hold on
+% scatter(1.75,mean(ci_score2(l5_pairs)),100,[0 0 0],'filled')
+% hold on
+% plot(1.75*[1 1],mean(ci_score2(l5_pairs)) + std(ci_score2(l5_pairs))/sqrt(length(ci_score2(l5_pairs)))*[-1 1],'k','Linewidth',2)
+
+%  set(gca,'yscale','log');
+% scatter(1.5*ones(sum(~pair_id_tmp),1),cis_tmp_null(~pair_id_tmp),'k');
+% hold on
+% scatter(1.5,mean(cis_tmp_null(~pair_id_tmp)),100,[0 0 0],'filled')
+% hold on
+% plot([1.5 1.5],mean(cis_tmp_null(~pair_id_tmp)) + std(cis_tmp_null(~pair_id_tmp))/sqrt(length(cis_tmp_null(~pair_id_tmp)))*[-1 1],'k','Linewidth',2)
+% hold on
+
+xlim([2.25 4])
 set(gca,'Xtick',[])
 % set(gca,'xticklabels',{['L4-L5 Pairs (N = ' num2str(length(l4_pairs)) ')'],['L5-L5 Pairs (N = ' num2str(length(l5_pairs)) ')']})
 ylabel('Coincidence Probability')
@@ -3015,11 +3271,35 @@ ylabel('Coincidence Probability')
 title(['p = ' num2str(p)])
 
 figure;
-edges = logspace(-5,0,20);
+edges = logspace(-4,0,20);
 histogram(all_p_vals_l5,edges,'Normalization','probability');
 hold on
 histogram(all_p_vals_l4,edges,'Normalization','probability');
 set(gca,'xscale','log')
+
+%%
+
+figure;
+histogram([num_locs1_full_ww_q10(l4_pairs) num_locs1_full_ww_q10(l5_pairs) num_locs2_full_ww_q10(l5_pairs)],0:5:120,'Normalization','probability'); hold on
+histogram(num_locs2_full_ww_q10(l4_pairs),0:5:80,'Normalization','probability'); hold off
+% axis off
+
+figure
+
+scatter(ones(length(l4_pairs),1),num_locs2_full_ww_q10(l4_pairs),'k')
+hold on
+scatter(1+ones(length([num_locs1_full_ww_q10(l4_pairs) num_locs1_full_ww_q10(l5_pairs) num_locs2_full_ww_q10(l5_pairs)]),1),...
+    [num_locs1_full_ww_q10(l4_pairs) num_locs1_full_ww_q10(l5_pairs) num_locs2_full_ww_q10(l5_pairs)],'k')
+xlim([0.5 2.5])
+
+sum([num_locs1_full(l4_pairs) num_locs1_full(l5_pairs) num_locs2_full(l5_pairs)])/length([num_locs1_full(l4_pairs) num_locs1_full(l5_pairs) num_locs2_full(l5_pairs)])
+
+sum(num_locs2_full(l4_pairs))/length(num_locs2_full(l4_pairs))
+
+mean([num_locs1_full(l4_pairs) num_locs1_full(l5_pairs) num_locs2_full(l5_pairs)])
+mean(num_locs2_full(l4_pairs))
+std([num_locs1_full(l4_pairs) num_locs1_full(l5_pairs) num_locs2_full(l5_pairs)])/sqrt(length([num_locs1_full(l4_pairs) num_locs1_full(l5_pairs) num_locs2_full(l5_pairs)]))
+std(num_locs2_full(l4_pairs))/sqrt(length(num_locs2_full(l4_pairs)))
 %%
 % close all
 for ii = 1:length(z_spike_traces)
@@ -3198,11 +3478,139 @@ xlim([0 90])
 
 %%
 
-i = 14; j = 9; 
+i = 10; j = 9; 
 this_exp = 20;
 
 figure; 
 subplot(211)
-plot_trace_stack(time_posteriors{this_exp}{1}{1}{i,j},4000,zeros(size(time_posteriors{this_exp}{1}{1}{i,j},1),3),'-',map_estimates_full{this_exp}{1}{1}{i,j})
+plot_trace_stack(time_posteriors{this_exp}{1}{1}{i,j},4000,zeros(size(time_posteriors{this_exp}{1}{1}{i,j},1),3),'-',new_event_detection{this_exp}{1}{1}{i,j})
 subplot(212)
-plot_trace_stack(time_posteriors{this_exp}{1}{2}{i,j},4000,zeros(size(time_posteriors{this_exp}{1}{2}{i,j},1),3),'-',map_estimates_full{this_exp}{1}{2}{i,j})
+plot_trace_stack(time_posteriors{this_exp}{1}{2}{i,j},4000,zeros(size(time_posteriors{this_exp}{1}{2}{i,j},1),3),'-',new_event_detection{this_exp}{1}{2}{i,j})
+
+%%
+exps_to_run = exps
+psth_cells = zeros(100,30,2);
+grand_psth = zeros(100,1);
+count = 0;
+for i = 1:length(exps_to_run)
+    this_exp = exps_to_run(i)
+    for j = 1:2
+        for k = 1:numel(new_event_detection_2017{this_exp}{1}{j})
+            if input_maps_2017_ww_q10(this_exp).(['ch' num2str(j)])(k) == 1
+                for m = 1:length(new_event_detection_2017{this_exp}{1}{j}{k})
+                    psth_cells(new_event_detection_2017{this_exp}{1}{j}{k}{m}.times,this_exp,j) = ...
+                        psth_cells(new_event_detection_2017{this_exp}{1}{j}{k}{m}.times,this_exp,j) + 1/length(new_event_detection_2017{this_exp}{1}{j}{k});
+                    grand_psth(new_event_detection_2017{this_exp}{1}{j}{k}{m}.times) = grand_psth(new_event_detection_2017{this_exp}{1}{j}{k}{m}.times) + 1;
+                    count = count + 1;
+                end
+            end    
+        end
+    end
+end
+grand_psth = grand_psth'/count;
+
+% exps_to_run = [1 3 20 28]
+
+
+full_psth = zeros(100,1);
+all_psths = zeros(length(exps_to_run)*2,100);
+count = 1;
+% figure
+for i = 1:length(exps_to_run)
+    this_exp = exps_to_run(i);
+    full_psth = full_psth + sum(psth_cells(:,this_exp,:),3);
+    all_psths(count,:) = psth_cells(:,this_exp,1);
+    count = count + 1;
+    all_psths(count,:) = psth_cells(:,this_exp,2);
+    count = count + 1;
+%     plot(psth_cells(:,this_exp,1))
+%     hold on
+%     plot(psth_cells(:,this_exp,2))
+%     hold on
+end
+% figure;
+% plot_trace_stack(all_psths,10,zeros(size(all_psths,1),3),'-')
+% full_psth = full_psth/(length(exps_to_run)*2);
+mean_vec = mean(all_psths);
+error = grand_psth.*(1-grand_psth)/sqrt(length(exps_to_run)*2);
+x = 1:length(error);
+figure
+% plot(2:99,full_psth(2:end-1))
+% hold on
+fill([x';flipud(x')],[(grand_psth'-error');flipud(grand_psth'+error')],[1 1 1]*.75,'linestyle','none');
+hold on
+plot(x,grand_psth,'Color',[0 0 0]/255)
+xlim([1 100])
+% errorbar(mean(all_psths),error)
+%%
+
+this_exp = 6;
+i = 6; j = 10; 
+figure; 
+subplot(121); 
+plot_trace_stack(time_posteriors_2017{this_exp}{1}{1}{i,j},4000,zeros(size(time_posteriors_2017{this_exp}{1}{1}{i,j},1),3),'-',new_event_detection_2017{this_exp}{1}{1}{i,j}); 
+subplot(122); 
+plot_trace_stack(time_posteriors_2017{this_exp}{1}{2}{i,j},4000,zeros(size(time_posteriors_2017{this_exp}{1}{2}{i,j},1),3),'-',new_event_detection_2017{this_exp}{1}{2}{i,j})
+
+%%
+
+this_exp = 6;
+i = 6; j = 10; 
+figure; 
+subplot(121); 
+plot_trace_stack(map_ch1{i,j},300,zeros(size(time_posteriors_2017{this_exp}{1}{1}{i,j},1),3),'-',new_event_detection_2017{this_exp}{1}{1}{i,j}); 
+subplot(122); 
+plot_trace_stack(map_ch2{i,j},300,zeros(size(time_posteriors_2017{this_exp}{1}{2}{i,j},1),3),'-',new_event_detection_2017{this_exp}{1}{2}{i,j})
+
+
+%%
+
+i = 28;
+sweeps_window = [3000 5000];
+time_window = [0 Inf];
+amps_window = [0 Inf];
+
+matchstr =  [dates{i} '_slice' num2str(slice_nums(i)) '_cell' ...
+    num2str(cell_nums(i)) tags{i} '_ch1']
+rebuildmap_file = ...
+    ['old-data/' dates{i} '_slice' num2str(slice_nums(i)) '_cell' ...
+    num2str(cell_nums(i)) tags{i} '_ch1_trace_grid-rebuildmap.mat'];
+resultsdir = '/media/shababo/data/new-data';
+results_grid_ch1 = rebuild_detection_grid(...
+resultsdir,matchstr,...
+rebuildmap_file);
+
+
+results_grid_trunc_ch1 = ...
+cellfun(@(x) arrayfun(@(y) ...
+truncate_samples(y,sweeps_window,time_window,amps_window),x),...
+results_grid_ch1,'UniformOutput',0);
+
+matchstr =  [dates{i} '_slice' num2str(slice_nums(i)) '_cell' ...
+    num2str(cell_nums(i)) tags{i} '_ch2']
+rebuildmap_file = ...
+    ['old-data/' dates{i} '_slice' num2str(slice_nums(i)) '_cell' ...
+    num2str(cell_nums(i)) tags{i} '_ch2_trace_grid-rebuildmap.mat'];
+resultsdir = '/media/shababo/data/new-data';
+results_grid_ch2 = rebuild_detection_grid(...
+resultsdir,matchstr,...
+rebuildmap_file);
+
+
+results_grid_trunc_ch2 = ...
+cellfun(@(x) arrayfun(@(y) ...
+truncate_samples(y,sweeps_window,time_window,amps_window),x),...
+results_grid_ch2,'UniformOutput',0);
+
+detection_viewer(map_ch1,results_grid_trunc_ch1);
+detection_viewer(map_ch2,results_grid_trunc_ch2);
+
+%%
+
+all_indices = zeros(size(all_targets,2),2,size(all_targets,1));
+
+for i = 1:size(all_targets,1)
+    
+    all_indices(:,:,i) = index_key(all_targets(i,:),1:2);
+
+end

@@ -25,7 +25,7 @@ function varargout = detection_viewer(varargin)
 % Last Modified by GUIDE v2.5 18-Oct-2016 10:15:02
 
 % Begin initialization code - DO NOT EDIT
-gui_Singleton = 1;
+gui_Singleton = 0;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
                    'gui_OpeningFcn', @detection_viewer_OpeningFcn, ...
@@ -60,8 +60,9 @@ handles.data.posterior_grid = varargin{2};
 if length(varargin) == 3
     handles.data.events_grid = varargin{3};
 else
-    handles.data.events_grid = cellfun(@kmeans_estimate,handles.data.posterior_grid,handles.data.trace_grid,'UniformOutput',0);
-    assignin('base','new_events_grid',handles.data.events_grid)
+%     handles.data.events_grid = cellfun(@kmeans_estimate,handles.data.posterior_grid,handles.data.trace_grid,'UniformOutput',0);
+%     assignin('base','new_events_grid',handles.data.events_grid)
+    handles.data.events_grid = [];
 end
 
 handles.current_row = 1;
@@ -96,6 +97,7 @@ varargout{1} = handles.output;
 function update_results_axes(handles)
 
 axes(handles.detection_axes)
+cla
 
 offset = 100; % expose
 burn_in = 1;
@@ -105,17 +107,21 @@ colors_lines =  lines(100);
 
 traces = handles.data.trace_grid{handles.current_row,handles.current_column};
 posteriors = handles.data.posterior_grid{handles.current_row,handles.current_column};
-events_by_trace = handles.data.events_grid{handles.current_row,handles.current_column};
+if ~isempty(handles.data.events_grid)
+    events_by_trace = handles.data.events_grid{handles.current_row,handles.current_column};
+end
 num_traces = length(posteriors);
 
 
 
 
-for i = 1:num_traces
+for i = 1:size(traces,1)
     
     posterior = truncate_samples(posteriors(i),[burn_in length(posteriors(i).num_events)]);
-    event_feature_means = events_by_trace{i};
-    k = size(event_feature_means,1);
+    if ~isempty(handles.data.events_grid)
+        event_feature_means = events_by_trace{i};
+        k = size(event_feature_means,1);
+    
     
         
         if ~isfield(handles,'event_sign')
@@ -124,7 +130,7 @@ for i = 1:num_traces
             handles.event_sign = sign(recon_corr(2));
             guidata(handles.up,handles)
         end
-        
+      end  
         labels = ones(size(posterior.times));
 %         length(posterior.times)
 %         labels = 1:100:length(posterior.times);
@@ -143,7 +149,7 @@ for i = 1:num_traces
         hold on
     
      
-    if  k > 0 && length(posterior.amp) >= k
+    if ~isempty(handles.data.events_grid) && (k > 0 && length(posterior.amp) >= k)
         scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
         hold on
         scatter(event_feature_means(:,4), event_feature_means(:,2),100,colors_lines(i,:),'x','LineWidth',2)
