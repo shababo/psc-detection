@@ -133,12 +133,17 @@ diffY_ = diffY;
 for i = 1:length(Tguess)
     efs{i} = ef;
     tmpi = Tguess(i); 
+    start_ind = max(1,tmpi - params.a_init_window);
+    end_ind = min(ceil(tmpi),length(diffY));
+    [local_min,tmpi_tmp] = min(diffY(start_ind:end_ind));
+    tmpi = tmpi_tmp + start_ind - 1;
+
 %     start_ind = max(1,floor(tmpi) - 5);
 %     end_ind = min(start_ind + 10,length(diffY));
 %     [local_max,tmpi_tmp] = max(trace(start_ind:end_ind));
 %     tmpi = tmpi_tmp + start_ind - 1;
     start_ind = max(1,floor(tmpi));
-    end_ind = min(start_ind + params.a_init_window*2,length(diffY));
+    end_ind = min(start_ind + params.a_init_window,length(diffY));
     [local_max,tmpi_tmp] = max(diffY_(start_ind:end_ind));
     tmpi = tmpi_tmp + start_ind - 1;
     sti_ = [sti tmpi];
@@ -469,7 +474,11 @@ for i = 1:num_sweeps
 
 	    %propose a uniform add
             %pick a random point
-            tmpi = min(nBins)*rand;
+            tmpi = ceil(min(nBins)*rand);
+	    start_ind = max(1,ceil(tmpi - params.a_init_window));
+	    end_ind = min(ceil(tmpi),length(diffY));
+            [local_min,tmpi_tmp] = min(diffY(start_ind:end_ind));
+	    tmpi = tmpi_tmp + start_ind - 1;
             %dont add if we have too many bursts or the proposed new location
             %is too close to another one
             if ~(any(abs(tmpi-sti)<exclusion_bound) || N >= maxNbursts)
@@ -480,7 +489,7 @@ for i = 1:num_sweeps
                 ati_ = ati;
 %                 a_init = max(trace(max(1,floor(tmpi)))/A - baseline + a_std*randn,a_min);%propose an initial amplitude for it
                 start_ind = max(1,floor(tmpi));
-                end_ind = min(start_ind + params.a_init_window*2,length(diffY));
+                end_ind = min(start_ind + params.a_init_window,length(diffY));
                 [local_max,tmpi_tmp] = max(diffY(start_ind:end_ind));
                 tmpi = tmpi_tmp + start_ind - 1;
                 sti_ = [sti tmpi];
@@ -659,7 +668,7 @@ for i = 1:num_sweeps
             tau_min = max([tau_(1) tau2_min]);
             tau_max = tau2_max;
             loop_count = 0;
-            while tau_(2)>tau_max || tau_(2)<tau_(1) && loop_count < params.loop_count
+            while tau_(2)>tau_max || tau_(2)<tau_(1) && loop_count < params.max_loops
                 if tau_(2)<tau_min
                     tau_(2) = tau_min+(tau_min-tau_(2));
                 elseif tau_(2)>tau_max
@@ -814,10 +823,6 @@ for i = 1:num_sweeps
 %     end
 
     objective = [objective -nBins/2*log(NoiseVar) + predAR(diffY,phi,p,1 )/(2*NoiseVar) + N*log(m) - log(factorial(N))];
-    if mod(i,500) == 0
-        i
-        N
-    end
 %     figure(10);
 %     plot(diffY_)
 %     drawnow

@@ -30,20 +30,20 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     params = rmfield(params,'start_ind');
 %     params = rmfield(params,'duration');
 %     params = rmfield(params,'trace_ind');
-%     params.p_spike = 1e-10;
+      params.p_spike = 1e-5;
 %     params.noise_est_subset = 1:800;
 %     params.a_min = 20;
 %     params.start_ind = 7200;
 %     params.duration = 800;
 %     params.tau1_min = 1.0000e-04;
-%     params.tau1_max = .0010;
+     params.tau1_max = .010;
 %     params.tau2_min = 1.0000e-03;
-%     params.tau2_max = 0.0080;
+     params.tau2_max = 0.05;
 %     params.phi_0 = [0.982949319747574 -0.407063852831604]';
 %     params.noise_var_init = 3.0;
 %     params.num_sweeps = 2000;
 %     params.par = 0;
-%     
+      params.a_init_window = 200; 
 %     params.stim_tau_rise = 6.5000e-04;
 %     params.stim_tau_rise_min = 6.5000e-06;
 %     params.stim_tau_rise_max = .0025;
@@ -55,7 +55,9 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     
 %     load('data/direct_stim_2_9_s3c1_emperical.mat')
 %     params.stim_shape = -direct_stim_in;
-
+    if ~isfield(params,'max_loops')
+	params.max_loops = 100;
+    end
     params.cluster = 1;
 %     params.grid_reduce = 1;
 %     params.traces_filename = 'data/4_6_wtf.mat';
@@ -64,10 +66,13 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     params.grid_reduce_count = 3;
     params.num_sweeps = 5000;
 %     params.rand = 0;
-
-
+%    params.traces_ind = randsample(1:160,16*3);
+%    params.max_loops = 1000;
 %     params.init_method.theshold = 2.0;
      params.init_method.min_interval = 100;
+     if isfield(params,'traces_ind')
+         params = rmfield(params,'traces_ind');
+     end
 else
     params = get_params();
     

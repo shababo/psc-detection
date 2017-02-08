@@ -1,5 +1,7 @@
 function infer_events(params)
 
+warning('off','all')
+
 if params.rand == 1
     rng(params.seed)
 end
@@ -151,9 +153,9 @@ if params.par
     
     
         delete(this_pool)
-        if params.cluster
-            rmdir(jobdir)
-   	end
+%        if params.cluster
+%            rmdir(jobdir)
+%   	end
 
 else
     
@@ -214,6 +216,16 @@ end
 
 disp('saving...')
 save(params.full_save_string,'results','params','traces')
+
+good_file = 0;
+while ~good_file
+    try 
+        load(params.full_save_string)
+        good_file = 1;
+    catch e 
+        save(params.full_save_string,'results','params','traces')
+    end
+end
 
 disp('done')
 
