@@ -2,10 +2,10 @@ function plot_trace_stack(traces, offset_step, colors, linespec, varargin)
 
 
 offset = 0;
-stim_start = 1;
+stim_start = 0;
 time_after_stim = 1; %1000
 
-trial_length = size(traces,2);
+trial_length = size(traces,2)
 
 for trial = 1:size(traces,1)
     
@@ -37,6 +37,11 @@ stim_bottom = -offset;
 
 offset = 0;
 
+if ~isempty(varargin) && ~isempty(varargin{1})
+    events = varargin{1};
+else
+    events = [];
+end
 if length(varargin) > 1 && ~isempty(varargin{2})
     vert_offset = varargin{2};
 else
@@ -61,30 +66,33 @@ for trial = 1:size(traces,1)
     %median(trace_to_plot)
     plot((0:trial_length-1),trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth,'Color',colors(trial,:))
     hold on
-   
-%     if ~isempty(events)
-%         scatter((events{trial} - stim_start)/20000,(traces(trial,this_trial_start) - offset - trace_to_plot(1) + offset_step/3)*ones(size(events{trial})),[],colors(ceil(trial/2),:),'filled')
-%         hold on
-%     end
+    
+    
+    if ~isempty(events)
+%         events{trial}.times(events{trial}.times < 40) = [];
+        events{trial}.times = ceil(events{trial}.times-1)*20;
+        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],colors(ceil(trial/2),:),'filled')
+        hold on
+    end
     
     offset = offset + offset_step;
     
     
 end
-
-if ~isempty(varargin)
-    bar_limits = varargin{1};
-
-    if ~isempty(bar_limits)
-
-        bar_corner_time = trial_length/10;
-        bar_corner_y = -offset + vert_offset;
-
-        plot([bar_corner_time; bar_corner_time], bar_corner_y + [0; bar_limits(2)], '-k',  bar_corner_time + [0; bar_limits(1)], [bar_corner_y; bar_corner_y], '-k', 'LineWidth', 2)
-        text(bar_corner_time - bar_limits(1)/2,bar_corner_y + bar_limits(2)/2, [num2str(bar_limits(2)) ' pA'], 'HorizontalAlignment','right')
-        text(bar_corner_time + bar_limits(1)/2,bar_corner_y - bar_limits(2)/2, [num2str(bar_limits(1)*1000) ' ms'], 'HorizontalAlignment','center')
-    end
-end
+% 
+% if ~isempty(varargin)
+%     bar_limits = varargin{1};
+% 
+%     if ~isempty(bar_limits)
+% 
+%         bar_corner_time = trial_length/10;
+%         bar_corner_y = -offset + vert_offset;
+% 
+%         plot([bar_corner_time; bar_corner_time], bar_corner_y + [0; bar_limits(2)], '-k',  bar_corner_time + [0; bar_limits(1)], [bar_corner_y; bar_corner_y], '-k', 'LineWidth', 2)
+%         text(bar_corner_time - bar_limits(1)/2,bar_corner_y + bar_limits(2)/2, [num2str(bar_limits(2)) ' pA'], 'HorizontalAlignment','right')
+%         text(bar_corner_time + bar_limits(1)/2,bar_corner_y - bar_limits(2)/2, [num2str(bar_limits(1)*1000) ' ms'], 'HorizontalAlignment','center')
+%     end
+% end
 
 axis tight
 axis off

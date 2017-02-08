@@ -167,7 +167,7 @@ else
         disp(['Starting trace #' num2str(trace_ind)])
         trace = params.event_sign*traces(trace_ind,:);
         trace = trace - min(trace);
-
+git
 %         event_times_init_old = template_matching(-1*params.event_sign*traces(trace_ind,:), params.dt,...
 %             params.init_method.tau, params.init_method.amp_thresh, params.init_method.conv_thresh);
 
