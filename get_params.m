@@ -43,7 +43,7 @@ end
 % direction/sign of events: upward is 1 (e.g. ipscs, ca imaging), downard is -1
 % (e.g. epscs)
 if ~isfield(params,'event_sign')
-    params.event_sign = 1;
+    params.event_sign = -1;
 end
 
 %% subtraces
@@ -70,7 +70,7 @@ end
 
 % is this a matrix of traces or a grid array
 if ~isfield(params,'is_grid')
-    params.is_grid = 1;
+    params.is_grid = 0;
 end
 
 if ~isfield(params,'grid_reduce')
@@ -105,7 +105,7 @@ end
 % min and max for "rise time" in seconds
 if ~isfield(params,'tau1_min')
 %     params.tau1_min = .0001;
-    params.tau1_min = 5e-4;
+    params.tau1_min = 5e-5;
 end
 % params.tau1_max = 60/20000;
 % params.tau2_min = 75/20000;
@@ -117,16 +117,16 @@ end
 
 if ~isfield(params,'tau1_max')
 %     params.tau1_max = 15/20000;
-    params.tau1_max = 5e-3;
+    params.tau1_max = 1e-3;
 end
 % min and max for "decay time" in seconds
 if ~isfield(params,'tau2_min')
 %     params.tau2_min = .0005;
-    params.tau2_min = 3e-3;
+    params.tau2_min = 5e-4;
 end
 if ~isfield(params,'tau2_max')
 %     params.tau2_max = 100/20000;
-    params.tau2_max = 4e-2;
+    params.tau2_max = 1e-2;
 end
 % how long to make kernel in samples
 if ~isfield(params,'event_samples')
@@ -311,13 +311,13 @@ end
     params.init_method.amp_thresh = 5;
     params.init_method.conv_thresh = 1;
     % epsc
-    params.init_method.template_file = 'data/ipsc-template.mat';
+    params.init_method.template_file = 'epsc-template.mat';
     % ipsc
 %     params.init_method.template_file = 'data/epsc-template.mat';
     params.init_method.ar_noise_params.sigma_sq = 3.0;
     params.init_method.ar_noise_params.phi = [1.000000000000000, 0.982949319747574, -0.207063852831604];
     params.init_method.theshold = 2.25;
-    params.init_method.min_interval = 20;
+    params.init_method.min_interval = 100;
 % end
 
 
@@ -334,7 +334,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/som-mapping-st/detection-test-map_ch1.mat'];
+            ['data/0207_fs_t21.mat'];
 
 %     end
 end

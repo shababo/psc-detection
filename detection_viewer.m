@@ -118,19 +118,19 @@ num_traces = length(posteriors);
 for i = 1:size(traces,1)
     
     posterior = truncate_samples(posteriors(i),[burn_in length(posteriors(i).num_events)]);
-    if ~isempty(handles.data.events_grid)
-        event_feature_means = events_by_trace{i};
-        k = size(event_feature_means,1);
-    
-    
-        
-        if ~isfield(handles,'event_sign')
-            recon_corr = corr([build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000)' ...
-                traces(i,:)' - traces(i,end)]);
-            handles.event_sign = sign(recon_corr(2));
-            guidata(handles.up,handles)
-        end
-      end  
+%     if ~isempty(handles.data.events_grid)
+%         event_feature_means = events_by_trace{i};
+%         k = size(event_feature_means,1);
+%     
+%     
+%         handles.event_sign = -1;
+%         if ~isfield(handles,'event_sign')
+%             recon_corr = corr([build_curve(event_feature_means,0,size(traces,2)/20000,1/20000,2000)' ...
+%                 traces(i,:)' - traces(i,end)]);
+%             handles.event_sign = sign(recon_corr(2));
+%             guidata(handles.up,handles)
+%         end
+%       end  
         labels = ones(size(posterior.times));
 %         length(posterior.times)
 %         labels = 1:100:length(posterior.times);
@@ -149,20 +149,21 @@ for i = 1:size(traces,1)
         hold on
     
      
-    if ~isempty(handles.data.events_grid) && (k > 0 && length(posterior.amp) >= k)
-        scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
-        hold on
-        scatter(event_feature_means(:,4), event_feature_means(:,2),100,colors_lines(i,:),'x','LineWidth',2)
-        hold on
-        scatter(event_feature_means(:,4), event_feature_means(:,3),100,colors_lines(i,:),'x','LineWidth',2)
-        hold on
-
-        trace = -1.0*traces(i,:);
-        trace = trace - min(trace);
+    if ~isempty(handles.data.events_grid) && length(events_by_trace{i}) > 0
+%         scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
+%         hold on
+%         scatter(event_feature_means(:,4), event_feature_means(:,2),100,colors_lines(i,:),'x','LineWidth',2)
+%         hold on
+%         scatter(event_feature_means(:,4), event_feature_means(:,3),100,colors_lines(i,:),'x','LineWidth',2)
+%         hold on
+% 
+%         trace = -1.0*traces(i,:);
+%         trace = trace - min(trace);
         
         
-        plot(1:size(traces,2),handles.event_sign*trace - 200 - offset*(i-1),'color',colors_lines(i,:))
-        plot(1:size(traces,2), handles.event_sign*build_curve(event_feature_means,mean(posterior.base),size(traces,2)/20000,1/20000,2000) - 200 - offset*(i-1),'color',colors_lines(i,:),'Linewidth',2)
+%         plot(1:size(traces,2),handles.event_sign*trace - 200 - offset*(i-1),'color',colors_lines(i,:))
+        plot(1:size(traces,2),traces(i,:) - traces(i,end) - 200 - offset*(i-1),'color',colors_lines(i,:))
+        scatter(events_by_trace{i}.times, (8 - 200 - offset*(i-1))*ones(size(events_by_trace{i}.times)),'k')
         xlim([1 size(traces,2)])
 
     else

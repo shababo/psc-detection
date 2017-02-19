@@ -52,6 +52,8 @@ end
 disp(nfft)
 disp(size(trace_P))
 disp(size(noise_P))
+disp(size(inverse_template_f));
+size(template)
 
 trace_P = trace_P.*((1:nfft)<first_i)+noise_P.*((1:nfft)>=first_i);
 wien_filter = inverse_template_f.*(trace_P-noise_P)./(trace_P); %in denom: -(1-alpha)*noise_P

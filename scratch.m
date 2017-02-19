@@ -3606,7 +3606,8 @@ detection_viewer(map_ch1,results_grid_trunc_ch1);
 detection_viewer(map_ch2,results_grid_trunc_ch2);
 
 %%
-
+index_key = spots_key/20 + 9;
+all_targets(end,:) = [];
 all_indices = zeros(size(all_targets,2),2,size(all_targets,1));
 
 for i = 1:size(all_targets,1)
@@ -3614,3 +3615,68 @@ for i = 1:size(all_targets,1)
     all_indices(:,:,i) = index_key(all_targets(i,:),1:2);
 
 end
+
+%%
+
+
+all_detect_ests = {detect_ests_t19,detect_ests_t18,detect_ests_t20};
+all_mean_events = {mean_events_image_t19,mean_events_image_t18,mean_events_image_t20};
+mean_events_thresh = zeros([size(detect_ests_t19) length(all_detect_ests)]);
+
+mean_amp_thresh = ones([size(mean_events_thresh)]);
+threshes = [.45 1.2 .4];
+
+for k = 1:length(all_detect_ests)
+    tmp = zeros(size(all_detect_ests{k}));
+    tmp(all_mean_events{k} > threshes(k)) = all_mean_events{k}(all_mean_events{k} > threshes(k));
+    mean_events_thresh(:,:,k) = tmp;
+    for i = 1:size(mean_events_thresh,1)
+        for j = 1:size(mean_events_thresh,2)
+            if ~isempty(all_detect_ests{k}{i,j})
+                mean_amp_thresh(i,j,k) = mean([all_detect_ests{k}{i,j}{1}.amp]);
+                if isnan(mean_amp_thresh(i,j,k))
+                    mean_amp_thresh(i,j,k) = 1;
+                end
+            end
+        end
+    end
+end
+
+
+
+[X,Y,Z] = meshgrid(-160:20:160,-160:20:160,(50:-50:-50)*2);
+cmap = hot(1000);
+
+figure; scatter3(X(:),Y(:),Z(:),5,[0 0 0],'filled'); axis off; axis image
+% [X,Y] = meshgrid(-160:20:160,-160:20:160);
+hold on; scatter3(X(:),Y(:),Z(:),sign(mean_events_thresh(:))*100+.001,cmap(round(mean_amp_thresh(:)/(max(mean_amp_thresh(:))+10)*1000),:),'filled')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

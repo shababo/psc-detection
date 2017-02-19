@@ -1,4 +1,4 @@
-function results_all = rebuild_detection_grid(resultsdir, matchstr, varargin)
+function results_all = rebuild_detection_grid_multi(resultsdir, matchstr, varargin)
 
 if length(varargin) > 1 && ~isempty(varargin{2})
     do_posterior = varargin{1};
@@ -7,6 +7,7 @@ else
 end
 
 filestoload = regexpdir(resultsdir,matchstr);
+length(filestoload)
 
 for i = 1:length(filestoload)
     
@@ -24,9 +25,9 @@ end
 size(results_all)
 
 if ~isempty(varargin) && ~isempty(varargin{1})
-    rebuild_file = varargin{1};
-else return
+    stim_location_key = varargin{1};
+else
+    return
 end
-load(rebuild_file)
 
 results_all = unstack_results(results_all, rebuild_map,do_posterior);

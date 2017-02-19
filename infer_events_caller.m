@@ -56,7 +56,7 @@ if ~isempty(varargin) && ~isempty(varargin{1})
 %     load('data/direct_stim_2_9_s3c1_emperical.mat')
 %     params.stim_shape = -direct_stim_in;
     if ~isfield(params,'max_loops')
-	params.max_loops = 100;
+        params.max_loops = 100;
     end
     params.cluster = 1;
 %     params.grid_reduce = 1;
