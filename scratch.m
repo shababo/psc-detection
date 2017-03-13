@@ -2066,7 +2066,7 @@ axis off
 
 %%
 % 
-% [glm_out_test,xcorr_images_test,samples_psths_test] = ...
+% [glm_out_doubleA,xcorr_images_doubleA,samples_psths_doubleA] = ...
 %         glm_xcorr_all_pairs('/media/shababo/data/old-data',dates(this_exp),slice_nums(this_exp),...
 %         cell_nums(this_exp),tags(this_exp),trials_detection(this_exp));
 
@@ -3036,9 +3036,9 @@ for i = exps
     
     
     if num_locs_union_full_ww_q10(i) > 0 && num_locs_full_ww_q10(i) > 0
-        num_tests = num_locs_full_ww_q10(i);
+        num_doubleAs = num_locs_full_ww_q10(i);
         [pvals_vec,inds] = sort([exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(1:num_locs_full_ww_q10(i)).p_val]);
-        test_vec = (1:num_tests)/num_tests * fdr_rate;
+        test_vec = (1:num_doubleAs)/num_doubleAs * fdr_rate;
 %         test_vec = .05*ones(size(test_vec));
         thresh_ind = find(pvals_vec <= test_vec,1,'last');
 %         detected_inds = inds(1:thresh_ind);
@@ -3154,7 +3154,7 @@ for i = exps
     
     
     if num_locs_union_full_ww_q10(i) > 0 && num_locs_full_ww_q10(i) > 0
-        num_tests = num_locs_full_ww_q10(i);
+        num_doubleAs = num_locs_full_ww_q10(i);
         pvals_vec = [exp_shuffle_stats_event_detection_2017_ww_q10(i).locs(1:num_locs_full_ww_q10(i)).p_val];
         pval_inds{i} = (1:length(pvals_vec)) + length(all_pvals);
         
@@ -3655,7 +3655,21 @@ hold on; scatter3(X(:),Y(:),Z(:),sign(mean_events_thresh(:))*100+.001,cmap(round
 
 
 
+%%
 
+vb_ed_3D_doubleAx = ROI_VB_3D_grid(detect_ests_3D_fix8,all_indices_3D,[zeros(1,1000) 50*ones(1,1000) 100*ones(1,1000)],[]);
+
+
+map1_ed_doubleAx = reshape(vb_ed_3D_doubleAx.alpha(1:289),17,17);
+map2_ed_doubleAx= reshape(vb_ed_3D_doubleAx.alpha(1+289:289+289),17,17);
+map3_ed_doubleAx = reshape(vb_ed_3D_doubleAx.alpha(1+289*2:289+289*2),17,17);
+figure; 
+subplot(321); imagesc(map1_ed_doubleA); title('z = 0 um'); caxis([0 1]); axis off
+subplot(322);imagesc(map1_ed_doubleAx); title('z = 0 um');   caxis([0 1]); axis off
+subplot(323); imagesc(map2_ed_doubleA); title('z = 50 um');  caxis([0 1]); axis off
+subplot(324);imagesc(map2_ed_doubleAx); title('z = 50 um');  caxis([0 1]); axis off
+subplot(325); imagesc(map3_ed_doubleA); title('z = 100 um');  caxis([0 1]); axis off
+subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis off
 
 
 

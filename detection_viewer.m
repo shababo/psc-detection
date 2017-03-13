@@ -108,7 +108,7 @@ colors_lines =  lines(100);
 traces = handles.data.trace_grid{handles.current_row,handles.current_column};
 posteriors = handles.data.posterior_grid{handles.current_row,handles.current_column};
 if ~isempty(handles.data.events_grid)
-    events_by_trace = handles.data.events_grid{handles.current_row,handles.current_column};
+    events_by_trace = handles.data.events_grid{handles.current_row,handles.current_column}
 end
 num_traces = length(posteriors);
 
@@ -149,7 +149,7 @@ for i = 1:size(traces,1)
         hold on
     
      
-    if ~isempty(handles.data.events_grid) && length(events_by_trace{i}) > 0
+    if ~isempty(handles.data.events_grid) && ~isempty(events_by_trace(i).times)
 %         scatter(event_feature_means(:,4), -event_feature_means(:,1),100,colors_lines(i,:),'x','LineWidth',2)
 %         hold on
 %         scatter(event_feature_means(:,4), event_feature_means(:,2),100,colors_lines(i,:),'x','LineWidth',2)
@@ -163,7 +163,7 @@ for i = 1:size(traces,1)
         
 %         plot(1:size(traces,2),handles.event_sign*trace - 200 - offset*(i-1),'color',colors_lines(i,:))
         plot(1:size(traces,2),traces(i,:) - traces(i,end) - 200 - offset*(i-1),'color',colors_lines(i,:))
-        scatter(events_by_trace{i}.times, (8 - 200 - offset*(i-1))*ones(size(events_by_trace{i}.times)),'k')
+        scatter(events_by_trace(i).times, (8 - 200 - offset*(i-1))*ones(size(events_by_trace(i).times)),'k')
         xlim([1 size(traces,2)])
 
     else
