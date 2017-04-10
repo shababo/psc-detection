@@ -1,4 +1,4 @@
-function plot_trace_stack(traces, offset_step, colors, linespec, varargin)
+function plot_trace_stack(traces, offset_step, linespec, varargin)
 
 
 offset = 0;
@@ -64,14 +64,14 @@ for trial = 1:size(traces,1)
     
     trace_to_plot = traces(trial,:);
     %median(trace_to_plot)
-    plot((0:trial_length-1),trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth,'Color',colors(trial,:))
+    plot((0:trial_length-1),trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth)
     hold on
     
     
     if ~isempty(events)
 %         events{trial}.times(events{trial}.times < 40) = [];
         events{trial}.times = ceil(events{trial}.times-1);
-        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],colors(ceil(trial/2),:),'filled')
+        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],[],'filled')
         hold on
     end
     

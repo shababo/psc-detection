@@ -3671,10 +3671,44 @@ subplot(324);imagesc(map2_ed_doubleAx); title('z = 50 um');  caxis([0 1]); axis 
 subplot(325); imagesc(map3_ed_doubleA); title('z = 100 um');  caxis([0 1]); axis off
 subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis off
 
+%%
 
+cur_trial = 3;
+this_seq = data.trial_metadata(cur_trial).sequence;
+this_stim_key = data.trial_metadata(cur_trial).stim_key;
+power_curve_num = unique([this_seq.target_power]);
+[traces_ch1,traces_ch2] = ...
+    get_stim_stack(data,cur_trial,...
+    length(this_seq));
+maps = cell(length(power_curve_num),1);
+for i = 1:length(power_curve_num)
+    traces_pow{1} = traces_ch1([this_seq.target_power] == power_curve_num(i),:);
+    traces_pow{2} = traces_ch2([this_seq.target_power] == power_curve_num(i),:);
+    this_seq_power = this_seq([this_seq.target_power] == power_curve_num(i));
+    [maps{i}, map_index] = see_grid_multi(traces_pow,this_seq_power,this_stim_key,10,1);
+    title(['Power = ' num2str(power_curve_num(i)) ' mW'])
+end
+%%
+output = ROI_VB_3D_charge(map_index([this_seq_power.precomputed_target_index],:,:),zeros(1000,1),-traces_pow{1});
+figure; imagesc(reshape(output.alpha,33,33))
+%%
+figure;
+subplot(121)
+plot_trace_stack(maps{1}{1}{26,4},40,'k')
+subplot(122)
+plot_trace_stack(maps{2}{1}{26,4},40,'k')
 
-
-
+%%
+x = 12; y = 21;
+map_index_trial = map_index([this_seq_power.precomputed_target_index],:,:);
+trials = find((map_index_trial(:,1,1) == x & map_index_trial(:,2,1) == y) | ...
+    (map_index_trial(:,1,2) == x & map_index_trial(:,2,2) == y) | ...
+    (map_index_trial(:,1,3) == x & map_index_trial(:,2,3) == y))
+figure; plot(traces_pow{1}([trials],:)')
+%%
+figure; plot(traces_cent([trials],:)')
+sum(traces_cent(trials,140:800),2)
+Y_n(trials)
 
 
 
