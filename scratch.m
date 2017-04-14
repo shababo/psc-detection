@@ -3673,19 +3673,30 @@ subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis 
 
 %%
 
-cur_trial = 3;
-this_seq = data.trial_metadata(cur_trial).sequence;
-this_stim_key = data.trial_metadata(cur_trial).stim_key;
-power_curve_num = unique([this_seq.target_power]);
-[traces_ch1,traces_ch2] = ...
-    get_stim_stack(data,cur_trial,...
-    length(this_seq));
+trials = [5];
+this_seq = cell(length(trials),1);
+this_stim_key = cell(length(trials),1);
+power_curve_num = cell(length(trials),1);
+
+for i = 1:length(trials)
+    cur_trial = trials(i);
+    this_seq{i} = data.trial_metadata(cur_trial).sequence;
+    stims_per_trial(i) = length(this_seq{i});
+    this_stim_key{i} = data.trial_metadata(cur_trial).stim_key;
+    power_curve_num{i} = unique([this_seq{i}.target_power]);
+end
+power_curve_num = unique([power_curve_num{:}]);
 maps = cell(length(power_curve_num),1);
+this_seq = [this_seq{:}];
 for i = 1:length(power_curve_num)
+    [traces_ch1,traces_ch2] = ...
+    get_stim_stack(data,trials,...
+        stims_per_trial(i));
+    
     traces_pow{1} = traces_ch1([this_seq.target_power] == power_curve_num(i),:);
     traces_pow{2} = traces_ch2([this_seq.target_power] == power_curve_num(i),:);
     this_seq_power = this_seq([this_seq.target_power] == power_curve_num(i));
-    [maps{i}, map_index] = see_grid_multi(traces_pow,this_seq_power,this_stim_key,10,1);
+    [maps{i}, map_index] = see_grid_multi(traces_pow,this_seq_power,this_stim_key{1},10,1);
     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
 end
 %%
