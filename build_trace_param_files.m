@@ -1,4 +1,4 @@
-function params = build_trace_param_files(traces_full,params_base,tracedir,paramdir)
+function params = build_trace_param_files(traces_full,params_base,tracedir,paramdir,varargin)
 
 if ~isempty(tracedir)
     tracedir = [tracedir '/'];
@@ -6,6 +6,19 @@ end
 
 if ~isempty(paramdir)
     paramdir = [paramdir '/'];
+end
+
+if ~exist(tracedir,'dir')
+    mkdir(tracedir);
+end
+if ~exist(paramdir,'dir')
+    mkdir(paramdir);
+end
+
+if ~isempty(varargin)
+    params_base.traces_filename = varargin{1};
+    params_base.savename = [params_base.traces_filename(1:end-4) '-0000.mat'];
+    params_base.full_save_string = [params_base.savename];
 end
 
 [~,traces_basename] = fileparts(params_base.traces_filename); 

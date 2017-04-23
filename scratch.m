@@ -3673,34 +3673,42 @@ subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis 
 
 %%
 % close all
-trials = [8 9 10 11];
-this_seq = cell(length(trials),1);
-this_stim_key = cell(length(trials),1);
-power_curve_num = cell(length(trials),1);
-stims_per_trial = zeros(length(trials),1);
-for i = 1:length(trials)
-    cur_trial = trials(i);
-    this_seq{i} = data.trial_metadata(cur_trial).sequence;
-    stims_per_trial(i) = length(this_seq{i});
-    this_stim_key{i} = data.trial_metadata(cur_trial).stim_key;
-    power_curve_num{i} = unique([this_seq{i}.target_power]);
-end
-
-power_curve_num = unique([power_curve_num{:}]);
-power_curve_num = 75;
-maps = cell(length(power_curve_num),1);
-this_seq = [this_seq{:}];
-
-for i = 1:length(power_curve_num)
-    [traces_ch1,traces_ch2] = ...
-    get_stim_stack(data,trials,...
-        sum(stims_per_trial));
+all_trials = [8];
+trial_names = {'z0','z40','z80','z120'};
+base_name = 'data/04142017_s2c1_%dmw_%s_traces';
+for j = 1:length(all_trials)
+    trials = all_trials(j)
     
-    traces_pow{1} = traces_ch1([this_seq.target_power] == power_curve_num(i),:);
-    traces_pow{2} = traces_ch2([this_seq.target_power] == power_curve_num(i),:);
-    this_seq_power = this_seq([this_seq.target_power] == power_curve_num(i));
-    [maps{i}, map_index] = see_grid_multi(traces_pow,this_seq_power,this_stim_key{1},15,1);
-%     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
+    this_seq = cell(length(trials),1);
+    this_stim_key = cell(length(trials),1);
+    power_curve_num = cell(length(trials),1);
+    stims_per_trial = zeros(length(trials),1);
+    for i = 1:length(trials)
+        cur_trial = trials(i);
+        this_seq{i} = data.trial_metadata(cur_trial).sequence;
+        stims_per_trial(i) = length(this_seq{i});
+        this_stim_key{i} = data.trial_metadata(cur_trial).stim_key;
+        power_curve_num{i} = unique([this_seq{i}.target_power]);
+    end
+
+    power_curve_num = unique([power_curve_num{:}]);
+    power_curve_num = [25 75];
+    maps = cell(length(power_curve_num),1);
+    this_seq = [this_seq{:}];
+    clear traces
+    for i = 1:length(power_curve_num)
+        [traces_ch1,traces_ch2] = ...
+        get_stim_stack(data,trials,...
+            sum(stims_per_trial));
+
+        traces_pow{1} = traces_ch1([this_seq.target_power] == power_curve_num(i),:);
+        traces_pow{2} = traces_ch2([this_seq.target_power] == power_curve_num(i),:);
+        this_seq_power = this_seq([this_seq.target_power] == power_curve_num(i));
+    %     [maps{i}, map_index] = see_grid_multi(traces_pow,this_seq_power,this_stim_key{1},15,1);
+        name = sprintf(base_name, power_curve_num(i),trial_names{j});
+%         build_trace_param_files(traces_pow{1},get_params(),'/media/shababo/data/04142017_s2c1_traces','/media/shababo/data/04142017_s2c1_params',name);
+    %     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
+    end
 end
 %%
 output = ROI_VB_3D_charge(map_index([this_seq_power.precomputed_target_index],:,:),zeros(1000,1),-traces_pow{1});
@@ -3724,7 +3732,10 @@ figure; plot(traces_cent([trials],:)')
 sum(traces_cent(trials,140:800),2)
 Y_n(trials)
 
+%%
 
+subset_inds = randi(size(traces,1),20,1);
+figure; plot_trace_stack(traces(subset_inds,:),100,'-',events_map(subset_inds))
 
 
 
