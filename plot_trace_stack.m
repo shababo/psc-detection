@@ -71,7 +71,7 @@ for trial = 1:size(traces,1)
     if ~isempty(events)
 %         events{trial}.times(events{trial}.times < 40) = [];
         events{trial}.times = ceil(events{trial}.times-1);
-        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],[],'filled')
+        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],[0 0 0],'filled')
         hold on
     end
     

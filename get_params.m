@@ -135,7 +135,7 @@ end
 
 % poisson/rate - that is the probability of seeing a spike/sample
 if ~isfield(params,'p_spike')
-    params.p_spike = 1e-4;%1e-4;
+    params.p_spike = 1e-2;%1e-4;
 end
 
 
@@ -334,7 +334,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/0207_fs_t21.mat'];
+            ['data/04142017_s2c1_test_detection_traces.mat'];
 
 %     end
 end
@@ -355,7 +355,7 @@ end
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
 
-        params.savename = [params.traces_filename(1:end-4) '-0000.mat'];
+        params.savename = [params.traces_filename(1:end-4) '-1000.mat'];
 %     end
 
 % end
