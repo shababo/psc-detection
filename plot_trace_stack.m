@@ -69,9 +69,19 @@ for trial = 1:size(traces,1)
     
     
     if ~isempty(events)
-%         events{trial}.times(events{trial}.times < 40) = [];
-        events{trial}.times = ceil(events{trial}.times-1);
-        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],[0 0 0],'filled')
+%         these_events.times(these_events.times < 40) = [];
+        if iscell(events)
+            these_events = events{trial};
+        else
+            these_events = events(trial);
+        end
+        these_events.times = ceil(these_events.times-1);
+        events_mat = [these_events.amp' these_events.tau1' these_events.tau2' these_events.times'];
+        denoised_curve = build_curve(events_mat,0,trial_length,1,length(trace_to_plot));
+%         size(denoised_curve)
+%         size(trace_to_plot)
+        plot((0:trial_length-1),-denoised_curve - offset + vert_offset,linespec,'LineWidth',linewidth)
+%         scatter((these_events.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(these_events.times)),[],[0 0 0],'filled')
         hold on
     end
     
