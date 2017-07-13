@@ -8,7 +8,7 @@ end
 
 if ~isfield(params,'cluster')
 
-    params.cluster = 1;
+    params.cluster = 0;
 
 end
 
@@ -334,7 +334,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/6_5_s2c1_alltraces.mat'];
+            ['data/6_27_slice1_cell1_2_testraces.mat'];
 
 %     end
 end
