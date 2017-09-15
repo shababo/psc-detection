@@ -3692,7 +3692,7 @@ subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis 
 %     end
 
 % <<<<<<< HEAD
-trials = [3];
+trials = [4];
 this_seq = cell(length(trials),1);
 this_stim_key = cell(length(trials),1);
 power_curve_num = cell(length(trials),1);
@@ -3712,12 +3712,12 @@ max_trial = length(this_seq);
 for i = 1:length(power_curve_num)
     [traces_ch1,traces_ch2] = ...
     get_stim_stack(data,trials,...
-        stims_per_trial,[this_seq.start]);
+        stims_per_trial,{[this_seq.start]});
     this_seq = this_seq(1:max_trial);
     traces_pow{1} = traces_ch1([this_seq.target_power] == power_curve_num(i),:);
     traces_pow{2} = traces_ch2([this_seq.target_power] == power_curve_num(i),:);
     this_seq_power = this_seq([this_seq.target_power] == power_curve_num(i));
-    [maps{i}, map_index] = see_grid_multi(traces_pow,this_seq_power,this_stim_key{1},5,1);
+    [maps{i}, map_index] = see_grid_multi(traces_pow,[],this_seq_power,this_stim_key{1},5,1);
     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
 % =======
 %     power_curve_num = unique([power_curve_num{:}]);
