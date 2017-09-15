@@ -36,7 +36,7 @@ for i = 1:num_cells
     
     for j = 1:num_conditions
         
-
+`
         traces = get_sweeps(this_cell_file,data_ch,condition_inds{i}{j},dont_plot);
         cell_means{i,j} = mean(traces);
         cell_means{i,j} = cell_means{i,j} - cell_means{i,j}(zero_ind);
@@ -3692,7 +3692,9 @@ subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis 
 %     end
 
 % <<<<<<< HEAD
+
 trials = [4];
+
 this_seq = cell(length(trials),1);
 this_stim_key = cell(length(trials),1);
 power_curve_num = cell(length(trials),1);
@@ -3767,19 +3769,200 @@ Y_n(trials)
 subset_inds = randi(size(traces,1),20,1);
 figure; plot_trace_stack(traces(subset_inds,:),100,'-',events_map(subset_inds))
 
+%% plot nuclear detect with map
+
+% close all
+trials = 6:9;
+% trials = 4;
+
+this_seq = cell(length(trials),1);
+this_stim_key = cell(length(trials),1);
+power_curve_num = cell(length(trials),1);
+stim_starts = cell(length(trials),1);
+
+full_stim_key = [];
+clear full_seq
+% full_seq = struct();
+for i = 1:length(trials)
+    cur_trial = trials(i);
+    this_seq{i} = data.trial_metadata(cur_trial).sequence;
+    stims_per_trial(i) = length(this_seq{i});
+    this_stim_key{i} = data.trial_metadata(cur_trial).stim_key;
+    power_curve_num{i} = unique([this_seq{i}.target_power]);
+    stim_starts{i} = [data.trial_metadata(cur_trial).sequence.start];
+    for j = 1:length(this_seq{i})
+        if i == 1 && j == 1
+            full_seq(1) = this_seq{i}(j);
+        else
+            full_seq(end+1) = this_seq{i}(j);
+        end
+        full_seq(end).precomputed_target_index = ...
+            full_seq(end).precomputed_target_index + size(full_stim_key,1);
+    end
+    full_stim_key = [full_stim_key; this_stim_key{i}];
+end
+power_curve_num = unique([power_curve_num{:}]);
+maps = cell(length(power_curve_num),1);
+this_seq = [this_seq{:}];
+max_trial = length(this_seq);
+% max_trial = 1200;
+[traces_ch1,traces_ch2] = ...
+    get_stim_stack(data,trials,...
+        stims_per_trial,stim_starts,defaults.Fs);
+stim_inds = [full_seq.precomputed_target_index];
+% on_cell_trials = isnan(full_stim_key(stim_inds,1,2));
+on_cell_trials = ones(size(stim_inds))';
+% power_curve_num = 150;
+traces = [];
+stim_pow = [];
+target_locs = [];
+stim_inds = [];
+deorder = [];
+num_trials = 0;
+spacing = 1;
+% power_curve_num = power_curve_num(end-1:end);
+for i = 1:length(power_curve_num)
+    
+    
+%     this_seq = this_seq(1:max_trial);
+    traces_pow{1} = traces_ch1(on_cell_trials' & [full_seq.target_power] == power_curve_num(i),:);
+%     traces = [traces; traces_pow{1}];
+%     deorder = [deorder find(on_cell_trials' & [full_seq.target_power] == power_curve_num(i))]; 
+    traces_pow{2} = traces_ch2(on_cell_trials' & [full_seq.target_power] == power_curve_num(i),:);
+    this_seq_power = full_seq(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
+%     mpp_pow = mpp(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
+%     mpp_pow = mpp(num_trials+(1:length(this_seq_power)));
+    mpp_pow = [];
+    num_trials = num_trials + length(this_seq_power);
+    [maps{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow,this_seq_power,full_stim_key,spacing,1,1);
+%     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
+%     xlim(xlims); ylim(ylims);
+%     get_mean_events_image(mpp_maps{i}, 2000, 1, 1);
+%     title(['Event Counts, Power = ' num2str(power_curve_num(i)) ' mW'])
+%     caxis([0 2])
+end
+
+
+%%
+
+thresh = 0.2;
+% spacing = 3;
+min_pos = -150;
+location_inds = gamma_all > thresh; sum(location_inds);
+gamma_connected = gamma_all(location_inds);
+% connection_locs_bin = data.trial_metadata(3).nuclear_locs(gamma_final_all > thresh,:);
+connection_locs_bin_1um = cell_locs(location_inds,:);
+connection_locs_bin = connection_locs_bin_1um;
+connection_locs_bin(:,[1 2]) = round(connection_locs_bin_1um(:,[1 2])/spacing)*spacing;
+% 
+% connection_locs_bin = nuclear_locs_reduced(gamma_final_all > thresh,:);
+% connection_locs_bin(:,[1 2]) = round(connection_locs_bin(:,[1 2])/spacing)*spacing;
+
+map_index = (bsxfun(@minus,connection_locs_bin,min_pos) + spacing)/spacing;
+
+% map_index_full
+see_locs = cell(ceil(sqrt(sum(gamma_final_all > thresh))));
+see_mpp = cell(ceil(sqrt(sum(gamma_final_all > thresh))));
+for i = 1:size(map_index,1)
+    see_locs{i} = maps{3}{map_index(i,1),map_index(i,2)};
+    see_mpp{i} = mpp_maps{3}{map_index(i,1),map_index(i,2)};
+end
+
+figure;
+plot_trace_stack_grid(see_locs,Inf,1,0,[],[],[],see_mpp);
+
+nuc_locs_img_coords = connection_locs_bin_1um';
+nuc_locs_img_coords([1 2],:) = bsxfun(@plus,nuc_locs_img_coords([1 2],:)/1.82,[131 129]');
+nuc_locs_img_coords([3],:) = nuc_locs_img_coords([3],:)/2.0;
+
+% out_of_range = find(abs(nuclear_locs(1,:)) > 150 | ...
+%                     abs(nuclear_locs(2,:)) > 150);
+% nuclear_locs(:,out_of_range) = [];
+% nuclear_locs = nuclear_locs';
+nuc_locs_img_coords([1 2],:) = nuc_locs_img_coords([2 1],:);
+
+
+%%
+
+num_maps = 3;
+figure
+map_axes = [];
+for i = 1:num_maps
+
+    subplot(1,num_maps,i)
+    plot_trace_stack_grid(maps{i},Inf,1,0,[],[],[],mpp_maps{i});
+    map_axes = [map_axes gca];
+end
+linkaxes(map_axes,'xy')
+
+%%
+
+bin_locations = [70 9
+                 71 9
+                 66 12
+                 66 5
+                 70 3];
+% bin_locations = [32 48
+%                  29 51
+%                  31 56
+%                  27 58
+%                  31 63];
+num_locs = size(bin_locations,1);
+num_powers = 3;
+these_loc_data = cell(num_locs,num_powers);
+these_loc_mpp = cell(num_locs,num_powers);
+for i = 1:num_locs
+    for j= 1:num_powers
+%         if i == 1 || i == 5
+%             range = 1:10;
+%         elseif i == 4
+%             range = 31:40;
+%         else
+%             range = 11:20;
+%         end
+
+        these_loc_data{i,j} = maps{j}{bin_locations(i,1),bin_locations(i,2)}(end-9:end,:);
+        these_loc_mpp{i,j} = mpp_maps{j}{bin_locations(i,1),bin_locations(i,2)}(end-9:end,:);
+    end 
+    
+end
+figure
+plot_trace_stack_grid(these_loc_data',Inf,1,0,[],[],[],these_loc_mpp');
+
+
+%%
+
+filenames = {'6_2_slice1_cell2.mat','6_2_slice1_cell4.mat','6_2_slice2_cell1.mat','6_3_slice1_cell2.mat','6_3_slice2_cell1next.mat'};
+filenames(1) = [];
+for j = 1:length(filenames)
+    filename = filenames{j};
+    load(filename)
 
 
 
+    cell_position = data.trial_metadata(1).nuclear_locs + [data.obj_positions_ordered(1,[1 2]) mean(data.obj_positions_ordered(:,3))];
+    ref_obj_position = [data.obj_positions_ordered(1,[1 2]) min(data.obj_positions_ordered(:,3))];
+%     nuclear_locs = cell2_position - ref_obj_position;
+    stim_key = reshape([data.trial_metadata.stim_key],3,length(data.trial_metadata))';
+    stim_key(:,3) = data.obj_positions_ordered(:,3) - ref_obj_position(3);
+%     stim_key = bsxfun(@plus,data.obj_positions_ordered, ref_obj_position - [nuclear_locs([1 2]) 0]);
+    stim_key_trials = cell(size(stim_key,1),1);
+    for i = 1:size(stim_key,1)
+        stim_key_trials{i} = stim_key(i,:);
+    end
 
 
+    do_bu = 1;
+    trial_metadata = revise_trial_metadata(filename,do_bu,'cell_position', cell_position,...
+        'cell2_position', cell_position,'stim_key',stim_key_trials,...
+        'ref_obj_position',ref_obj_position);
 
+end
 
+%%
+cell_pos = data_fix_ex.trial_metadata(1).cell_position
 
-
-
-
-
-
-
-
+stim_pos = ...
+        data_fix_ex.trial_metadata(1).stim_key(1,:) + ...
+        data_fix_ex.trial_metadata(1).ref_obj_position - cell_pos
 

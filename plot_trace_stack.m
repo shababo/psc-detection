@@ -39,8 +39,8 @@ offset = 0;
 
 if ~isempty(varargin) && ~isempty(varargin{1})
     events = varargin{1};
-else
-    events = [];
+% else
+%     events = [];
 end
 if length(varargin) > 1 && ~isempty(varargin{2})
     vert_offset = varargin{2};
@@ -61,18 +61,55 @@ for trial = 1:size(traces,1)
 %     else
 %         this_trial_start = find(stims(trial,:),1,'first') - stim_start;
 %     end
-    
+    time = (0:trial_length-1);
     trace_to_plot = traces(trial,:);
     %median(trace_to_plot)
-    plot((0:trial_length-1),trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth)
+    plot(time,trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth)
     hold on
     
     
-    if ~isempty(events)
-%         events{trial}.times(events{trial}.times < 40) = [];
-        events{trial}.times = ceil(events{trial}.times-1);
-        scatter((events{trial}.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(events{trial}.times)),[],[0 0 0],'filled')
-        hold on
+%     if ~isempty(events)
+%         these_events.times(these_events.times < 40) = [];
+%         if iscell(events)
+%             these_events = events{trial};
+%         else
+%             these_events = events(trial);
+%         end
+%         these_events.times = ceil(these_events.times-1);
+%         events_mat = [these_events.amp' these_events.tau1' these_events.tau2' these_events.times'];
+%         denoised_curve = build_curve(events_mat,0,trial_length,1,length(trace_to_plot));
+%         size(denoised_curve)
+%         size(trace_to_plot)
+%         plot((0:trial_length-1),-denoised_curve - offset + vert_offset,linespec,'LineWidth',linewidth)
+%         scatter((these_events.times - stim_start),(max(trace_to_plot) - offset - trace_to_plot(1) + vert_offset + offset_step/5)*ones(size(these_events.times)),[],[0 0 0],'filled')
+%         hold on
+%     end
+
+    if exist('events','var')
+        these_events = events(trial);
+        event_times = [];
+        event_pos = [];
+        if ~ isempty(these_events)
+%                     length(offsets)
+%             for ii = 1:length(these_events)
+%                 if iscell(these_events)
+%                     this_struct = these_events{ii};
+%                 else
+%                     this_struct = these_events(ii);                        
+%                 end
+                event_times = these_events.times;
+                event_pos = (-offset - trace_to_plot(1) + vert_offset)*ones(size(these_events.times));
+%             end
+%         event_times = these_events.times;
+        event_pos(event_times > length(time)-20) = [];
+        event_times(event_times > length(time)-20) = [];
+        event_pos(event_times < 10) = [];
+        event_times(event_times < 10) = [];
+%         event_pos
+%         event_times
+        scatter(time(round(event_times)),event_pos+40,20*ones(size(event_pos)),[.0 .5 1],'filled')
+        end
+        hold on;
     end
     
     offset = offset + offset_step;

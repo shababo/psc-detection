@@ -65,7 +65,7 @@ if ~isfield(params,'traces_ind')
 %     params.traces_ind = 1;
 
 %    params.traces_ind = 1:6;
-%     params.traces_ind = 1:4;
+%     params.traces_ind = 1:20;
 end
 
 % is this a matrix of traces or a grid array
@@ -158,8 +158,8 @@ end
 if ~isfield(params, 'noise_known')
     params.noise_known = 0;
     if params.noise_known
-        params.phi_known = [1.000000000000000, 1.05, -.40];%[1.0 0.78 -0.13];
-        params.noise_var_known = 5.0;%4.3;
+        params.phi_known = [1.000000000000000, 0.85, -0.15];%[1.0 0.78 -0.13];
+        params.noise_var_known = 1.75;%4.3;
     end
 end
 
@@ -311,7 +311,7 @@ end
     params.init_method.amp_thresh = 5;
     params.init_method.conv_thresh = 1;
     % epsc
-    params.init_method.template_file = 'epsc-template.mat';
+    params.init_method.template_file = 'data/epsc-template.mat';
     % ipsc
 %     params.init_method.template_file = 'data/epsc-template.mat';
     params.init_method.ar_noise_params.sigma_sq = 3.0;
@@ -334,7 +334,7 @@ if ~isfield(params,'traces_filename')
 
 %     else
         params.traces_filename = ...
-            ['data/04142017_s2c1_test_detection_traces.mat'];
+            ['data/6_27_slice1_cell1_2_testraces.mat'];
 
 %     end
 end
@@ -355,7 +355,7 @@ end
 %         params.savename = 'all-evoked-ipscs-0000.mat';
 %     else
 
-        params.savename = [params.traces_filename(1:end-4) '-1000.mat'];
+        params.savename = [params.traces_filename(1:end-4) '-0000.mat'];
 %     end
 
 % end
