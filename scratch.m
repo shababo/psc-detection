@@ -36,7 +36,7 @@ for i = 1:num_cells
     
     for j = 1:num_conditions
         
-
+`
         traces = get_sweeps(this_cell_file,data_ch,condition_inds{i}{j},dont_plot);
         cell_means{i,j} = mean(traces);
         cell_means{i,j} = cell_means{i,j} - cell_means{i,j}(zero_ind);
@@ -3771,7 +3771,7 @@ figure; plot_trace_stack(traces(subset_inds,:),100,'-',events_map(subset_inds))
 %% plot nuclear detect with map
 
 % close all
-trials = 6;
+trials = 6:9;
 % trials = 4;
 
 this_seq = cell(length(trials),1);
@@ -3807,7 +3807,7 @@ max_trial = length(this_seq);
 % max_trial = 1200;
 [traces_ch1,traces_ch2] = ...
     get_stim_stack(data,trials,...
-        stims_per_trial,stim_starts);
+        stims_per_trial,stim_starts,defaults.Fs);
 stim_inds = [full_seq.precomputed_target_index];
 % on_cell_trials = isnan(full_stim_key(stim_inds,1,2));
 on_cell_trials = ones(size(stim_inds))';
@@ -3818,7 +3818,7 @@ target_locs = [];
 stim_inds = [];
 deorder = [];
 num_trials = 0;
-spacing = 3;
+spacing = 1;
 % power_curve_num = power_curve_num(end-1:end);
 for i = 1:length(power_curve_num)
     
@@ -3826,12 +3826,12 @@ for i = 1:length(power_curve_num)
 %     this_seq = this_seq(1:max_trial);
     traces_pow{1} = traces_ch1(on_cell_trials' & [full_seq.target_power] == power_curve_num(i),:);
 %     traces = [traces; traces_pow{1}];
-    deorder = [deorder find(on_cell_trials' & [full_seq.target_power] == power_curve_num(i))]; 
+%     deorder = [deorder find(on_cell_trials' & [full_seq.target_power] == power_curve_num(i))]; 
     traces_pow{2} = traces_ch2(on_cell_trials' & [full_seq.target_power] == power_curve_num(i),:);
     this_seq_power = full_seq(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
-    mpp_pow = mpp(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
+%     mpp_pow = mpp(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
 %     mpp_pow = mpp(num_trials+(1:length(this_seq_power)));
-%     mpp_pow = [];
+    mpp_pow = [];
     num_trials = num_trials + length(this_seq_power);
     [maps{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow,this_seq_power,full_stim_key,spacing,1,1);
 %     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
