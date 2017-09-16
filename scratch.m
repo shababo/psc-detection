@@ -3965,4 +3965,35 @@ cell_pos = data_fix_ex.trial_metadata(1).cell_position
 stim_pos = ...
         data_fix_ex.trial_metadata(1).stim_key(1,:) + ...
         data_fix_ex.trial_metadata(1).ref_obj_position - cell_pos
+    
+%% socket testing
 
+srvsock = mslisten(3001);
+sock_analysis = msaccept(srvsock);
+disp('socket open..')
+msclose(srvsock);
+% msclose(sock_analysis)
+
+pause(1)
+instruction.mat = zeros(256,256,31);
+mssend(sock_analysis,instruction);
+
+disp('getting return info...')
+pause(1)
+return_info = [];
+if isfield(instruction,'get_return')
+    get_return = instruction.get_return;
+else
+    get_return = 1;
+end
+if get_return
+    pause(1)
+    while isempty(return_info)
+        [return_info, success] = msrecv(sock_analysis,5);
+    end
+    assignin('base','return_info',return_info)
+end
+%%
+msclose(sock_analysis)
+clear sock_analysis
+clear srvsock
