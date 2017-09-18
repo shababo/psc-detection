@@ -3820,6 +3820,7 @@ deorder = [];
 num_trials = 0;
 spacing = 1;
 % power_curve_num = power_curve_num(end-1:end);
+mpp_pow = cell(length(power_curve_num),1);
 for i = 1:length(power_curve_num)
     
     
@@ -3830,10 +3831,10 @@ for i = 1:length(power_curve_num)
     traces_pow{2} = traces_ch2(on_cell_trials' & [full_seq.target_power] == power_curve_num(i),:);
     this_seq_power = full_seq(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
 %     mpp_pow = mpp(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
-%     mpp_pow = mpp(num_trials+(1:length(this_seq_power)));
-    mpp_pow = [];
+%     mpp_pow{i} = mpp(num_trials+(1:length(this_seq_power)));
+    mpp_pow{i} = [];
     num_trials = num_trials + length(this_seq_power);
-    [maps{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow,this_seq_power,full_stim_key,spacing,1,1);
+    [maps{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow{i},this_seq_power,full_stim_key,spacing,1,1);
 %     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
 %     xlim(xlims); ylim(ylims);
 %     get_mean_events_image(mpp_maps{i}, 2000, 1, 1);
