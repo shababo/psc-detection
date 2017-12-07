@@ -1,4 +1,4 @@
-function [trace, true_signal] = gen_trace(evoked_params)
+function [trace, true_signal] = gen_trace_from_mpp(evoked_params)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Simulate data from model
@@ -17,19 +17,19 @@ K = 1;
 % Firing rate
 % Poisson or periodic
 
-data_params.data_params.T = 500; %bins - start not too long
-data_params.data_params.dt = 1/20000; %
-data_params.data_params.baseline = 0;
+data_params.T = 500; %bins - start not too long
+data_params.dt = 1/20000; %
+data_params.baseline = 0;
 data_params.sigmasq = 3.5;
-data_params.data_params.phi = [1, .80, -.12]; %this determines what the AR noise looks like.
+data_params.phi = [1, .80, -.12]; %this determines what the AR noise looks like.
 c_noise = sqrt(data_params.sigmasq);
 % 
 % 
-% bg_params.bg_params.tau_r_bounds = [5 20];
-% bg_params.bg_params.tau_f_bounds = [20 150];
-% bg_params.bg_params.a_min = .5;
-% bg_params.bg_params.a_max = 6;
-% bg_params.bg_params.firing_rate = 0; %spike/sec 
+bg_params.tau_r_bounds = [5 20];
+bg_params.tau_f_bounds = [20 150];
+bg_params.a_min = .5;
+bg_params.a_max = 6;
+bg_params.firing_rate = 0; %spike/sec 
 % 
 % evoked_params.evoked_params.stim_tau_rise = .0015*20000; % values for chr2 from lin et al 2009 (biophysics)
 % evoked_params.evoked_params.stim_tau_fall = .013*20000;
@@ -163,14 +163,14 @@ nc = 1; %trials
     
 
     % add direct stim - SET TO ZERO RIGHT NOW
-    stim_in = [zeros(1,evoked_params.stim_start) ones(1,evoked_params.stim_duration) zeros(1,data_params.T-evoked_params.stim_start-evoked_params.stim_duration)];
-    t = 0:data_params.T-1;
-    stim_decay = exp(-t/evoked_params.stim_tau_fall);
-    stim_rise = -exp(-t/evoked_params.stim_tau_rise);
-    stim_kernel = (stim_decay + stim_rise)/sum(stim_decay + stim_rise);
-    stim_response = conv(stim_in,stim_kernel);
-    stim_response = evoked_params.stim_amp*stim_response(1:data_params.T)/max(stim_response(1:data_params.T));
-    d = ci + stim_response;
+%     stim_in = [zeros(1,evoked_params.stim_start) ones(1,evoked_params.stim_duration) zeros(1,data_params.T-evoked_params.stim_start-evoked_params.stim_duration)];
+%     t = 0:data_params.T-1;
+%     stim_decay = exp(-t/evoked_params.stim_tau_fall);
+%     stim_rise = -exp(-t/evoked_params.stim_tau_rise);
+%     stim_kernel = (stim_decay + stim_rise)/sum(stim_decay + stim_rise);
+%     stim_response = conv(stim_in,stim_kernel);
+%     stim_response = evoked_params.stim_amp*stim_response(1:data_params.T)/max(stim_response(1:data_params.T));
+%     d = ci + stim_response;
 %     else
 %         disp('USING PREVIOUSLY MADE SIGNAL')
 %     end
@@ -185,8 +185,8 @@ for t = (1+p):(data_params.T+p)
 end
 
 er = er((1+p):(data_params.T+p))';
-y = d + U;
-y_ar = d + er;
+y = ci + U;
+y_ar = ci + er;
 
 
 Y = y;

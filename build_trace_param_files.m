@@ -17,8 +17,8 @@ end
 
 if ~isempty(varargin)
     params_base.traces_filename = varargin{1};
-    params_base.savename = [params_base.traces_filename(1:end-4) '-0000.mat'];
-    params_base.full_save_string = [params_base.savename];
+%     params_base.savename = [params_base.traces_filename(1:end-4) '-0000.mat'];
+%     params_base.full_save_string = [params_base.savename];
 end
 
 [~,traces_basename] = fileparts(params_base.traces_filename); 
@@ -43,7 +43,7 @@ for i = 1:num_jobs
     
     params = params_base;
     params.traces_filename = [params.traces_filename(1:end-4) '-subjob-' sprintf('%03d',i) '.mat'];
-    params.savename = [params.savename(1:end-8) '-subjob-' sprintf('%03d',i) '-' params.savename(end-7:end-4) '.mat'];
+    params.savename = [params.traces_filename(1:end-4) '-0000.mat'];
     params.full_save_string = params.savename;
     
     [~,basename] = fileparts(params.traces_filename);

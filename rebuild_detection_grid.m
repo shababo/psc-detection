@@ -1,7 +1,7 @@
 function results_all = rebuild_detection_grid(resultsdir, matchstr, varargin)
 
 if length(varargin) > 1 && ~isempty(varargin{2})
-    do_posterior = varargin{1};
+    do_posterior = varargin{2};
 else
     do_posterior = 1;
 end

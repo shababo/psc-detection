@@ -3693,7 +3693,7 @@ subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis 
 
 % <<<<<<< HEAD
 
-trials = [4];
+trials = [4:5];
 
 this_seq = cell(length(trials),1);
 this_stim_key = cell(length(trials),1);
@@ -3772,7 +3772,7 @@ figure; plot_trace_stack(traces(subset_inds,:),100,'-',events_map(subset_inds))
 %% plot nuclear detect with map
 
 % close all
-trials = 6:9;
+trials = [11];
 % trials = 4;
 
 this_seq = cell(length(trials),1);
@@ -3799,6 +3799,9 @@ for i = 1:length(trials)
         full_seq(end).precomputed_target_index = ...
             full_seq(end).precomputed_target_index + size(full_stim_key,1);
     end
+    if size(this_stim_key{i},3) == 1
+        this_stim_key{i} = cat(3,this_stim_key{i},nan([size(this_stim_key{i}) 2]));
+    end
     full_stim_key = [full_stim_key; this_stim_key{i}];
 end
 power_curve_num = unique([power_curve_num{:}]);
@@ -3819,9 +3822,16 @@ target_locs = [];
 stim_inds = [];
 deorder = [];
 num_trials = 0;
-spacing = 1;
+spacing = 3;
 % power_curve_num = power_curve_num(end-1:end);
+
 mpp_pow = cell(length(power_curve_num),1);
+% oasis_data = reshape(event_process,size(traces_ch1'))';
+% mpp = struct();
+% for i = 1:size(oasis_data,1)
+%     mpp(i).times = find(oasis_data(i,45:300),1) + 44;
+% end
+
 for i = 1:length(power_curve_num)
     
     
@@ -3831,11 +3841,11 @@ for i = 1:length(power_curve_num)
 %     deorder = [deorder find(on_cell_trials' & [full_seq.target_power] == power_curve_num(i))]; 
     traces_pow{2} = traces_ch2(on_cell_trials' & [full_seq.target_power] == power_curve_num(i),:);
     this_seq_power = full_seq(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
-%     mpp_pow = mpp(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
+%     mpp_pow{i} = mpp(on_cell_trials' & [full_seq.target_power] == power_curve_num(i));
 %     mpp_pow{i} = mpp(num_trials+(1:length(this_seq_power)));
-    mpp_pow{i} = [];
+    mpp_pow{i} = cell(2,1);
     num_trials = num_trials + length(this_seq_power);
-    [maps{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow{i},this_seq_power,full_stim_key,spacing,1,1);
+    [maps_ablate{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow{i},this_seq_power,full_stim_key,spacing,1,1);
 %     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
 %     xlim(xlims); ylim(ylims);
 %     get_mean_events_image(mpp_maps{i}, 2000, 1, 1);
@@ -3998,3 +4008,26 @@ end
 msclose(sock_analysis)
 clear sock_analysis
 clear srvsock
+
+%%
+
+figure
+subplot(2,4,1)
+plot_trace_stack(data_before_spike(1:5,:),55,'',[],[],[],0)
+subplot(2,4,2)
+plot_trace_stack(data_after_spike(1:5,:),55,'',[],[],[],0)
+subplot(2,4,5)
+plot_trace_stack(data_before_psc(1:5,:),55,'',[],[],[],0)
+subplot(2,4,6)
+plot_trace_stack(data_after_psc(1:5,:),55,'',[],[],[],0)
+
+subplot(2,4,3)
+plot_trace_stack(data_before_other_spike(1:5,:),55,'',[],[],[],0)
+subplot(2,4,4)
+plot_trace_stack(data_after_other_spike(1:5,:),55,'',[],[],[],0)
+subplot(2,4,7)
+plot_trace_stack(data_before_other_psc([1 2 4 5 6],:),55,'',[],[],[],0)
+subplot(2,4,8)
+plot_trace_stack(data_after_other_psc(1:5,:),55,'',[],[],[],0)
+
+

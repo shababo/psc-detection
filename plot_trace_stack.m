@@ -54,6 +54,12 @@ else
     linewidth = 2;
 end
     
+if length(varargin) > 3 && ~isempty(varargin{4})
+    plot_mean = varargin{4};
+else
+    plot_mean = 0;
+end
+
 for trial = 1:size(traces,1)
     
 %     if isempty(change_points)
@@ -64,8 +70,9 @@ for trial = 1:size(traces,1)
     time = (0:trial_length-1);
     trace_to_plot = traces(trial,:);
     %median(trace_to_plot)
-    plot(time,trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth)
+    plot(time,trace_to_plot - offset - trace_to_plot(1) + vert_offset,linespec,'LineWidth',linewidth,'color',[0 0 0])
     hold on
+    
     
     
 %     if ~isempty(events)
@@ -115,6 +122,11 @@ for trial = 1:size(traces,1)
     offset = offset + offset_step;
     
     
+end
+
+if plot_mean
+    meantrace = mean(traces);
+    plot(time,meantrace - meantrace(1),linespec,'LineWidth',4,'color',[0 0 0]);
 end
 % 
 % if ~isempty(varargin)
