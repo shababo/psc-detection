@@ -3772,7 +3772,7 @@ figure; plot_trace_stack(traces(subset_inds,:),100,'-',events_map(subset_inds))
 %% plot nuclear detect with map
 
 % close all
-trials = [11];
+trials = [7];
 % trials = 4;
 
 this_seq = cell(length(trials),1);
