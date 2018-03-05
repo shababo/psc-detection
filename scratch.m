@@ -36,7 +36,7 @@ for i = 1:num_cells
     
     for j = 1:num_conditions
         
-`
+
         traces = get_sweeps(this_cell_file,data_ch,condition_inds{i}{j},dont_plot);
         cell_means{i,j} = mean(traces);
         cell_means{i,j} = cell_means{i,j} - cell_means{i,j}(zero_ind);
@@ -3772,7 +3772,9 @@ figure; plot_trace_stack(traces(subset_inds,:),100,'-',events_map(subset_inds))
 %% plot nuclear detect with map
 
 % close all
-trials = [7];
+
+trials = [6];
+
 % trials = 4;
 
 this_seq = cell(length(trials),1);
@@ -3789,7 +3791,7 @@ for i = 1:length(trials)
     stims_per_trial(i) = length(this_seq{i});
     this_stim_key{i} = data.trial_metadata(cur_trial).stim_key;
     power_curve_num{i} = unique([this_seq{i}.target_power]);
-    stim_starts{i} = [data.trial_metadata(cur_trial).sequence.start];
+    stim_starts{i} = [data.trial_metadata(cur_trial).sequence.start]*20;
     for j = 1:length(this_seq{i})
         if i == 1 && j == 1
             full_seq(1) = this_seq{i}(j);
@@ -3845,7 +3847,7 @@ for i = 1:length(power_curve_num)
 %     mpp_pow{i} = mpp(num_trials+(1:length(this_seq_power)));
     mpp_pow{i} = cell(2,1);
     num_trials = num_trials + length(this_seq_power);
-    [maps_ablate{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow{i},this_seq_power,full_stim_key,spacing,1,1);
+    [map_groundtruth_oncell{i}, mpp_maps{i}] = see_grid_multi(traces_pow,mpp_pow{i},this_seq_power,full_stim_key,spacing,1,1);
 %     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
 %     xlim(xlims); ylim(ylims);
 %     get_mean_events_image(mpp_maps{i}, 2000, 1, 1);
