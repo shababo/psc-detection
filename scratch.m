@@ -3692,34 +3692,41 @@ subplot(326);imagesc(map3_ed_doubleAx); title('z = 100 um'); caxis([0 1]); axis 
 %     end
 
 % <<<<<<< HEAD
-
-trials = [4:5];
+close all
+trials = [3:5];
 
 this_seq = cell(length(trials),1);
 this_stim_key = cell(length(trials),1);
 power_curve_num = cell(length(trials),1);
-
+expected_starts = cell(length(trials),1);
 for i = 1:length(trials)
     cur_trial = trials(i);
     this_seq{i} = data.trial_metadata(cur_trial).sequence;
+    if isfield(this_seq{i},'group')
+        this_seq{i} = rmfield(this_seq{i},'group');
+    end
     stims_per_trial(i) = length(this_seq{i});
     this_stim_key{i} = data.trial_metadata(cur_trial).stim_key;
     power_curve_num{i} = unique([this_seq{i}.target_power]);
+    expected_starts{i} = [this_seq{i}.start];
 end
 power_curve_num = unique([power_curve_num{:}]);
 maps = cell(length(power_curve_num),1);
 this_seq = [this_seq{:}];
 max_trial = length(this_seq);
 % max_trial = 1200;
+% [traces_ch1,traces_ch2] = ...
+%     get_stim_stack(data,trials,...
+%         stims_per_trial,expected_starts);
+[traces_ch1, traces_ch2, this_seq, traces_ch3, full_stim_key] = get_traces(data,trials);
+% this_seq = this_seq(1:max_trial);
 for i = 1:length(power_curve_num)
-    [traces_ch1,traces_ch2] = ...
-    get_stim_stack(data,trials,...
-        stims_per_trial,{[this_seq.start]});
-    this_seq = this_seq(1:max_trial);
+    
     traces_pow{1} = traces_ch1([this_seq.target_power] == power_curve_num(i),:);
     traces_pow{2} = traces_ch2([this_seq.target_power] == power_curve_num(i),:);
     this_seq_power = this_seq([this_seq.target_power] == power_curve_num(i));
-    [maps{i}, map_index] = see_grid_multi(traces_pow,[],this_seq_power,this_stim_key{1},5,1);
+    [maps{i,1}, map_index] = see_grid_multi(traces_pow(1),{[]},this_seq_power,full_stim_key,2,1);
+    [maps{i,2}, map_index] = see_grid_multi(traces_pow(2),{[]},this_seq_power,full_stim_key,2,1);
     title(['Power = ' num2str(power_curve_num(i)) ' mW'])
 % =======
 %     power_curve_num = unique([power_curve_num{:}]);
